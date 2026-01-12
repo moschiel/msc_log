@@ -8,7 +8,7 @@ require_once __DIR__ . '/views/browser.php';
 // AJAX: retorna conteúdo do arquivo para o viewer
 // ---------------------------
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
-    header('Content-Type: text/plain; charset=utf-8');
+    header('Content-Type: text/plain; charset=UTF-8');
     // Mantém o comportamento atual: viewer lê qualquer arquivo (sem filtro de extensão).
     echo safeReadFile($ROOT_DIR, $selectedFile, null);
     exit;
@@ -64,19 +64,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 // ---------------------------
 $itemsRaw = @scandir($currentPath) ?: [];
 $items = [];
+$hiddenDirs = array('app'); // lista de diretorios da raiz que nao podem aparecer para o usuario
 
 foreach ($itemsRaw as $item) {
     if ($item === '.' || $item === '..') continue;
 
+    // Oculta diretórios internos
+    if (in_array($item, $hiddenDirs, true)) continue;
+
     $path = $currentPath . '/' . $item;
 
     if ($current === '') {
-        // raiz: só diretórios
+        // na raiz só mostra diretórios, não mostramos arquivos
         if (is_dir($path)) {
             $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
         }
     } else {
-        // subpastas: sem filtro (comportamento atual)
+        // subpastas: sem filtro
         $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
     }
 }

@@ -67,7 +67,7 @@ if (cb.checked) start();
     if ($parent === '.') $parent = '';
 ?>
 <p>
-    <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>">⬅ Voltar</a>
+    <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>"><- Voltar</a>
 </p>
 <?php endif; ?>
 
@@ -76,7 +76,7 @@ if (cb.checked) start();
     <th>Nome</th>
     <th>Tamanho</th>
     <th>Modificado em</th>
-    <th>Ação</th>
+    <th>Action</th>
 </tr>
 
 <?php foreach ($items as $entry):

@@ -27,6 +27,11 @@ function render_viewer($selectedFile) {
             padding: 10px;
             background: #fafafa;
         }
+        .hl-panel { border:1px solid #ddd; padding:10px; margin-top:10px; background:#f9f9f9; }
+        .hl-hidden { display:none; }
+        .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
+        .logBox { white-space: pre; font-family: Consolas, monospace; font-size: 12px; }
+        .hl-mark { background: #ffe58a; }
     </style>
 </head>
 <body>
@@ -48,7 +53,28 @@ function render_viewer($selectedFile) {
         <a href="<?= htmlspecialchars($downloadUrl) ?>">
             <button>Download</button>
         </a>
+
+        <button type="button" id="toggleFilters">Mostrar filtros</button>
+
     </div>
+
+    <div id="filtersPanel" class="hl-panel hl-hidden">
+    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+        <b>Highlight:</b>
+
+        <label>
+        <input type="checkbox" id="hlIgnoreCase" checked>
+        Ignore Case
+        </label>
+
+        <span style="color:#666; font-size:12px;">
+        (1 string por linha)
+        </span>
+    </div>
+
+    <textarea id="hlTerms" class="hl-box" placeholder="Ex:\nERROR\nWARN\nSPN 123\nFMI 5"></textarea>
+    </div>
+
 
     <div id="box" class="box"></div>
 
@@ -75,10 +101,12 @@ async function refreshNow() {
     try {
         const resp = await fetch(ajaxUrl(), { cache: "no-store" });
         const text = await resp.text();
-        box.textContent = text;
-        scrollToBottomIfNeeded();
+        rawText = text;
+        renderText();
+        if (typeof scrollToBottomIfNeeded === "function") scrollToBottomIfNeeded();
     } catch (e) {
-        box.textContent = "Erro ao carregar arquivo: " + e;
+        rawText = "Erro ao carregar arquivo: " + e;
+        box.textContent = rawText;
     }
 }
 
@@ -97,7 +125,117 @@ cbAuto.addEventListener("change", () => {
     else stopAuto();
 });
 
+
+// Funcoes para Highlight de strings
+// --- Elementos UI do highlight ---
+const btnToggle = document.getElementById("toggleFilters");
+const panel = document.getElementById("filtersPanel");
+const taTerms = document.getElementById("hlTerms");
+const cbIgnore = document.getElementById("hlIgnoreCase");
+
+// Você provavelmente já tem "box" (div do conteúdo)
+// Exemplo: const box = document.getElementById("box");
+
+// Guardamos o texto "cru" aqui, e renderizamos com highlight em cima.
+let rawText = "";
+
+// Chave por arquivo (cada arquivo mantém sua lista)
+const fileParam = new URL(window.location.href).searchParams.get("file") || "";
+const LS_KEY = "hl_terms::" + fileParam;
+const LS_CASE = "hl_case::" + fileParam;
+const LS_PANEL = "hl_panel_open::" + fileParam;
+
+function escapeHtml(s) {
+    return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function escapeRegex(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getTerms() {
+    const lines = taTerms.value.split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+
+    // remove duplicados simples
+    return Array.from(new Set(lines));
+}
+
+function renderText() {
+    // Se não tem termo, só mostra texto como "pre"
+    const terms = getTerms();
+    if (terms.length === 0) {
+        box.textContent = rawText;
+        return;
+    }
+
+    // Escapa HTML primeiro
+    let html = escapeHtml(rawText);
+
+    const flags = cbIgnore.checked ? "gi" : "g";
+
+    // Aplica highlight em sequência (simples e funciona bem pra logs)
+    for (const t of terms) {
+        const re = new RegExp(escapeRegex(t), flags);
+        html = html.replace(re, (m) => `<span class="hl-mark">${m}</span>`);
+    }
+
+    box.innerHTML = html;
+}
+
+function saveSettings() {
+    localStorage.setItem(LS_KEY, taTerms.value);
+    localStorage.setItem(LS_CASE, cbIgnore.checked ? "1" : "0");
+    localStorage.setItem(LS_PANEL, panel.classList.contains("hl-hidden") ? "0" : "1");
+}
+
+function loadSettings() {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved !== null) taTerms.value = saved;
+
+    const savedCase = localStorage.getItem(LS_CASE);
+    if (savedCase !== null) cbIgnore.checked = (savedCase === "1");
+
+    const savedPanel = localStorage.getItem(LS_PANEL);
+    if (savedPanel === "1") {
+        panel.classList.remove("hl-hidden");
+        btnToggle.textContent = "Esconder filtros";
+    }
+}
+
+function togglePanel() {
+    panel.classList.toggle("hl-hidden");
+    const open = !panel.classList.contains("hl-hidden");
+    btnToggle.textContent = open ? "Esconder filtros" : "Mostrar filtros";
+    saveSettings();
+}
+
+// Eventos
+btnToggle.addEventListener("click", () => togglePanel());
+
+// Reaplica highlight quando usuário muda termos/config
+let debounce = null;
+function scheduleRerender() {
+    if (debounce) clearTimeout(debounce);
+    debounce = setTimeout(() => {
+        saveSettings();
+        renderText();
+        // se você tem follow-tail ligado, mantém no fim (seu código já faz isso, mas não atrapalha)
+        if (typeof scrollToBottomIfNeeded === "function") scrollToBottomIfNeeded();
+    }, 150);
+}
+
+taTerms.addEventListener("input", scheduleRerender);
+cbIgnore.addEventListener("change", scheduleRerender);
+
 // inicial
+loadSettings();
 refreshNow();
 startAuto();
 </script>
