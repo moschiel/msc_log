@@ -97,9 +97,15 @@ if (cb.checked) start();
     <td><?= htmlspecialchars($modTime) ?></td>
 <?php else: ?>
     <td>
+    <?php if (is_text_file_by_extension($item)): ?>
         <a href="./index.php?view=1&file=<?= urlencode($relative) ?>" target="_blank">
             <?= htmlspecialchars($item) ?>
         </a>
+    <?php else: ?>
+        <a href="./index.php?download=1&file=<?= urlencode($relative) ?>">
+            <?= htmlspecialchars($item) ?>
+        </a>
+    <?php endif; ?>
     </td>
     <td><?= (is_file($path) ? filesize($path) : 0) ?> bytes</td>
     <td><?= htmlspecialchars($modTime) ?></td>

@@ -21,7 +21,7 @@ if (isset($_GET['download']) && $_GET['download'] == '1') {
     $abs = safeRealpathInRoot($ROOT_DIR, $selectedFile);
 
     // Mantém comportamento atual: download apenas .log
-    if ($abs !== false && is_file($abs) && preg_match('/\.log$/i', basename($abs))) {
+    if ($abs !== false && is_file($abs)) {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($abs) . '"');
         header('Content-Length: ' . filesize($abs));
