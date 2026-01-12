@@ -103,16 +103,36 @@ if ($viewMode) {
             body { font-family: Arial, sans-serif; margin: 16px; }
             .top { display:flex; gap:16px; align-items:center; flex-wrap: wrap; }
             .file { font-family: Consolas, monospace; }
+            .cfgToggle { margin-left: auto; }
+            .cfg {
+                display: none;
+                margin-top: 12px;
+                border: 1px solid #ddd;
+                padding: 10px;
+                background: #fafafa;
+            }
+            .cfgRow { display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
+            .cfg textarea {
+                width: 100%;
+                height: 110px;
+                font-family: Consolas, monospace;
+                font-size: 12px;
+            }
+            .hint { color: #555; font-size: 12px; }
             .box {
                 margin-top: 12px;
-                height: 80vh;
+                height: 78vh;
                 overflow: auto;
                 white-space: pre;
                 font-family: Consolas, monospace;
                 font-size: 12px;
                 border: 1px solid #ddd;
                 padding: 10px;
-                background: #fafafa;
+                background: #fff;
+            }
+            .hl {
+                background: #fff59d;
+                color: #000;
             }
         </style>
     </head>
@@ -136,6 +156,22 @@ if ($viewMode) {
                 <button>Download</button>
             </a>
 
+            <button class="cfgToggle" id="toggleCfg" type="button">Mostrar filtros</button>
+        </div>
+
+        <div class="cfg" id="cfg">
+            <div class="cfgRow">
+                <b>Destacar strings</b>
+                <span class="hint">(1 por linha)</span>
+                <label>
+                    <input type="checkbox" id="ignoreCase" checked>
+                    Ignorar maiúsc/minúsc
+                </label>
+            </div>
+            <textarea id="patterns" placeholder="Ex:\nERROR\ntimeout\nSPN 123\n..."></textarea>
+            <div class="cfgRow" style="margin-top:8px;">
+                <span class="hint">Dica: com Follow tail ligado, você fica sempre no fim (estilo tail -f).</span>
+            </div>
         </div>
 
         <div id="box" class="box"></div>
@@ -144,29 +180,96 @@ if ($viewMode) {
             const box = document.getElementById("box");
             const cbTail = document.getElementById("followTail");
             const cbAuto = document.getElementById("autoRefresh");
+
+            const btnToggleCfg = document.getElementById("toggleCfg");
+            const cfg = document.getElementById("cfg");
+            const taPatterns = document.getElementById("patterns");
+            const cbIgnoreCase = document.getElementById("ignoreCase");
+
+            // Mantém config por arquivo
+            const storageKeyBase = "log_viewer_cfg:" + window.location.search.replace(/(&|\\?)ajax=1/g, "");
+            const storageKeyPatterns = storageKeyBase + ":patterns";
+            const storageKeyIgnoreCase = storageKeyBase + ":ignorecase";
+            const storageKeyCfgVisible = storageKeyBase + ":cfgvisible";
+
             let timer = null;
+            let rawText = "";
+
+            function escapeHtml(s) {
+                return s
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#039;");
+            }
+
+            function escapeRegex(s) {
+                // Escapa caracteres especiais para usar em RegExp
+                return s.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
+            }
+
+            function getPatterns() {
+                return taPatterns.value
+                    .split(/\\r?\\n/)
+                    .map(s => s.trim())
+                    .filter(s => s.length > 0);
+            }
 
             function scrollToBottomIfNeeded() {
                 if (!cbTail.checked) return;
                 box.scrollTop = box.scrollHeight;
             }
 
-            function ajaxUrl() {
+            function buildHighlightHtml(text, patterns, ignoreCase) {
+                if (!patterns || patterns.length === 0) {
+                    // sem filtro: usa textContent (mais rápido e seguro)
+                    box.textContent = text;
+                    return;
+                }
+
+                // Maior primeiro ajuda quando termos se sobrepõem (ex: "ERR" e "ERROR")
+                patterns.sort((a, b) => b.length - a.length);
+
+                const parts = patterns.map(p => escapeRegex(p));
+                const flags = ignoreCase ? "gi" : "g";
+                const re = new RegExp(parts.join("|"), flags);
+
+                let out = "";
+                let last = 0;
+
+                for (const m of text.matchAll(re)) {
+                    const idx = m.index ?? 0;
+                    out += escapeHtml(text.slice(last, idx));
+                    out += '<span class="hl">' + escapeHtml(m[0]) + '</span>';
+                    last = idx + m[0].length;
+                }
+                out += escapeHtml(text.slice(last));
+
+                box.innerHTML = out;
+            }
+
+            function render() {
+                buildHighlightHtml(rawText, getPatterns(), cbIgnoreCase.checked);
+                scrollToBottomIfNeeded();
+            }
+
+             function ajaxUrl() {
                 const url = new URL(window.location.href);
                 url.searchParams.set("ajax", "1");
-                // garante que não fica em view no endpoint (não faz diferença, mas fica limpo)
                 url.searchParams.delete("view");
+                url.searchParams.delete("download");
                 return url.toString();
             }
 
             async function refreshNow() {
                 try {
                     const resp = await fetch(ajaxUrl(), { cache: "no-store" });
-                    const text = await resp.text();
-                    box.textContent = text;
-                    scrollToBottomIfNeeded();
+                    rawText = await resp.text();
+                    render();
                 } catch (e) {
-                    box.textContent = "Erro ao carregar arquivo: " + e;
+                    rawText = "Erro ao carregar arquivo: " + e;
+                    box.textContent = rawText;
                 }
             }
 
@@ -179,6 +282,35 @@ if ($viewMode) {
                 if (timer) clearInterval(timer);
                 timer = null;
             }
+
+            // Toggle config
+            function setCfgVisible(visible) {
+                cfg.style.display = visible ? "block" : "none";
+                btnToggleCfg.textContent = visible ? "Esconder filtros" : "Mostrar filtros";
+                localStorage.setItem(storageKeyCfgVisible, visible ? "1" : "0");
+            }
+
+            btnToggleCfg.addEventListener("click", () => {
+                const visible = cfg.style.display !== "block";
+                setCfgVisible(visible);
+            });
+
+            // Persistência
+            taPatterns.value = localStorage.getItem(storageKeyPatterns) || "";
+            cbIgnoreCase.checked = (localStorage.getItem(storageKeyIgnoreCase) ?? "1") === "1";
+
+            const visibleSaved = (localStorage.getItem(storageKeyCfgVisible) ?? "0") === "1";
+            setCfgVisible(visibleSaved);
+
+            taPatterns.addEventListener("input", () => {
+                localStorage.setItem(storageKeyPatterns, taPatterns.value);
+                render(); // destaca imediatamente ao editar
+            });
+
+            cbIgnoreCase.addEventListener("change", () => {
+                localStorage.setItem(storageKeyIgnoreCase, cbIgnoreCase.checked ? "1" : "0");
+                render();
+            });
 
             cbAuto.addEventListener("change", () => {
                 if (cbAuto.checked) startAuto();
