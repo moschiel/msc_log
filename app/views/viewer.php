@@ -12,28 +12,7 @@ function render_viewer($selectedFile) {
 <head>
     <meta charset="UTF-8">
     <title>Viewer - <?= htmlspecialchars($title) ?></title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 16px; }
-        .top { display:flex; gap:16px; align-items:center; flex-wrap: wrap; }
-        .file { font-family: Consolas, monospace; }
-        .box {
-            margin-top: 12px;
-            height: 80vh;
-            overflow: auto;
-            white-space: pre;
-            font-family: Consolas, monospace;
-            font-size: 12px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background: #fafafa;
-        }
-        .hl-panel { border:1px solid #ddd; padding:10px; margin-top:10px; background:#f9f9f9; }
-        .hl-hidden { display:none; }
-        .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
-        .logBox { white-space: pre; font-family: Consolas, monospace; font-size: 12px; }
-        .hl-term { background: #ffc38a; }
-        .hl-package { font-weight: bold; background: #8affb7;}
-    </style>
+    <link rel="stylesheet" href="./app/css/viewer.css">
 </head>
 <body>
     <div class="top">
@@ -49,6 +28,7 @@ function render_viewer($selectedFile) {
             Auto-scroll
         </label>
 
+        <!-- <label class="hl-hidden"> -->
         <label>
             <input type="checkbox" id="analyzePackage">
             Analyze-Packages
