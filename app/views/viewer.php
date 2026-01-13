@@ -63,8 +63,8 @@ function render_viewer($selectedFile) {
         <b>Highlight:</b>
 
         <label>
-        <input type="checkbox" id="hlIgnoreCase" checked>
-        Ignore Case
+        <input type="checkbox" id="hlMatchCase" checked>
+        Match Case
         </label>
 
         <span style="color:#666; font-size:12px;">
@@ -131,7 +131,7 @@ cbAuto.addEventListener("change", () => {
 const btnToggle = document.getElementById("toggleFilters");
 const panel = document.getElementById("filtersPanel");
 const taTerms = document.getElementById("hlTerms");
-const cbIgnore = document.getElementById("hlIgnoreCase");
+const cbMatchCase = document.getElementById("hlMatchCase");
 
 // Você provavelmente já tem "box" (div do conteúdo)
 // Exemplo: const box = document.getElementById("box");
@@ -178,7 +178,7 @@ function renderText() {
     // Escapa HTML primeiro
     let html = escapeHtml(rawText);
 
-    const flags = cbIgnore.checked ? "gi" : "g";
+    const flags = cbMatchCase.checked ? "g" : "gi";
 
     // Aplica highlight em sequência (simples e funciona bem pra logs)
     for (const t of terms) {
@@ -191,7 +191,7 @@ function renderText() {
 
 function saveSettings() {
     localStorage.setItem(LS_KEY, taTerms.value);
-    localStorage.setItem(LS_CASE, cbIgnore.checked ? "1" : "0");
+    localStorage.setItem(LS_CASE, cbMatchCase.checked ? "1" : "0");
     localStorage.setItem(LS_PANEL, panel.classList.contains("hl-hidden") ? "0" : "1");
 }
 
@@ -200,7 +200,7 @@ function loadSettings() {
     if (saved !== null) taTerms.value = saved;
 
     const savedCase = localStorage.getItem(LS_CASE);
-    if (savedCase !== null) cbIgnore.checked = (savedCase === "1");
+    if (savedCase !== null) cbMatchCase.checked = (savedCase === "1");
 
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
@@ -232,7 +232,7 @@ function scheduleRerender() {
 }
 
 taTerms.addEventListener("input", scheduleRerender);
-cbIgnore.addEventListener("change", scheduleRerender);
+cbMatchCase.addEventListener("change", scheduleRerender);
 
 // inicial
 loadSettings();
