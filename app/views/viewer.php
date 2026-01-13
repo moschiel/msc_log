@@ -31,7 +31,7 @@ function render_viewer($selectedFile) {
         .hl-hidden { display:none; }
         .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
         .logBox { white-space: pre; font-family: Consolas, monospace; font-size: 12px; }
-        .hl-mark { background: #ffc38a; }
+        .hl-term { background: #ffc38a; }
         .hl-package { font-weight: bold; background: #8affb7;}
     </style>
 </head>
@@ -82,216 +82,17 @@ function render_viewer($selectedFile) {
     </div>
 
 
-    <div id="box" class="box"></div>
+    <div id="logBox" class="box"></div>
 
+<script src="./app/js/utils.js"></script>
+<script src="./app/js/viewer-terms-highlight.js"></script>
+<script src="./app/js/viewer-package-analyzer.js"></script>
+<script src="./app/js/viewer-render-log.js"></script>
+<script src="./app/js/viewer-auto-refresh.js"></script>
 <script>
-const box = document.getElementById("box");
-const cbAutoScroll = document.getElementById("autoScroll");
-const cbAutoRefresh = document.getElementById("autoRefresh");
-const cbAnalyzePkg = document.getElementById("analyzePackage");
-let timer = null;
-
-function scrollToBottomIfNeeded() {
-    if (!cbAutoScroll.checked) return;
-    box.scrollTop = box.scrollHeight;
-}
-
-function ajaxUrl() {
-    const url = new URL(window.location.href);
-    url.searchParams.set("ajax", "1");
-    url.searchParams.delete("view");
-    url.searchParams.delete("download");
-    return url.toString();
-}
-
-async function refreshNow() {
-    try {
-        const resp = await fetch(ajaxUrl(), { cache: "no-store" });
-        const text = await resp.text();
-        rawText = text;
-        renderText();
-        if (typeof scrollToBottomIfNeeded === "function") scrollToBottomIfNeeded();
-    } catch (e) {
-        rawText = "Erro ao carregar arquivo: " + e;
-        box.textContent = rawText;
-    }
-}
-
-function startAutoRefresh() {
-    stopAutoRefresh();
-    timer = setInterval(()=> {
-        if(cbAutoRefresh.checked) {
-            refreshNow();
-        }
-    }, 3000);
-}
-
-function stopAutoRefresh() {
-    if (timer) clearInterval(timer);
-    timer = null;
-}
-
-cbAutoRefresh.addEventListener("change", () => {
-    if (cbAutoRefresh.checked) 
-        startAutoRefresh();
-    else 
-        stopAutoRefresh();
-});
-
-cbAnalyzePkg.addEventListener("change", () => {
+    // executa no inicio
+    loadSettings();
     refreshNow();
-});
-
-
-// Funcoes para Highlight de strings
-// --- Elementos UI do highlight ---
-const btnToggle = document.getElementById("toggleFilters");
-const panel = document.getElementById("filtersPanel");
-const taTerms = document.getElementById("hlTerms");
-const cbMatchCase = document.getElementById("hlMatchCase");
-
-// Você provavelmente já tem "box" (div do conteúdo)
-// Exemplo: const box = document.getElementById("box");
-
-// Guardamos o texto "cru" aqui, e renderizamos com highlight em cima.
-let rawText = "";
-
-// Chave por arquivo (cada arquivo mantém sua lista)
-const fileParam = new URL(window.location.href).searchParams.get("file") || "";
-const LS_KEY = "hl_terms::" + fileParam;
-const LS_CASE = "hl_case::" + fileParam;
-const LS_PANEL = "hl_panel_open::" + fileParam;
-
-function escapeHtml(s) {
-    return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function escapeRegex(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function getTerms() {
-    const lines = taTerms.value.split("\n")
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
-
-    // remove duplicados simples
-    return Array.from(new Set(lines));
-}
-
-function isHexOnly(str) {
-    return /^[0-9a-fA-F]+$/.test(str);
-}
-
-function renderText() {
-    const terms = getTerms();
-
-    if (terms.length === 0 && cbAnalyzePkg.checked === false) {
-        box.textContent = rawText;
-        return;
-    }
-
-    // Escapa HTML primeiro
-    let html = escapeHtml(rawText);
-    
-    // Aplica highlight dos marcardores (simples e funciona bem pra logs)
-    if (terms.length > 0) {
-        const flags = cbMatchCase.checked ? "g" : "gi";
-        for (const t of terms) {
-            const re = new RegExp(escapeRegex(t), flags);
-            html = html.replace(re, (x) => `<span class="hl-mark">${x}</span>`);
-        }
-    }
-
-    // Aplica highlight dos pacotes com CC33
-    if(cbAnalyzePkg.checked) {
-        let collectingFrame = false;
-        let frameStr = "";
-        const lines = html.split(/\r?\n/);
-        const logStartSample = "[20251104-100340][0314593097][DBG][MEM ]: ";
-        let indexN = logStartSample.length;
-    
-        lines.forEach((line, lineNumber) => {
-            if (line.length > indexN) {
-                let substr = line.substr(indexN);
-    
-                if (substr.startsWith("CC33") && isHexOnly(substr)) {
-                    collectingFrame = true;
-                } else if (collectingFrame && isHexOnly(substr) === false) {
-                    collectingFrame = false;
-                }
-                
-                if(collectingFrame) {
-                    frameStr = frameStr + substr;    
-                    const re = new RegExp(escapeRegex(substr), "g");
-                    html = html.replace(re, (x) => `<span class="hl-package">${x}</span>`);
-                } else {
-                    if (frameStr.length > 0) {
-                        console.log("Frame: ", frameStr);
-                    }
-                    frameStr = ""
-                    collectingFrame = false;
-                }
-            }
-        });
-    }
-
-    box.innerHTML = html;
-}
-
-function saveSettings() {
-    localStorage.setItem(LS_KEY, taTerms.value);
-    localStorage.setItem(LS_CASE, cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, panel.classList.contains("hl-hidden") ? "0" : "1");
-}
-
-function loadSettings() {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved !== null) taTerms.value = saved;
-
-    const savedCase = localStorage.getItem(LS_CASE);
-    if (savedCase !== null) cbMatchCase.checked = (savedCase === "1");
-
-    const savedPanel = localStorage.getItem(LS_PANEL);
-    if (savedPanel === "1") {
-        panel.classList.remove("hl-hidden");
-        btnToggle.textContent = "Esconder marcadores";
-    }
-}
-
-function togglePanel() {
-    panel.classList.toggle("hl-hidden");
-    const open = !panel.classList.contains("hl-hidden");
-    btnToggle.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
-    saveSettings();
-}
-
-// Eventos
-btnToggle.addEventListener("click", () => togglePanel());
-
-// Reaplica highlight quando usuário muda termos/config
-let debounce = null;
-function scheduleRerender() {
-    if (debounce) clearTimeout(debounce);
-    debounce = setTimeout(() => {
-        saveSettings();
-        renderText();
-        // se você tem auto-scroll ligado, mantém no fim (seu código já faz isso, mas não atrapalha)
-        if (typeof scrollToBottomIfNeeded === "function") scrollToBottomIfNeeded();
-    }, 150);
-}
-
-taTerms.addEventListener("input", scheduleRerender);
-cbMatchCase.addEventListener("change", scheduleRerender);
-
-// executa no inicio
-loadSettings();
-refreshNow();
 </script>
 </body>
 </html>
