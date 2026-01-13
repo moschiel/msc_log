@@ -44,8 +44,8 @@ function render_viewer($selectedFile) {
         </label>
 
         <label>
-            <input type="checkbox" id="followTail" checked>
-            Follow tail
+            <input type="checkbox" id="autoScroll" checked>
+            Auto-scroll
         </label>
 
         <button onclick="refreshNow()">Atualizar agora</button>
@@ -80,7 +80,7 @@ function render_viewer($selectedFile) {
 
 <script>
 const box = document.getElementById("box");
-const cbTail = document.getElementById("followTail");
+const cbTail = document.getElementById("autoScroll");
 const cbAuto = document.getElementById("autoRefresh");
 let timer = null;
 
@@ -226,7 +226,7 @@ function scheduleRerender() {
     debounce = setTimeout(() => {
         saveSettings();
         renderText();
-        // se você tem follow-tail ligado, mantém no fim (seu código já faz isso, mas não atrapalha)
+        // se você tem auto-scroll ligado, mantém no fim (seu código já faz isso, mas não atrapalha)
         if (typeof scrollToBottomIfNeeded === "function") scrollToBottomIfNeeded();
     }, 150);
 }

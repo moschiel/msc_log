@@ -64,19 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 // ---------------------------
 $itemsRaw = @scandir($currentPath) ?: [];
 $items = [];
-$hiddenDirs = array('app'); // lista de diretorios da raiz que nao podem aparecer para o usuario
-
 foreach ($itemsRaw as $item) {
     if ($item === '.' || $item === '..') continue;
 
-    // Oculta diretórios internos
-    if (in_array($item, $hiddenDirs, true)) continue;
-
+    
     $path = $currentPath . '/' . $item;
-
+    
     if ($current === '') {
         // na raiz só mostra diretórios, não mostramos arquivos
         if (is_dir($path)) {
+            // Oculta diretórios que nao sejam numeros
+            if (ctype_digit($item) == false) continue;
+
             $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
         }
     } else {
