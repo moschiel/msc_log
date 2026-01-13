@@ -40,7 +40,7 @@ function render_viewer($selectedFile) {
             <button>Download</button>
         </a>
 
-        <button type="button" id="toggleFilters">Mostrar filtros</button>
+        <button type="button" id="toggleFilters">Mostrar marcadores</button>
 
     </div>
 

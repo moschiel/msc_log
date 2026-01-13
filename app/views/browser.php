@@ -69,7 +69,7 @@ function render_browser($items, $msg) {
 <?php else: ?>
     <td>
     <?php if (is_text_file_by_extension($item)): ?>
-        <a href="./index.php?view=1&file=<?= urlencode($relative) ?>" target="_blank">
+        <a href="./index.php?view=1&file=<?= urlencode($relative) ?>">
             <?= htmlspecialchars($item) ?>
         </a>
     <?php else: ?>
