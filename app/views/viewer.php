@@ -64,7 +64,7 @@ function render_viewer($selectedFile) {
 
     <div id="logBox" class="box"></div>
 
-<script src="./app/js/utils.js"></script>
+<script src="./app/js/viewer-utils.js"></script>
 <script src="./app/js/viewer-terms-highlight.js"></script>
 <script src="./app/js/viewer-package-analyzer.js"></script>
 <script src="./app/js/viewer-render-log.js"></script>
