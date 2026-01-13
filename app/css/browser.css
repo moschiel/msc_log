@@ -1,7 +1,7 @@
 /* ===== TABELA LIMPA / LEGÍVEL ===== */
 .table-clean {
   /* width: 100%; */
-  border-collapse: collapse;
+  /* border-collapse: collapse; */
   border-spacing: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 14px;
@@ -23,27 +23,17 @@
 }
 
 /* Corpo */
-.table-clean tbody td {
+.table-clean td {
+  border-bottom: 1px solid #e5e7eb;
   padding: 10px 14px;
-  border-bottom: 1px solid #eef2f7;
   vertical-align: top;
   line-height: 1.35;
 }
 
-/* Zebra */
-.table-clean tbody tr:nth-child(even) {
-  background: #fafafa;
-}
-
 /* Hover */
-.table-clean tbody tr:hover {
-  background: #eef6ff; /* azul bem clarinho */
-}
-
-/* Última linha sem borda extra */
-.table-clean tbody tr:last-child td {
-  border-bottom: none;
-}
+/*.table-clean tbody tr:hover {
+  background: #eef6ff;
+}*/
 
 /* Colunas numéricas alinhadas à direita (use class="num" no td/th) */
 .table-clean .num {
