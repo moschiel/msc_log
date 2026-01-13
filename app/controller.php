@@ -33,60 +33,60 @@ if (isset($_GET['download']) && $_GET['download'] == '1') {
 // ---------------------------
 // VIEWER MODE (página separada)
 // ---------------------------
-if ($viewMode) {
+if ($fileViewerMode) {
     render_viewer($selectedFile);
-    exit;
-}
-
-// ---------------------------
-// DELETE (arquivo ou diretório) na pasta atual
-// ---------------------------
-$msg = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
-    $item = basename($_POST['delete']);
-    $targetPath = realpath($currentPath . '/' . $item);
-
-    if ($targetPath !== false && strpos($targetPath, $ROOT_DIR) === 0) {
-        if (is_file($targetPath)) {
-            @unlink($targetPath);
-            $msg = "Arquivo '$item' deletado!";
-        } elseif (is_dir($targetPath)) {
-            deleteDirectory($targetPath);
-            $msg = "Diretório '$item' deletado!";
+} else { // BROWSER FILE TREE MODE
+    // ---------------------------
+    // DELETE (arquivo ou diretório) na pasta atual
+    // ---------------------------
+    $msg = '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+        $item = basename($_POST['delete']);
+        $targetPath = realpath($currentPath . '/' . $item);
+    
+        if ($targetPath !== false && strpos($targetPath, $ROOT_DIR) === 0) {
+            if (is_file($targetPath)) {
+                @unlink($targetPath);
+                $msg = "Arquivo '$item' deletado!";
+            } elseif (is_dir($targetPath)) {
+                deleteDirectory($targetPath);
+                $msg = "Diretório '$item' deletado!";
+            }
+        } else {
+            $msg = "Erro ao deletar '$item'.";
         }
-    } else {
-        $msg = "Erro ao deletar '$item'.";
     }
-}
-
-// ---------------------------
-// LISTAGEM (file tree view)
-// ---------------------------
-$itemsRaw = @scandir($currentPath) ?: [];
-$items = [];
-foreach ($itemsRaw as $item) {
-    if ($item === '.' || $item === '..') continue;
-
     
-    $path = $currentPath . '/' . $item;
+    // ---------------------------
+    // LISTAGEM (file tree view)
+    // ---------------------------
+    $itemsRaw = @scandir($currentPath) ?: [];
+    $items = [];
+    foreach ($itemsRaw as $item) {
+        if ($item === '.' || $item === '..') continue;
     
-    if ($current === '') {
-        // na raiz só mostra diretórios, não mostramos arquivos
-        if (is_dir($path)) {
-            // Oculta diretórios que nao sejam numeros
-            if (ctype_digit($item) == false) continue;
-
+        
+        $path = $currentPath . '/' . $item;
+        
+        if ($current === '') {
+            // na raiz só mostra diretórios, não mostramos arquivos
+            if (is_dir($path)) {
+                // Oculta diretórios que nao sejam numeros
+                if (ctype_digit($item) == false) continue;
+    
+                $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
+            }
+        } else {
+            // subpastas: sem filtro
             $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
         }
-    } else {
-        // subpastas: sem filtro
-        $items[] = ['name' => $item, 'path' => $path, 'mtime' => filemtime($path)];
     }
+    
+    // Ordenação por data
+    usort($items, function($a, $b) use ($sort) {
+        return ($sort === 'date_asc') ? ($a['mtime'] - $b['mtime']) : ($b['mtime'] - $a['mtime']);
+    });
+    
+    render_browser($items, $msg);
 }
 
-// Ordenação por data
-usort($items, function($a, $b) use ($sort) {
-    return ($sort === 'date_asc') ? ($a['mtime'] - $b['mtime']) : ($b['mtime'] - $a['mtime']);
-});
-
-render_browser($items, $msg);

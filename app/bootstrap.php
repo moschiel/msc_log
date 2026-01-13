@@ -15,7 +15,7 @@ $autorefresh = (isset($_GET['autorefresh']) && $_GET['autorefresh'] == '1') ? '1
 
 // Parâmetros do viewer
 $selectedFile = isset($_GET['file']) ? trim($_GET['file'], '/') : '';
-$viewMode = (isset($_GET['view']) && $_GET['view'] == '1');
+$fileViewerMode = (isset($_GET['view']) && $_GET['view'] == '1');
 
 // Caminho completo do diretório atual (com segurança)
 $currentPath = realpath($ROOT_DIR . '/' . $current);

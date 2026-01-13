@@ -40,13 +40,18 @@ function render_viewer($selectedFile) {
         <b>Arquivo:</b> <span class="file"><?= htmlspecialchars($title) ?></span>
 
         <label>
-            <input type="checkbox" id="autoRefresh" checked>
+            <input type="checkbox" id="autoRefresh">
             Auto-refresh (3s)
         </label>
 
         <label>
             <input type="checkbox" id="autoScroll" checked>
             Auto-scroll
+        </label>
+
+        <label>
+            <input type="checkbox" id="analyzePackage">
+            Analyze-Packages
         </label>
 
         <button onclick="refreshNow()">Atualizar agora</button>
@@ -61,7 +66,7 @@ function render_viewer($selectedFile) {
 
     <div id="filtersPanel" class="hl-panel hl-hidden">
     <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-        <b>Highlight:</b>
+        <b>Marcadores:</b>
 
         <label>
         <input type="checkbox" id="hlMatchCase" checked>
@@ -81,12 +86,13 @@ function render_viewer($selectedFile) {
 
 <script>
 const box = document.getElementById("box");
-const cbTail = document.getElementById("autoScroll");
-const cbAuto = document.getElementById("autoRefresh");
+const cbAutoScroll = document.getElementById("autoScroll");
+const cbAutoRefresh = document.getElementById("autoRefresh");
+const cbAnalyzePkg = document.getElementById("analyzePackage");
 let timer = null;
 
 function scrollToBottomIfNeeded() {
-    if (!cbTail.checked) return;
+    if (!cbAutoScroll.checked) return;
     box.scrollTop = box.scrollHeight;
 }
 
@@ -111,19 +117,29 @@ async function refreshNow() {
     }
 }
 
-function startAuto() {
-    stopAuto();
-    timer = setInterval(refreshNow, 3000);
+function startAutoRefresh() {
+    stopAutoRefresh();
+    timer = setInterval(()=> {
+        if(cbAutoRefresh.checked) {
+            refreshNow();
+        }
+    }, 3000);
 }
 
-function stopAuto() {
+function stopAutoRefresh() {
     if (timer) clearInterval(timer);
     timer = null;
 }
 
-cbAuto.addEventListener("change", () => {
-    if (cbAuto.checked) startAuto();
-    else stopAuto();
+cbAutoRefresh.addEventListener("change", () => {
+    if (cbAutoRefresh.checked) 
+        startAutoRefresh();
+    else 
+        stopAutoRefresh();
+});
+
+cbAnalyzePkg.addEventListener("change", () => {
+    refreshNow();
 });
 
 
@@ -173,9 +189,9 @@ function isHexOnly(str) {
 }
 
 function renderText() {
-    // Se não tem termo, só mostra texto como "pre"
     const terms = getTerms();
-    if (terms.length === 0) {
+
+    if (terms.length === 0 && cbAnalyzePkg.checked === false) {
         box.textContent = rawText;
         return;
     }
@@ -184,14 +200,16 @@ function renderText() {
     let html = escapeHtml(rawText);
     
     // Aplica highlight dos marcardores (simples e funciona bem pra logs)
-    const flags = cbMatchCase.checked ? "g" : "gi";
-    for (const t of terms) {
-        const re = new RegExp(escapeRegex(t), flags);
-        html = html.replace(re, (x) => `<span class="hl-mark">${x}</span>`);
+    if (terms.length > 0) {
+        const flags = cbMatchCase.checked ? "g" : "gi";
+        for (const t of terms) {
+            const re = new RegExp(escapeRegex(t), flags);
+            html = html.replace(re, (x) => `<span class="hl-mark">${x}</span>`);
+        }
     }
 
     // Aplica highlight dos pacotes com CC33
-    if(false) {
+    if(cbAnalyzePkg.checked) {
         let collectingFrame = false;
         let frameStr = "";
         const lines = html.split(/\r?\n/);
@@ -271,10 +289,9 @@ function scheduleRerender() {
 taTerms.addEventListener("input", scheduleRerender);
 cbMatchCase.addEventListener("change", scheduleRerender);
 
-// inicial
+// executa no inicio
 loadSettings();
 refreshNow();
-startAuto();
 </script>
 </body>
 </html>
