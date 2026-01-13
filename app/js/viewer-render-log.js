@@ -6,6 +6,10 @@ function setRawLog(rawText) {
     rawTextLog = rawText;
 }
 
+function getRawLog() {
+    return rawTextLog;
+}
+
 function setLogBoxInnerHTML(text) {
     logBox.innerHTML = text;
 }

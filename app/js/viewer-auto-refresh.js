@@ -13,9 +13,11 @@ async function refreshNow() {
     try {
         const resp = await fetch(ajaxUrl(), { cache: "no-store" });
         const text = await resp.text();
-        setRawLog(text);
-        renderLogText();
-        scrollToBottomIfNeeded();
+        if (text.length != getRawLog().length) {
+            setRawLog(text);
+            renderLogText();
+            scrollToBottomIfNeeded();
+        }
     } catch (e) {
         setRawLog("Erro ao carregar arquivo: " + e)
         setLogBoxInnerHTML("Erro ao carregar arquivo: " + e);

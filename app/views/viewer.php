@@ -28,10 +28,10 @@ function render_viewer($selectedFile) {
             Auto-scroll
         </label>
 
-        <!-- <label class="hl-hidden"> -->
-        <label>
+        <label class="hl-hidden">
+        <!-- <label> -->
             <input type="checkbox" id="analyzePackage">
-            Analyze-Packages
+            Analisar Pacotes
         </label>
 
         <button onclick="refreshNow()">Atualizar agora</button>
