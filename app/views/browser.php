@@ -13,6 +13,7 @@ function render_browser($items, $msg) {
 <head>
 <meta charset="UTF-8">
 <title>File Browser</title>
+<link rel="stylesheet" href="./app/css/browser.css">
 </head>
 <body>
 
@@ -41,57 +42,62 @@ function render_browser($items, $msg) {
     <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>"><- Voltar</a>
 </p>
 <?php endif; ?>
+<div class="table-wrap">
+    <table class="table-clean table-sticky">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Tamanho</th>
+                <th>Modificado em</th>
+                <th>Deletar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($items as $entry):
+                $item     = $entry['name'];
+                $path     = $entry['path'];
+                $relative = trim($current . '/' . $item, '/');
+                $modTime  = date("d/m/Y H:i:s", $entry['mtime']);
+            ?>
+            <tr>
+            <?php if (is_dir($path)): ?>
+                <td>
+                    <b>📁</b>
+                    <a href="<?= buildBrowserLink($relative, $sort, $autorefresh) ?>">
+                        <?= htmlspecialchars($item) ?>
+                    </a>
+                </td>
+                <td>-</td>
+                <td><?= htmlspecialchars($modTime) ?></td>
+            <?php else: ?>
+                <td>
+                <b>📄</b>
+                <?php if (is_text_file_by_extension($item)): ?>
+                    <a href="./index.php?view=1&file=<?= urlencode($relative) ?>">
+                        <?= htmlspecialchars($item) ?>
+                    </a>
+                <?php else: ?>
+                    <a href="./index.php?download=1&file=<?= urlencode($relative) ?>">
+                        <?= htmlspecialchars($item) ?>
+                    </a>
+                <?php endif; ?>
+                </td>
+                <td><?= (is_file($path) ? filesize($path) : 0) ?> bytes</td>
+                <td><?= htmlspecialchars($modTime) ?></td>
+            <?php endif; ?>
+    
+                <td>
+                    <form method="POST" onsubmit="return confirm('Deletar <?= htmlspecialchars($item) ?>?');">
+                        <input type="hidden" name="delete" value="<?= htmlspecialchars($item) ?>">
+                        <button type="submit" class="icon-btn">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+        <?php endforeach; ?>
 
-<table border="1" cellpadding="8">
-<tr>
-    <th>Nome</th>
-    <th>Tamanho</th>
-    <th>Modificado em</th>
-    <th>Action</th>
-</tr>
-
-<?php foreach ($items as $entry):
-    $item     = $entry['name'];
-    $path     = $entry['path'];
-    $relative = trim($current . '/' . $item, '/');
-    $modTime  = date("d/m/Y H:i:s", $entry['mtime']);
-?>
-<tr>
-<?php if (is_dir($path)): ?>
-    <td>
-        <b>[DIR]</b>
-        <a href="<?= buildBrowserLink($relative, $sort, $autorefresh) ?>">
-            <?= htmlspecialchars($item) ?>
-        </a>
-    </td>
-    <td>-</td>
-    <td><?= htmlspecialchars($modTime) ?></td>
-<?php else: ?>
-    <td>
-    <?php if (is_text_file_by_extension($item)): ?>
-        <a href="./index.php?view=1&file=<?= urlencode($relative) ?>">
-            <?= htmlspecialchars($item) ?>
-        </a>
-    <?php else: ?>
-        <a href="./index.php?download=1&file=<?= urlencode($relative) ?>">
-            <?= htmlspecialchars($item) ?>
-        </a>
-    <?php endif; ?>
-    </td>
-    <td><?= (is_file($path) ? filesize($path) : 0) ?> bytes</td>
-    <td><?= htmlspecialchars($modTime) ?></td>
-<?php endif; ?>
-
-    <td>
-        <form method="POST" onsubmit="return confirm('Deletar <?= htmlspecialchars($item) ?>?');">
-            <input type="hidden" name="delete" value="<?= htmlspecialchars($item) ?>">
-            <button type="submit">Delete</button>
-        </form>
-    </td>
-</tr>
-<?php endforeach; ?>
-
-</table>
+    </table>
+</div>
 
 <script src="./app/js/browser.js"></script>
 </body>
