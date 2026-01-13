@@ -69,4 +69,3 @@ function is_text_file_by_extension($filename) {
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     return in_array($ext, array('log','txt','csv','json','xml'), true);
 }
-

@@ -31,7 +31,8 @@ function render_viewer($selectedFile) {
         .hl-hidden { display:none; }
         .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
         .logBox { white-space: pre; font-family: Consolas, monospace; font-size: 12px; }
-        .hl-mark { background: #ffe58a; }
+        .hl-mark { background: #ffc38a; }
+        .hl-package { font-weight: bold; background: #8affb7;}
     </style>
 </head>
 <body>
@@ -167,6 +168,10 @@ function getTerms() {
     return Array.from(new Set(lines));
 }
 
+function isHexOnly(str) {
+    return /^[0-9a-fA-F]+$/.test(str);
+}
+
 function renderText() {
     // Se não tem termo, só mostra texto como "pre"
     const terms = getTerms();
@@ -177,13 +182,45 @@ function renderText() {
 
     // Escapa HTML primeiro
     let html = escapeHtml(rawText);
-
+    
+    // Aplica highlight dos marcardores (simples e funciona bem pra logs)
     const flags = cbMatchCase.checked ? "g" : "gi";
-
-    // Aplica highlight em sequência (simples e funciona bem pra logs)
     for (const t of terms) {
         const re = new RegExp(escapeRegex(t), flags);
-        html = html.replace(re, (m) => `<span class="hl-mark">${m}</span>`);
+        html = html.replace(re, (x) => `<span class="hl-mark">${x}</span>`);
+    }
+
+    // Aplica highlight dos pacotes com CC33
+    if(false) {
+        let collectingFrame = false;
+        let frameStr = "";
+        const lines = html.split(/\r?\n/);
+        const logStartSample = "[20251104-100340][0314593097][DBG][MEM ]: ";
+        let indexN = logStartSample.length;
+    
+        lines.forEach((line, lineNumber) => {
+            if (line.length > indexN) {
+                let substr = line.substr(indexN);
+    
+                if (substr.startsWith("CC33") && isHexOnly(substr)) {
+                    collectingFrame = true;
+                } else if (collectingFrame && isHexOnly(substr) === false) {
+                    collectingFrame = false;
+                }
+                
+                if(collectingFrame) {
+                    frameStr = frameStr + substr;    
+                    const re = new RegExp(escapeRegex(substr), "g");
+                    html = html.replace(re, (x) => `<span class="hl-package">${x}</span>`);
+                } else {
+                    if (frameStr.length > 0) {
+                        console.log("Frame: ", frameStr);
+                    }
+                    frameStr = ""
+                    collectingFrame = false;
+                }
+            }
+        });
     }
 
     box.innerHTML = html;
@@ -205,14 +242,14 @@ function loadSettings() {
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
         panel.classList.remove("hl-hidden");
-        btnToggle.textContent = "Esconder filtros";
+        btnToggle.textContent = "Esconder marcadores";
     }
 }
 
 function togglePanel() {
     panel.classList.toggle("hl-hidden");
     const open = !panel.classList.contains("hl-hidden");
-    btnToggle.textContent = open ? "Esconder filtros" : "Mostrar filtros";
+    btnToggle.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }
 
