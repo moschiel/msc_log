@@ -16,5 +16,7 @@ body { font-family: Arial, sans-serif; margin: 16px; }
 .hl-hidden { display:none; }
 .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
 .hl-term { background: #ffc38a; }
-.hl-package-valid { font-weight: bold; background: #8affb7; color: black;}
-.hl-package-error { font-weight: bold; background: red; color: yellow;}
+.hl-package-valid { font-weight: bold; background: #beecd0; color: rgb(51, 48, 48);}
+.hl-package-error { font-weight: bold; background: rgb(236, 47, 47); color: yellow;}
+.hl-package-valid:hover { cursor: pointer; }
+.hl-package-error:hover { cursor: pointer; }

@@ -28,8 +28,8 @@ function render_viewer($selectedFile) {
             Auto-scroll
         </label>
 
-        <label class="hl-hidden">
-        <!-- <label> -->
+        <!-- <label class="hl-hidden"> -->
+        <label>
             <input type="checkbox" id="analyzePackage">
             Analisar Pacotes
         </label>
