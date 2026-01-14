@@ -4,40 +4,160 @@ function isHexOnly(str) {
     return /^[0-9a-fA-F]+$/.test(str);
 }
 
+function hexToBuffer(hex) {
+    if (hex.length % 2 !== 0) {
+        throw new Error("Hex string inválida (tamanho ímpar)");
+    }
+
+    const buffer = new Uint8Array(hex.length / 2);
+
+    for (let i = 0; i < hex.length; i += 2) {
+        buffer[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+
+    return buffer; // Uint8Array
+}
+
 // Aplica highlight dos pacotes com CC33
 function analyzePackages(text) {
-    let collectingFrame = false;
+    let isCollectingFrame = false;
     let frameStr = "";
+    let textSectionToReplace = "";
+    let linesToReplace = [];
     const lines = text.split(/\r?\n/);
-    const logStartSample = "[20251104-100340][0314593097][DBG][MEM ]: ";
-    let indexN = logStartSample.length;
+    const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 
     lines.forEach((line, lineNumber) => {
-        if (line.length > indexN) {
-            let substr = line.substr(indexN);
+        if (line.length > LOG_HEADER_EXAMPLE.length) {
+            let substrFrame = line.substr(LOG_HEADER_EXAMPLE.length);
 
-            if (substr.startsWith("CC33") && isHexOnly(substr)) {
-                collectingFrame = true;
-            } else if (collectingFrame && isHexOnly(substr) === false) {
-                collectingFrame = false;
+            if (substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
+                isCollectingFrame = true;
+                frameStr = "";
+                linesToReplace = [];
+                textSectionToReplace = "";
+            } else if (isCollectingFrame && isHexOnly(substrFrame) === false) {
+                isCollectingFrame = false;
             }
             
-            if(collectingFrame) {
-                frameStr = frameStr + substr;    
-                const re = new RegExp(escapeRegex(substr), "g");
-                text = text.replace(re, (x) => `<span class="hl-package">${x}</span>`);
+            if(isCollectingFrame) {
+                frameStr += substrFrame;
+                linesToReplace.push(line);   
             } else {
                 if (frameStr.length > 0) {
-                    console.log("Frame: ", frameStr);
+                    try {
+                        res = parseCC33Frame(frameStr);
+                        className = 'hl-package-valid';
+                    } catch (e) {
+                        console.error("Erro:", e.message);
+                        className = 'hl-package-error';
+                    }
+
+                    linesToReplace.forEach((oldLine) => {                     
+                        const headerPart = oldLine.slice(0, LOG_HEADER_EXAMPLE.length);
+                        const hexPart = oldLine.substr(LOG_HEADER_EXAMPLE.length);
+                        const newLine = `${headerPart}<span class="${className}">${hexPart}</span>`;
+                        text = text.replace(oldLine, newLine);
+                    });
                 }
-                frameStr = ""
-                collectingFrame = false;
+
+                isCollectingFrame = false;
             }
         }
     });
     
     return text;
 }
+
+function parseCC33Frame(frameStr) {
+    frameStr = frameStr.replace("\r\n", "");
+
+    if(isHexOnly(frameStr) === false) {
+        throw new Error("Frame caracter invalido");
+    }
+
+    if (frameStr.length % 2 != 0) {
+        throw new Error("Frame com tamanho impar");
+    }
+
+    u8buf = hexToBuffer(frameStr);
+
+    const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
+    let off = 0;
+
+    function need(n) {
+        if (off + n > dv.byteLength)
+        throw new Error("Frame truncado");
+    }
+
+    // CC33
+    need(2);
+    if (dv.getUint16(off, false) !== 0xCC33)
+        throw new Error("Starting frame inválido");
+    off += 2;
+
+    // size
+    need(2);
+    const size = dv.getUint16(off, true);
+    off += 2;
+
+    const frameEnd = off + size;
+    if (frameEnd > dv.byteLength)
+        throw new Error("Frame Size maior que buffer");
+
+    // option
+    need(1);
+    const option = dv.getUint8(off++);
+    if (option !== 0 && option !== 3)
+        throw new Error("Option inválida");
+
+    let esn, packgIndex, serviceType;
+    if (option === 0) {
+        esn = "not provider";
+        off += 1;
+    }
+    else
+    {
+        off += 2;
+        const esnSize = dv.getUint8(off++);
+        esn = u8buf.slice(off, off + esnSize);
+        off += esnSize;
+    
+        packgIndex = dv.getUint16(off, true); 
+        off += 2;
+        serviceType = dv.getUint8(off);
+        off += 1;
+    }
+
+
+    let newMsg = true;
+    const messages = [];
+    while (newMsg && (off < frameEnd)) {
+        const msgId  = dv.getUint16(off, true); 
+        off += 2;
+        msgSize = dv.getUint16(off, true); 
+        off += 2;
+
+        newMsg = (msgSize & 0x8000) > 0;
+        msgSize = (msgSize & 0x7FFF);
+
+        const msgData = u8buf.slice(off, off + msgSize);
+        off += msgSize;
+
+        messages.push({ msgId, msgSize, msgData });
+    }
+
+    return {
+        size,
+        option,
+        esn,
+        packgIndex,
+        serviceType,
+        messages
+    };
+}
+
+
 
 // Eventos
 cbAnalyzePkg.addEventListener("change", () => {
