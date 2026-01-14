@@ -47,7 +47,7 @@ function analyzePackages(text) {
                         res = parseCC33Frame(frameStr);
                         className = 'hl-package-valid';
                     } catch (e) {
-                        console.error("Erro:", e.message);
+                        console.error("Error: ", e.message, ", Line: ", line);
                         className = 'hl-package-error';
                     }
 
@@ -130,7 +130,7 @@ function parseCC33Frame(frameStr) {
         esn = u8buf.slice(offset, offset + esnSize);
         offset += esnSize;
     }
-    
+
     need(2);
     packgIndex = dv.getUint16(offset, true); 
     offset += 2;
