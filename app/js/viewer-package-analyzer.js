@@ -1,3 +1,23 @@
+class MessageData {
+    constructor(id, data) {
+        this.id = id;
+        /** @type {Uint8Array} */
+        this.data = data;
+    }
+}
+class PackageData {
+  constructor(size, option, esnSize, esn, packgIndex, serviceType, messages) {
+    this.size = size;
+    this.option = option;
+    this.esnSize = esnSize;
+    this.esn = esn;
+    this.packgIndex = packgIndex;
+    this.serviceType = serviceType;
+    /** @type {MessageData[]} */
+    this.messages = messages;
+  }
+}
+
 const cbAnalyzePkg = document.getElementById("analyzePackage");
 
 cbAnalyzePkg.addEventListener("change", () => {
@@ -22,6 +42,44 @@ function hexToBuffer(hex) {
     return buffer; // Uint8Array
 }
 
+function bufferToHex(buffer) {
+    if (!(buffer instanceof Uint8Array)) {
+        throw new Error("Esperado Uint8Array");
+    }
+
+    let hex = "";
+
+    for (let i = 0; i < buffer.length; i++) {
+        hex += buffer[i].toString(16).padStart(2, "0");
+    }
+
+    return hex.toUpperCase(); // opcional
+}
+
+function uint8ArrayToBCD(buffer) {
+    if (!(buffer instanceof Uint8Array)) {
+        throw new Error("Entrada não é Uint8Array");
+    }
+
+    let result = "";
+
+    for (const byte of buffer) {
+        const high = (byte >> 4) & 0x0F;
+        const low  = byte & 0x0F;
+
+        if (high > 9 || low > 9) {
+            throw new Error(`Nibble inválido em BCD: 0x${byte.toString(16)}`);
+        }
+
+        result += high.toString();
+        result += low.toString();
+    }
+
+    return result;
+}
+
+
+
 // Aplica highlight dos pacotes com CC33
 let globalFrames = [];
 function analyzePackages(text) {
@@ -31,7 +89,6 @@ function analyzePackages(text) {
     let frameStr = "";
     let linesToReplace = [];
     globalFrames = [];
-    let pkgCounter = 0;
 
     lines.forEach((line, lineNumber) => {
         if (line.length > LOG_HEADER_EXAMPLE.length) {
@@ -41,7 +98,6 @@ function analyzePackages(text) {
                 isCollectingFrame = true;
                 frameStr = "";
                 linesToReplace = [];
-                pkgCounter++;
             } else if (isCollectingFrame && isHexOnly(substrFrame) === false) {
                 isCollectingFrame = false;
             }
@@ -53,11 +109,12 @@ function analyzePackages(text) {
                 if (frameStr.length > 0) {
                     frameStr = frameStr.replace("\r", "").replace("\n", "");
                     globalFrames.push(frameStr);
-
-                    const classPkgGroup = `pkg-${pkgCounter}`;
+                    
+                    const classPkgGroup = `pkg-${globalFrames.length}`;
                     let classPkgStatus = "";
+                    let parsedPkg = new PackageData();
                     try {
-                        res = parseCC33Frame(frameStr);
+                        parsedPkg = parseCC33Frame(frameStr);
                         classPkgStatus = 'hl-pkg-ok';
                     } catch (e) {
                         console.error(e.message, ", Line: ", line);
@@ -83,33 +140,37 @@ function analyzePackages(text) {
                             const diffSize = linesToReplace[linesToReplace.length - 2].length - linesToReplace[linesToReplace.length - 1].length;
                             const startHexPart = hexPart.slice(0, hexPart.length - diffSize) 
                             const endHexPart =  hexPart.slice(hexPart.length - diffSize);
-                            const spanEndHexPart = `<span class="hl-border-bottom">${endHexPart}</span>`
+                            const spanEndHexPart = `<span class="${classPkgGroup} hl-border-bottom">${endHexPart}</span>`
                             newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
                         }
                         else
                         {
-                            //onclick="alert(globalFrames[${globalFrames.length-1}])"
                             newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
                         }
                         
                         text = text.replace(oldLine, newLine);
                     });
 
-                    logBox.addEventListener("click", e => {
-                        if (e.target.classList.contains(classPkgGroup)) {
-                            console.log("clicou:", classPkgGroup);
-                        }
-                    });
-                    logBox.addEventListener("mouseover", e => {
-                        if (e.target.classList.contains(classPkgGroup)) {
-                            console.log("mouseEnter:", classPkgGroup);
-                        }
-                    });
-                    logBox.addEventListener("mouseout", e => {
-                        if (e.target.classList.contains(classPkgGroup)) {
-                            console.log("mouseLeave:", classPkgGroup);
-                        }
-                    });
+                    if (classPkgStatus === 'hl-pkg-ok') {
+                        logBox.addEventListener("click", e => {
+                            if (e.target.classList.contains(classPkgGroup)) {
+                                //console.log("clicou:", classPkgGroup);
+                                const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
+                                //console.log(globalFrames[index]);
+                                createPackageTable(parsedPkg);
+                            }
+                        });
+                    }
+                    // logBox.addEventListener("mouseover", e => {
+                    //     if (e.target.classList.contains(classPkgGroup)) {
+                    //         console.log("mouseEnter:", classPkgGroup);
+                    //     }
+                    // });
+                    // logBox.addEventListener("mouseout", e => {
+                    //     if (e.target.classList.contains(classPkgGroup)) {
+                    //         console.log("mouseLeave:", classPkgGroup);
+                    //     }
+                    // });
                     //const elements = document.getElementsByClassName(classPkgGroup);
                     //for (const el of elements) {
                     //    el.classList.add(`hl-pkg-hover`);
@@ -171,20 +232,20 @@ function parseCC33Frame(frameStr) {
     if (option !== 0 && option !== 3)
         throw new Error("Option inválida, deve ser 0 ou 3");
 
-    let esn, packgIndex, serviceType;
+    let esnSize, esn, packgIndex, serviceType;
     if (option === 0) {
-        esn = "not provider";
+        esn = "";
     }
     else
     {
         offset += 2; //pula + 2
         
         need2read(1, 'tamanho do ESN');
-        const esnSize = dv.getUint8(offset);
+        esnSize = dv.getUint8(offset);
         offset += 1;
         
         need2read(esnSize, 'ESN');
-        esn = u8buf.slice(offset, offset + esnSize);
+        esn = uint8ArrayToBCD(u8buf.slice(offset, offset + esnSize));
         offset += esnSize;
     }
 
@@ -215,17 +276,85 @@ function parseCC33Frame(frameStr) {
         const msgData = u8buf.slice(offset, offset + msgSize);
         offset += msgSize;
 
-        messages.push({ msgId, msgSize, msgData });
+        messages.push(new MessageData (msgId, msgData));
     }
 
-    return {
+    return new PackageData(
         size,
         option,
+        esnSize,
         esn,
         packgIndex,
         serviceType,
         messages
-    };
+    );
+}
+
+
+/**
+ * @param {PackageData} pkgData
+ */
+function createPackageTable(pkgData) {
+    let rows = [];
+    rows.push(["Pkg Size", pkgData.size]);
+    rows.push(["Option", pkgData.option === 0 ? "0 - Not Provider" : `3 - Provider`]);
+    if(pkgData.option === 3) {
+        rows.push(["ESN Size", pkgData.esnSize]);
+        rows.push(["ESN (BCD)", pkgData.esn]);   
+    }
+    rows.push(["Pkg Index", pkgData.packgIndex]);
+    rows.push(["Service Type", `0x${pkgData.serviceType.toString(16)}`]);
+
+    createTable(
+        "packageTableContainer",
+        ["Parameter", "Value"],
+        rows
+    );
+
+    rows = [];
+    pkgData.messages.forEach((msg) => {
+        rows.push([`0x${msg.id.toString(16).toUpperCase()}`, bufferToHex(msg.data)]);
+    });
+
+    createTable(
+        "MessagesTableContainer",
+        ["Message ID", "Data"],
+        rows
+    );
+}
+
+function createTable(containerId, headers, rows) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    let table = document.createElement("table");
+
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trHead.appendChild(th);
+    });
+
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    container.appendChild(table);
 }
 
 

@@ -64,6 +64,9 @@ function render_viewer($selectedFile) {
 
     <div id="logBox" class="box"></div>
 
+    <div id="packageTableContainer"></div>
+    <div id="MessagesTableContainer"></div>
+
 <script src="./app/js/viewer-utils.js"></script>
 <script src="./app/js/viewer-terms-highlight.js"></script>
 <script src="./app/js/viewer-package-analyzer.js"></script>
