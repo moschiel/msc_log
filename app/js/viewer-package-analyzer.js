@@ -1,5 +1,9 @@
 const cbAnalyzePkg = document.getElementById("analyzePackage");
 
+cbAnalyzePkg.addEventListener("change", () => {
+    renderLogText();
+});
+
 function isHexOnly(str) {
     return /^[0-9a-fA-F]+$/.test(str);
 }
@@ -19,21 +23,25 @@ function hexToBuffer(hex) {
 }
 
 // Aplica highlight dos pacotes com CC33
+let globalFrames = [];
 function analyzePackages(text) {
     const lines = text.split(/\r?\n/);
     const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
     let isCollectingFrame = false;
     let frameStr = "";
     let linesToReplace = [];
+    globalFrames = [];
+    let pkgCounter = 0;
 
     lines.forEach((line, lineNumber) => {
         if (line.length > LOG_HEADER_EXAMPLE.length) {
             let substrFrame = line.substr(LOG_HEADER_EXAMPLE.length);
 
-            if (substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
+            if (!isCollectingFrame && substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
                 isCollectingFrame = true;
                 frameStr = "";
                 linesToReplace = [];
+                pkgCounter++;
             } else if (isCollectingFrame && isHexOnly(substrFrame) === false) {
                 isCollectingFrame = false;
             }
@@ -43,13 +51,17 @@ function analyzePackages(text) {
                 linesToReplace.push(line);   
             } else {
                 if (frameStr.length > 0) {
-                    let classPkg = "";
+                    frameStr = frameStr.replace("\r", "").replace("\n", "");
+                    globalFrames.push(frameStr);
+
+                    const classPkgGroup = `pkg-${pkgCounter}`;
+                    let classPkgStatus = "";
                     try {
                         res = parseCC33Frame(frameStr);
-                        classPkg = 'hl-pkg-ok';
+                        classPkgStatus = 'hl-pkg-ok';
                     } catch (e) {
-                        console.error("Error: ", e.message, ", Line: ", line);
-                        classPkg = 'hl-pkg-err';
+                        console.error(e.message, ", Line: ", line);
+                        classPkgStatus = 'hl-pkg-err';
                     }
 
                     linesToReplace.forEach((oldLine, lineIndex) => {
@@ -72,15 +84,36 @@ function analyzePackages(text) {
                             const startHexPart = hexPart.slice(0, hexPart.length - diffSize) 
                             const endHexPart =  hexPart.slice(hexPart.length - diffSize);
                             const spanEndHexPart = `<span class="hl-border-bottom">${endHexPart}</span>`
-                            newLine = `${headerPart}<span class="${classPkg} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
+                            newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
                         }
                         else
                         {
-                            newLine = `${headerPart}<span class="${classPkg} ${classBorder}">${hexPart}</span>`;
+                            //onclick="alert(globalFrames[${globalFrames.length-1}])"
+                            newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
                         }
                         
                         text = text.replace(oldLine, newLine);
                     });
+
+                    logBox.addEventListener("click", e => {
+                        if (e.target.classList.contains(classPkgGroup)) {
+                            console.log("clicou:", classPkgGroup);
+                        }
+                    });
+                    logBox.addEventListener("mouseover", e => {
+                        if (e.target.classList.contains(classPkgGroup)) {
+                            console.log("mouseEnter:", classPkgGroup);
+                        }
+                    });
+                    logBox.addEventListener("mouseout", e => {
+                        if (e.target.classList.contains(classPkgGroup)) {
+                            console.log("mouseLeave:", classPkgGroup);
+                        }
+                    });
+                    //const elements = document.getElementsByClassName(classPkgGroup);
+                    //for (const el of elements) {
+                    //    el.classList.add(`hl-pkg-hover`);
+                    //}
 
                     frameStr = "";
                     linesToReplace = [];
@@ -102,7 +135,7 @@ function parseCC33Frame(frameStr) {
     }
 
     if (frameStr.length % 2 != 0) {
-        throw new Error("Frame com tamanho impar");
+        throw new Error("Frame string com tamanho impar");
     }
 
     u8buf = hexToBuffer(frameStr);
@@ -110,33 +143,33 @@ function parseCC33Frame(frameStr) {
     const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
     let offset = 0;
 
-    function need(n) {
+    function need2read(n, description) {
         if (offset + n > dv.byteLength)
-        throw new Error("Frame truncado");
+        throw new Error(`Frame truncado ao tentar ler ${description}`);
     }
 
     // CC33
-    need(2);
+    need2read(2, 'frame incial');
     if (dv.getUint16(offset, false) !== 0xCC33)
-        throw new Error("Starting frame inválido");
+        throw new Error("Frame inicial invalido");
     offset += 2;
 
     // size
-    need(2);
+    need2read(2, 'tamanho do pacote');
     const size = dv.getUint16(offset, true);
     offset += 2;
 
     const frameEnd = offset + size;
     if (frameEnd > dv.byteLength)
-        throw new Error("Frame Size maior que buffer");
+        throw new Error(`Frame Size (${size}) é maior que o buffer (${dv.byteLength})`);
 
     // option
-    need(1);
+    need2read(1, 'option');
     const option = dv.getUint8(offset);
     offset += 1;
 
     if (option !== 0 && option !== 3)
-        throw new Error("Option inválida");
+        throw new Error("Option inválida, deve ser 0 ou 3");
 
     let esn, packgIndex, serviceType;
     if (option === 0) {
@@ -146,20 +179,20 @@ function parseCC33Frame(frameStr) {
     {
         offset += 2; //pula + 2
         
-        need(1);
+        need2read(1, 'tamanho do ESN');
         const esnSize = dv.getUint8(offset);
         offset += 1;
         
-        need(esnSize);
+        need2read(esnSize, 'ESN');
         esn = u8buf.slice(offset, offset + esnSize);
         offset += esnSize;
     }
 
-    need(2);
+    need2read(2, 'Index do Pacote');
     packgIndex = dv.getUint16(offset, true); 
     offset += 2;
 
-    need(1);
+    need2read(1, "Tipo de Serviço");
     serviceType = dv.getUint8(offset);
     offset += 1;
 
@@ -167,18 +200,18 @@ function parseCC33Frame(frameStr) {
     let newMsg = true;
     const messages = [];
     while (newMsg && (offset < frameEnd)) {
-        need(2);
+        need2read(2, 'ID de uma mensagem');
         const msgId  = dv.getUint16(offset, true); 
         offset += 2;
 
-        need(2);
+        need2read(2, `Tamanho da mensagem 0x${msgId.toString(16)}`);
         msgSize = dv.getUint16(offset, true); 
         offset += 2;
 
         newMsg = (msgSize & 0x8000) > 0;
         msgSize = (msgSize & 0x7FFF);
 
-        need(msgSize);
+        need2read(msgSize, `${msgSize} bytes de dados da mensagem 0x${msgId.toString(16)}`);
         const msgData = u8buf.slice(offset, offset + msgSize);
         offset += msgSize;
 
@@ -196,8 +229,3 @@ function parseCC33Frame(frameStr) {
 }
 
 
-
-// Eventos
-cbAnalyzePkg.addEventListener("change", () => {
-    renderLogText();
-});
