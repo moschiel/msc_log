@@ -1,26 +1,102 @@
-body { font-family: Arial, sans-serif; margin: 16px; }
-.top { display:flex; gap:16px; align-items:center; flex-wrap: wrap; }
-.file { font-family: Consolas, monospace; }
-.box {
-    margin-top: 12px;
-    height: 80vh;
+html, body {
+  /* border: 1px solid red; */
+  height: 100%;
+  margin: 0;
+  /* importante: impede o body/main de rolar, e joga scroll pros filhos */
+  overflow: hidden;
+}
+
+.main {
+    /* border: 3px solid black; */
+    margin: 8px;
+    height: calc(100vh - 2*8px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo dos Controles (CheckBoxes e Botoes) do container superior */
+.top-container {
+    /* border: 3px solid yellow; */
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+/* Estilos do Painel de Termos/Marcadores */
+.hl-hidden {
+    display: none;
+}
+
+.hl-terms-panel {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 10px;
+    background: #f9f9f9;
+}
+
+.hl-terms-box {
+    width: 100%;
+    height: 50px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+}
+
+/* Estilos da Conteiner do LOG */
+.log-box {
+    /* border: 3px solid blueviolet; */
+    border: 1px solid #ddd;
     overflow: auto;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    height: 80vh;
     white-space: pre;
     font-family: Consolas, monospace;
     font-size: 12px;
-    border: 1px solid #ddd;
     padding: 10px;
     background: #fafafa;
 }
-.hl-panel { border:1px solid #ddd; padding:10px; margin-top:10px; background: #f9f9f9; }
-.hl-hidden { display:none; }
-.hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
-.hl-term { background: #ffc38a; border: 1px solid black; }
-.hl-pkg-ok {  background: #def3e6; color: black; }
-.hl-pkg-err {  background: rgb(224, 122, 122); color: black; }
-.hl-pkg-ok:hover { cursor: pointer; }
-.hl-pkg-err:hover { cursor: pointer; }
-.hl-border-top { border-top: 1px solid black; }
-.hl-border-bottom { border-bottom: 1px solid black; }
-.hl-border-sides { border-left: 1px solid black; border-right: 1px solid black; }
-.hl-pkg-hover { font:bold };
+
+/* Estilos para destacar termos/marcadores no LOG */
+.hl-term {
+    background: #ffc38a;
+    border: 1px solid black;
+}
+
+/* Estilos para destacar pacotes CC33 no LOG */
+.hl-pkg-ok {
+    background: #def3e6;
+    color: black;
+}
+
+.hl-pkg-err {
+    background: rgb(224, 122, 122);
+    color: black;
+}
+
+.hl-pkg-ok:hover {
+    cursor: pointer;
+}
+
+.hl-pkg-err:hover {
+    cursor: pointer;
+}
+
+.hl-border-top {
+    border-top: 1px solid black;
+}
+
+.hl-border-bottom {
+    border-bottom: 1px solid black;
+}
+
+.hl-border-sides {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.hl-pkg-hover {
+    font: bold
+}

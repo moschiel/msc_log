@@ -1,0 +1,76 @@
+/* ===== TABELA LIMPA / LEGÍVEL ===== */
+.table-clean {
+  /* width: 100%; */
+  /* border-collapse: collapse; */
+  border-spacing: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  color: #1f2937; /* cinza escuro */
+  background: #ffffff;
+  border: 1px solid #e5e7eb; /* borda externa suave */
+  border-radius: 10px;
+  overflow: hidden; /* faz o border-radius funcionar */
+}
+
+.table-clean thead th {
+  text-align: left;
+  font-weight: 600;
+  padding: 12px 14px;
+  background: #f3f4f6; /* cinza claro */
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+/* Corpo */
+.table-clean td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 14px;
+  vertical-align: top;
+  line-height: 1.35;
+}
+
+/* Hover */
+/*.table-clean tbody tr:hover {
+  background: #eef6ff;
+}*/
+
+/* Colunas numéricas alinhadas à direita (use class="num" no td/th) */
+.table-clean .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Texto longo não estoura layout */
+.table-clean td {
+  word-break: break-word;
+}
+
+/* ===== OPCIONAL: TABELA COM SCROLL HORIZONTAL ===== */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
+/* ===== OPCIONAL: HEADER FIXO (coloque a tabela dentro de um container com height) ===== */
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* ===== OPCIONAL: CÉLULA "BADGE" (use class="badge ok|warn|err") ===== */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.badge.ok   { background: #ecfdf3; color: #047857; border: 1px solid #a7f3d0; }
+.badge.warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+.badge.err  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }

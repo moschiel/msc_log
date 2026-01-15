@@ -13,6 +13,7 @@ function render_browser($items, $msg) {
 <head>
     <meta charset="UTF-8">
     <title>File Browser</title>
+    <link rel="stylesheet" href="./app/css/table.css">
     <link rel="stylesheet" href="./app/css/browser.css">
 </head>
 <body>

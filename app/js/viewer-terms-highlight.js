@@ -1,6 +1,6 @@
 // --- Elementos UI do highlight ---
 const btnToggle = document.getElementById("toggleFilters");
-const panel = document.getElementById("filtersPanel");
+const termsPanel = document.getElementById("termsPanel");
 const taTerms = document.getElementById("hlTerms");
 const cbMatchCase = document.getElementById("hlMatchCase");
 
@@ -13,7 +13,7 @@ const LS_PANEL = "hl_panel_open::" + fileParam;
 function saveSettings() {
     localStorage.setItem(LS_KEY, taTerms.value);
     localStorage.setItem(LS_CASE, cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, panel.classList.contains("hl-hidden") ? "0" : "1");
+    localStorage.setItem(LS_PANEL, termsPanel.classList.contains("hl-hidden") ? "0" : "1");
 }
 
 function loadSettings() {
@@ -25,14 +25,14 @@ function loadSettings() {
 
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
-        panel.classList.remove("hl-hidden");
+        termsPanel.classList.remove("hl-hidden");
         btnToggle.textContent = "Esconder marcadores";
     }
 }
 
 function togglePanel() {
-    panel.classList.toggle("hl-hidden");
-    const open = !panel.classList.contains("hl-hidden");
+    termsPanel.classList.toggle("hl-hidden");
+    const open = !termsPanel.classList.contains("hl-hidden");
     btnToggle.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }

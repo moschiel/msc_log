@@ -24,61 +24,6 @@ cbAnalyzePkg.addEventListener("change", () => {
     renderLogText();
 });
 
-function isHexOnly(str) {
-    return /^[0-9a-fA-F]+$/.test(str);
-}
-
-function hexToBuffer(hex) {
-    if (hex.length % 2 !== 0) {
-        throw new Error("Hex string inválida (tamanho ímpar)");
-    }
-
-    const buffer = new Uint8Array(hex.length / 2);
-
-    for (let i = 0; i < hex.length; i += 2) {
-        buffer[i / 2] = parseInt(hex.substr(i, 2), 16);
-    }
-
-    return buffer; // Uint8Array
-}
-
-function bufferToHex(buffer) {
-    if (!(buffer instanceof Uint8Array)) {
-        throw new Error("Esperado Uint8Array");
-    }
-
-    let hex = "";
-
-    for (let i = 0; i < buffer.length; i++) {
-        hex += buffer[i].toString(16).padStart(2, "0");
-    }
-
-    return hex.toUpperCase(); // opcional
-}
-
-function uint8ArrayToBCD(buffer) {
-    if (!(buffer instanceof Uint8Array)) {
-        throw new Error("Entrada não é Uint8Array");
-    }
-
-    let result = "";
-
-    for (const byte of buffer) {
-        const high = (byte >> 4) & 0x0F;
-        const low  = byte & 0x0F;
-
-        if (high > 9 || low > 9) {
-            throw new Error(`Nibble inválido em BCD: 0x${byte.toString(16)}`);
-        }
-
-        result += high.toString();
-        result += low.toString();
-    }
-
-    return result;
-}
-
-
 
 // Aplica highlight dos pacotes com CC33
 let globalFrames = [];
@@ -304,30 +249,20 @@ function createPackageTable(pkgData) {
     }
     rows.push(["Pkg Index", pkgData.packgIndex]);
     rows.push(["Service Type", `0x${pkgData.serviceType.toString(16)}`]);
-
-    createTable(
-        "packageTableContainer",
-        ["Parameter", "Value"],
-        rows
-    );
-
-    rows = [];
     pkgData.messages.forEach((msg) => {
         rows.push([`0x${msg.id.toString(16).toUpperCase()}`, bufferToHex(msg.data)]);
     });
 
     createTable(
-        "MessagesTableContainer",
-        ["Message ID", "Data"],
+        "packageTable",
+        ["Parameter", "Value"],
         rows
     );
 }
 
-function createTable(containerId, headers, rows) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = "";
-
-    let table = document.createElement("table");
+function createTable(tableId, headers, rows) {
+    const table = document.getElementById(tableId);
+    table.innerHTML = "";
 
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
@@ -354,7 +289,6 @@ function createTable(containerId, headers, rows) {
     });
 
     table.appendChild(tbody);
-    container.appendChild(table);
 }
 
 
