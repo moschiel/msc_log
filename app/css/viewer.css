@@ -15,8 +15,11 @@ body { font-family: Arial, sans-serif; margin: 16px; }
 .hl-panel { border:1px solid #ddd; padding:10px; margin-top:10px; background: #f9f9f9; }
 .hl-hidden { display:none; }
 .hl-box { width:100%; height:90px; font-family: Consolas, monospace; font-size: 12px; }
-.hl-term { background: #ffc38a; }
-.hl-package-valid { font-weight: bold; background: #beecd0; color: rgb(51, 48, 48);}
-.hl-package-error { font-weight: bold; background: rgb(236, 47, 47); color: yellow;}
-.hl-package-valid:hover { cursor: pointer; }
-.hl-package-error:hover { cursor: pointer; }
+.hl-term { background: #ffc38a; border: 1px solid black; }
+.hl-pkg-ok {  background: #beecd0; color: rgb(51, 48, 48); }
+.hl-pkg-err {  background: rgb(192, 30, 30); color: yellow; }
+.hl-pkg-ok:hover { cursor: pointer; }
+.hl-pkg-err:hover { cursor: pointer; }
+.hl-border-top { border-top: 1px solid black; }
+.hl-border-bottom { border-bottom: 1px solid black; }
+.hl-border-sides { border-left: 1px solid black; border-right: 1px solid black; }

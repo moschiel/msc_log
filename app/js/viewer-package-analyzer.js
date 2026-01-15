@@ -43,18 +43,42 @@ function analyzePackages(text) {
                 linesToReplace.push(line);   
             } else {
                 if (frameStr.length > 0) {
+                    let classPkg = "";
                     try {
                         res = parseCC33Frame(frameStr);
-                        className = 'hl-package-valid';
+                        classPkg = 'hl-pkg-ok';
                     } catch (e) {
                         console.error("Error: ", e.message, ", Line: ", line);
-                        className = 'hl-package-error';
+                        classPkg = 'hl-pkg-err';
                     }
 
-                    linesToReplace.forEach((oldLine) => {                     
+                    linesToReplace.forEach((oldLine, lineIndex) => {
+                        let classBorder = "hl-border-sides";
+                        if(lineIndex == 0)
+                            classBorder += " hl-border-top"
+                        if(lineIndex == (linesToReplace.length - 1))
+                            classBorder += " hl-border-bottom"
+
                         const headerPart = oldLine.slice(0, LOG_HEADER_EXAMPLE.length);
                         const hexPart = oldLine.substr(LOG_HEADER_EXAMPLE.length);
-                        const newLine = `${headerPart}<span class="${className}">${hexPart}</span>`;
+                        let newLine = "";
+                        
+                        if ( linesToReplace.length >= 2 // Se o pacote tem mais de duas linhas no log
+                            && lineIndex === (linesToReplace.length - 2) // Se essa é a penultima linha
+                            && (linesToReplace[linesToReplace.length - 1].length < linesToReplace[linesToReplace.length - 2].length) // E a ultima linha eh menor que a penultima linha
+                        )
+                        {
+                            const diffSize = linesToReplace[linesToReplace.length - 2].length - linesToReplace[linesToReplace.length - 1].length;
+                            const startHexPart = hexPart.slice(0, hexPart.length - diffSize) 
+                            const endHexPart =  hexPart.slice(hexPart.length - diffSize);
+                            const spanEndHexPart = `<span class="hl-border-bottom">${endHexPart}</span>`
+                            newLine = `${headerPart}<span class="${classPkg} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
+                        }
+                        else
+                        {
+                            newLine = `${headerPart}<span class="${classPkg} ${classBorder}">${hexPart}</span>`;
+                        }
+                        
                         text = text.replace(oldLine, newLine);
                     });
 
