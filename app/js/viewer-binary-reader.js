@@ -43,38 +43,38 @@ function createBinaryReader(u8buf, opts = {}) {
         return v;
     };
 
-    const read_i16 = (name, littleEndian = true) => {
+    const read_i16 = (name, le = true) => {
         need(name, 2);
-        const v = dv.getInt16(offset, littleEndian);
+        const v = dv.getInt16(offset, le);
         offset += 2;
         return v;
     };
 
-    const read_u16 = (name, littleEndian = true) => {
+    const read_u16 = (name, le = true) => {
         need(name, 2);
-        const v = dv.getUint16(offset, littleEndian);
+        const v = dv.getUint16(offset, le);
         offset += 2;
         return v;
     };
 
-    const read_i32 = (name, littleEndian = true) => {
+    const read_i32 = (name, le = true) => {
         need(name, 4);
-        const v = dv.getInt32(offset, littleEndian);
+        const v = dv.getInt32(offset, le);
         offset += 4;
         return v;
     };
 
-    const read_u32 = (name, littleEndian = true) => {
+    const read_u32 = (name, le = true) => {
         need(name, 4);
-        const v = dv.getUint32(offset, littleEndian);
+        const v = dv.getUint32(offset, le);
         offset += 4;
         return v;
     };
 
-    const read_u64 = (name, littleEndian = true) => {
+    const read_u64 = (name, le = true) => {
         need(name, 8);
         // precisa de BigInt (ok na maioria dos browsers modernos)
-        const v = dv.getBigUint64(offset, littleEndian);
+        const v = dv.getBigUint64(offset, le);
         offset += 8;
         return v;
     };
@@ -98,6 +98,8 @@ function createBinaryReader(u8buf, opts = {}) {
 
     // ======== adders ========
     function add_row(name, size, value) {
+        // console.log(name, size, value);
+
         if (!collectData) return;
 
         if (tableMode === "nsv") {
@@ -115,33 +117,33 @@ function createBinaryReader(u8buf, opts = {}) {
         return v;
     };
 
-    const add_i16 = (name) => {
-        const v = read_i16(name, true);
+    const add_i16 = (name, le = true, Fn = null) => {
+        const v = read_i16(name, le);
         add_row(name, 2, v);
         return v;
     };
 
-    const add_u16 = (name, littleEndian = true) => {
-        const v = read_u16(name, littleEndian);
-        add_row(name, 2, v);
+    const add_u16 = (name, le = true, Fn = null) => {
+        const v = read_u16(name, le);
+        add_row(name, 2, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_i32 = (name) => {
-        const v = read_i32(name, true);
-        add_row(name, 4, v);
+    const add_i32 = (name, le = true, Fn = null) => {
+        const v = read_i32(name, le);
+        add_row(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_u32 = (name, littleEndian = true) => {
-        const v = read_u32(name, littleEndian);
-        add_row(name, 4, v);
+    const add_u32 = (name, le = true, Fn = null) => {
+        const v = read_u32(name, le);
+        add_row(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_u64 = (name, littleEndian = true) => {
-        const v = read_u64(name, littleEndian);
-        add_row(name, 8, v.toString());
+    const add_u64 = (name, le = true, Fn = null) => {
+        const v = read_u64(name, le);
+        add_row(name, 8, Fn ? Fn(v) : v);
         return v;
     };
 
@@ -152,20 +154,20 @@ function createBinaryReader(u8buf, opts = {}) {
         return v;
     };
 
-    const add_hex_u16 = (name, littleEndian = true) => {
-        const v = read_u16(name, littleEndian);
+    const add_hex_u16 = (name, le = true) => {
+        const v = read_u16(name, le);
         add_row(name, 2, hex_u16(v));
         return v;
     };
 
-    const add_hex_u32 = (name, littleEndian = true) => {
-        const v = read_u32(name, littleEndian);
+    const add_hex_u32 = (name, le = true) => {
+        const v = read_u32(name, le);
         add_row(name, 4, hex_u32(v));
         return v;
     };
 
     // add bytes (opcional: você escolhe como representar)
-    const add_bytes_hex = (name, n, toHexFn) => {
+    const add_bytes_hex = (name, n, toHexFn = null) => {
         const b = read_bytes(name, n);
         const hex = toHexFn ? toHexFn(b) : bytesToHex(b);
         add_row(name, n, hex);
@@ -187,6 +189,20 @@ function createBinaryReader(u8buf, opts = {}) {
         add_row(name, `${n} bytes em BCD`, v);
         return v;
     };
+
+    const add_u32_timestamp = (name) => {
+        const u = read_u32(name);
+        const v = epochSecondsToString(u);
+        add_row(name, 4, v);
+        return v;
+    }
+
+    const add_i32_coord = (name) => {
+        const i = read_i32(name);
+        const v = (i / 10000000.0).toFixed(7).replace(/\.?0+$/, "");
+        add_row(name, 4, v);
+        return v;
+    }
 
     return {
         // estado
@@ -231,5 +247,7 @@ function createBinaryReader(u8buf, opts = {}) {
         add_hex_u32,
         add_bytes_hex,
         add_bytes_BCD,
+        add_u32_timestamp,
+        add_i32_coord,
     };
 }

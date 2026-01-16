@@ -44,18 +44,7 @@ packageTable.addEventListener("dblclick", (ev) => {
 
         // 3) imprimir no log o valor da primeira coluna (convertido se aplicável)
         console.log("LOG col1:", col1Text.substr(0, 6));
-        createTable("messageTable", ["Test1", "Test2", "Test3"], [
-            [1,2,3],
-            [4,5,6],
-            [1,2,3],
-            [4,5,6],
-            [1,2,3],
-            [4,5,6],
-            [1,2,3],
-            [4,5,6]
-        ]);
-        if(messageTableWrapper.classList.contains("hl-hidden"))
-            messageTableWrapper.classList.remove("hl-hidden");
+        parseMessage(col1Number, col3Bytes, true);
     }
     catch(e) 
     {
@@ -210,89 +199,46 @@ function parseCC33Frame(u8buf, showOnTable) {
  * @param {number} msgID  uint16
  * @param {Uint8Array} data
  */
-function showMsgFields(msgID, data) {
-    const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
-    let count = 0;
-
-    /** @type {Array<Array<any>>} */
-    const rows = [];
-
-    // ======== check mínimo (sem name) ========
-    function need(n) {
-        if (count + n > dv.byteLength) {
-            throw new RangeError(`Buffer truncado: offset=${count}, precisa=${n}, len=${dv.byteLength}`);
-        }
-    }
-
-    // ======== readers (LE) ========
-    const read_u8 = () => { need(1); const v = dv.getUint8(count); count += 1; return v; };
-    const read_i16 = () => { need(2); const v = dv.getInt16(count, true); count += 2; return v; };
-    const read_u16 = () => { need(2); const v = dv.getUint16(count, true); count += 2; return v; };
-    const read_i32 = () => { need(4); const v = dv.getInt32(count, true); count += 4; return v; };
-    const read_u32 = () => { need(4); const v = dv.getUint32(count, true); count += 4; return v; };
-    const read_u64 = () => { need(8); const v = dv.getBigUint64(count, true); count += 8; return v; };
-
-    const read_bytes = (n) => { need(n); const s = data.slice(count, count + n); count += n; return s; };
-    const skip = (n) => { need(n); count += n; };
-
-    // ======== formatadores ========
-    const hex_u8 = (v) => `0x${(v & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`;
-    const hex_u16 = (v) => `0x${(v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`;
-    const hex_u32 = (v) => `0x${(v >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
-
-    // ======== adders básicos ========
-    const add_u8 = (name) => rows.push([name, read_u8()]);
-    const add_i16 = (name) => rows.push([name, read_i16()]);
-    const add_u16 = (name) => rows.push([name, read_u16()]);
-    const add_i32 = (name) => rows.push([name, read_i32()]);
-    const add_u32 = (name) => rows.push([name, read_u32()]);
-    const add_u64 = (name) => rows.push([name, read_u64().toString()]);
-
-    // ======== adders hex (CORRETOS: lê e depois formata) ========
-    const add_hex_u8 = (name) => rows.push([name, hex_u8(read_u8())]);
-    const add_hex_u16 = (name) => rows.push([name, hex_u16(read_u16())]);
-    const add_hex_u32 = (name) => rows.push([name, hex_u32(read_u32())]);
-
+function parseMessage(msgID, data, showOnTable = true) {
+    const br = createBinaryReader(data, {
+        processMode: showOnTable ? "collect" : "validate",
+        tableMode: "nsv"
+    });
+    
     // -------- switch principal --------
     switch (msgID) {
         case 0x1101: {
-            add_u8("Protocol Version");
-
-            rows.push(["Position Timestamp", epochSecondsToString(read_u32())]);
-
-            rows.push(["Latitude", (read_i32() / 10000000.0).toFixed(7).replace(/\.?0+$/, "")]);
-            rows.push(["Longitude", (read_i32() / 10000000.0).toFixed(7).replace(/\.?0+$/, "")]);
-
-            add_u8("GPS Fix");
-            add_u8("HDOP");
-            add_u16("Altitude (m)");
-            add_u8("GPS Speed (km/h)");
-
-            add_hex_u16("Status Input");
-            add_hex_u16("Status Output");
-
-            add_u32("Odometer (m)");
-            add_u32("Hourmeter (s)");
-
-            rows.push(["Power Voltage (V)", (read_u16() / 100.0).toFixed(2).replace(/\.?0+$/, "")]);
-            rows.push(["Internal Battery Voltage (V)", (read_u16() / 100.0).toFixed(2).replace(/\.?0+$/, "")]);
-
-            add_hex_u32("Position Flags");
-
-            add_u32("GPS Fix Timestamp");
-            add_u16("GPS Course");
-
-            add_u8("VDOP");
-            add_u8("PDOP");
-            add_u8("Satelites Count");
-            add_u8("RSSI");
-            add_u16("Carrier");
-            add_u8("Temperature");
-
-            add_hex_u32("Report Reason");
+            br.add_u8("Protocol Version");
+            br.add_u32_timestamp("Position Timestamp");
+            br.add_i32_coord("Latitude");
+            br.add_i32_coord("Longitude");
+            br.add_u8("GPS Fix");
+            br.add_u8("HDOP");
+            br.add_u16("Altitude (m)");
+            br.add_u8("GPS Speed (km/h)");
+            br.add_hex_u16("Status Input");
+            br.add_hex_u16("Status Output");
+            br.add_u32("Odometer (m)");
+            br.add_u32("Hourmeter (s)");
+            br.add_u16("Power Voltage (V)", true, (v) => {
+                return (v / 100.0).toFixed(2).replace(/\.?0+$/, "");
+            });
+            br.add_u16("Internal Battery Voltage (V)", true, (v) => {
+                return (v / 100.0).toFixed(2).replace(/\.?0+$/, "");
+            });
+            br.add_hex_u32("Position Flags");
+            br.add_u32("GPS Fix Timestamp");
+            br.add_u16("GPS Course");
+            br.add_u8("VDOP");
+            br.add_u8("PDOP");
+            br.add_u8("Satelites Count");
+            br.add_u8("RSSI");
+            br.add_u16("Carrier");
+            br.add_u8("Temperature");
+            br.add_hex_u32("Report Reason");
             break;
         }
-
+/*
         case 0x1121: {
             for (let i = 0; i < 6; i++) {
                 rows.push([`A/D[${i}] (mV)`, read_i16()]);
@@ -721,15 +667,20 @@ function showMsgFields(msgID, data) {
             count = data.length;
             break;
         }
-
+*/
         default: {
-            rows.push(["Info", `${getMsgName(msgID)} - Package Details is not implemented yet`]);
-            break;
+            if (showOnTable)
+                alert(`${getMsgName(msgID)} - Parseamento não implementado`);
+            return false;
         }
     }
 
-    // default: tabela Name/Value
-    createTable("packageTable", ["Name", "Value"], rows);
+    if(showOnTable) {
+        createTable("messageTable", br.headers, br.rows);
+        if(messageTableWrapper.classList.contains("hl-hidden"))
+            messageTableWrapper.classList.remove("hl-hidden");
+    }
+
     return true;
 }
 
