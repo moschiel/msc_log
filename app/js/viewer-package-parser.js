@@ -80,99 +80,62 @@ function getMsgName(id) {
 
 /**
  * @param {Uint8Array} u8buf
- * @param {boolean} showOnTable
+ * @param {boolean} showOnTable,
  */
 function parseCC33Frame(u8buf, showOnTable) {
-    const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
-    let offset = 0;
-
-    /** @type {Array<Array<any>>} */
-    const rows = [];
-
-    // ======== check mínimo (sem name) ========
-    function need(name, n) {
-        if (offset + n > dv.byteLength) {
-            throw new RangeError(`Frame truncado ao tentar ler ${name}: offset=${offset}, precisa=${n}, len=${dv.byteLength}`);
-        }
-    }
-
-    // ======== readers ========
-    const read_u8  = (name) => { need(name, 1); const v = dv.getUint8(offset); offset += 1; return v; };
-    const read_u16 = (name, le = true) => { need(name, 2); const v = dv.getUint16(offset, le); offset += 2; return v; };
-    const read_bytes = (name, n) => { need(name, n); const s = u8buf.slice(offset, offset + n); offset += n; return s; };
-    const skip = (name, n) => { need(name, n); offset += n; };
-
-    // ======== formatadores ========
-    const hex_u8  = (v) => `0x${(v & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`;
-    const hex_u16 = (v) => `0x${(v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`;
-
-    // ======== adders (3 colunas) ========
-    const add_row = (name, size, value) => { if (showOnTable) rows.push([name, size, value]); };
-
-    const add_u8  = (name) => { const v = read_u8(name);  add_row(name, 1, v); return v; };
-    const add_u16 = (name, le = true) => { const v = read_u16(name, le); add_row(name, 2, v); return v; };
-
-    const add_hex_u8  = (name) => { const v = read_u8(name);  add_row(name, 1, hex_u8(v)); return v; };
-    const add_hex_u16 = (name, le = true) => { const v = read_u16(name, le); add_row(name, 2, hex_u16(v)); return v; };
-
-    // ======== CC33 ========
-    // header: big-endian (false)
-    const start = read_u16("frame incial", false);
+    const br = createBinaryReader(u8buf, { 
+        processMode: showOnTable ? "collect" : "validate", 
+        tableMode: "nsv" 
+    });
+    
+    const start = br.read_u16("frame incial", false);
     if (start !== 0xCC33) throw new Error("Frame inicial invalido");
 
-    // size: little-endian
-    const pkgSize = add_u16("Tamanho do pacote", true);
+    const pkgSize = br.add_u16("Tamanho do pacote");
 
-    const frameEnd = offset + pkgSize;
-    if (frameEnd > dv.byteLength) {
-        throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${dv.byteLength})`);
+    const frameEnd = br.getOffset() + pkgSize;
+    if (frameEnd > br.getLength()) {
+        throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${br.getLength()})`);
     }
 
-    // option
-    const option = read_u8("Option");
-    if (showOnTable) {
-        add_row("Option", 1, (option === 0) ? "0 - Not Provider" : (option === 3) ? "3 - Provider" : option);
-    }
-
-    if (option !== 0 && option !== 3) {
-        throw new Error("Option inválida, deve ser 0 ou 3");
-    }
+    const option = br.add_u8("Option", (v) => {
+        if (v !== 0 && v !== 3) {
+            throw new Error("Option inválida, deve ser 0 ou 3");
+        }
+        return (v === 0) ? "0 - Not Provider" : (v === 3) ? "3 - Provider" : v;
+    });
 
     // ESN (se provider)
     if (option === 3) {
-        add_row("Ignore", 2, "campo ignorado");
-        skip("Ignore", 2);
-
-        const esnSize = add_u8("Tamanho do SN");
-        const esnBuf = read_bytes("SerialNumber", esnSize);
-        add_row("SerialNumber", `${esnSize} bytes em BCD`, uint8ArrayToBCD(esnBuf));
+        br.add_hex_u16("Ignore", false);
+        const esnSize = br.add_u8("Tamanho do SN");
+        br.add_bytes_BCD("SerialNumber", esnSize);
     }
 
     // index / service type
-    add_u16("Index do Pacote", true);
-
-    const serviceType = add_u8("Tipo de Serviço");
-    if (showOnTable) rows[rows.length - 1][2] = hex_u8(serviceType);
+    br.add_u16("Index do Pacote");
+    br.add_hex_u8("Tipo de Serviço");
 
     // mensagens
     let newMsg = true;
-    while (newMsg && (offset < frameEnd)) {
-        const msgId = read_u16("msgId", true);
+    while (newMsg && (br.getOffset() < frameEnd)) {
+        const msgId = br.read_u16("msgId", true);
 
-        let msgSize = read_u16("msgSize", true);
+        let msgSize = br.read_u16("msgSize", true);
+        
         newMsg = (msgSize & 0x8000) !== 0;
         msgSize = (msgSize & 0x7FFF);
 
-        const msgData = read_bytes("msgData", msgSize);
+        const msgData = br.read_bytes("msgData", msgSize);
 
-        add_row(getMsgName(msgId), msgSize, bufferToHex(msgData));
+        br.add_row(getMsgName(msgId), msgSize, bufferToHex(msgData));
     }
 
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
-    // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(read_bytes(frameEnd - offset)));
+    // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(br.read_bytes(frameEnd - offset)));
 
     if (showOnTable) {
-        createTable("packageTable", ["Parameter", "Size", "Value"], rows);
+        createTable("packageTable", br.headers, br.rows);
         pkgTableContainer.classList.remove("hl-hidden");
     }
 

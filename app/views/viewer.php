@@ -74,6 +74,7 @@ function render_viewer($selectedFile) {
 
     </div>
     <script src="./app/js/viewer-utils.js"></script>
+    <script src="./app/js/viewer-binary-reader.js"></script>
     <script src="./app/js/viewer-package-parser.js"></script>
     <script src="./app/js/viewer-package-highlight.js"></script>
     <script src="./app/js/viewer-terms-highlight.js"></script>

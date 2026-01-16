@@ -129,3 +129,4 @@ function asciiFromOffset(offset) {
     for (let i = offset; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
     return s;
 }
+
