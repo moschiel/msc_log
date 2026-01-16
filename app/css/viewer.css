@@ -68,7 +68,7 @@ html, body {
 
 /* Estilos para destacar pacotes CC33 no LOG */
 .hl-pkg-ok {
-    background: #def3e6;
+    background: #f5fcf7;
     color: black;
 }
 
@@ -98,8 +98,8 @@ html, body {
     border-right: 1px solid black;
 }
 
-.hl-pkg-hover {
-    font: bold
+.hl-pkg-mouseover {
+    background: #a5ecc1;
 }
 
 /* Estilo para sobrescrever alguns estilos da table.css */

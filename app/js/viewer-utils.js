@@ -70,3 +70,35 @@ function uint8ArrayToBCD(buffer) {
 
     return result;
 }
+
+// Edita tabela existente dinamicamente
+function createTable(tableId, headers, rows) {
+    const table = document.getElementById(tableId);
+    table.innerHTML = "";
+
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trHead.appendChild(th);
+    });
+
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+}

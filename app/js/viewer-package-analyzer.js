@@ -82,29 +82,11 @@ function analyzePackages(text) {
                         text = text.replace(oldLine, newLine);
                     });
 
+                    // Associa Eventos
                     if (classPkgStatus === 'hl-pkg-ok') {
-                        logBox.addEventListener("click", e => {
-                            if (e.target.classList.contains(classPkgGroup)) {
-                                //console.log("clicou:", classPkgGroup);
-                                //const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
-                                parseCC33Frame(frameBuf, true);
-                            }
-                        });
+                        linkClickEventToFrame(classPkgGroup, frameBuf);
+                        linkHoverEventToFrame(classPkgGroup);
                     }
-                    // logBox.addEventListener("mouseover", e => {
-                    //     if (e.target.classList.contains(classPkgGroup)) {
-                    //         console.log("mouseEnter:", classPkgGroup);
-                    //     }
-                    // });
-                    // logBox.addEventListener("mouseout", e => {
-                    //     if (e.target.classList.contains(classPkgGroup)) {
-                    //         console.log("mouseLeave:", classPkgGroup);
-                    //     }
-                    // });
-                    //const elements = document.getElementsByClassName(classPkgGroup);
-                    //for (const el of elements) {
-                    //    el.classList.add(`hl-pkg-hover`);
-                    //}
 
                     frameStr = "";
                     linesToReplace = [];
@@ -219,35 +201,43 @@ function parseCC33Frame(u8buf, showOnTable) {
     return true;
 }
 
-function createTable(tableId, headers, rows) {
-    const table = document.getElementById(tableId);
-    table.innerHTML = "";
-
-    const thead = document.createElement("thead");
-    const trHead = document.createElement("tr");
-
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        trHead.appendChild(th);
+/**
+ * @param {string} classPkgGroup
+ * @param {Uint8Array} frameBuf
+ */
+function linkClickEventToFrame(classPkgGroup, frameBuf) {
+    // Note que associamos o eventos ao logBox, 
+    // quando faria mais sentido associar ao proprio elemento com a classe 'classPkgGroup' usando 'document.getElementsByClassName(classPkgGroup)'
+    // O problema é que getElementsByClassName vai retorna nada, pois só quando retorna dessa funcao que a classe vai existir no innerHTML de fato, 
+    // nao podemos associar eventos a classes que ainda nao foram renderizadas.
+    logBox.addEventListener("click", e => {
+        if (e.target.classList.contains(classPkgGroup)) {
+            //console.log("clicou:", classPkgGroup);
+            //const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
+            parseCC33Frame(frameBuf, true);
+        }
     });
+}
 
-    thead.appendChild(trHead);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    rows.forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-        const td = document.createElement("td");
-        td.textContent = cell;
-        tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
+function linkHoverEventToFrame(classPkgGroup) {
+    logBox.addEventListener("mouseover", e => {
+        if (e.target.classList.contains(classPkgGroup)) {
+            const elements = document.getElementsByClassName(classPkgGroup);
+            for (const el of elements) {
+                if (el.classList.contains(`hl-pkg-mouseover`) === false)
+                    el.classList.add(`hl-pkg-mouseover`);
+            }
+        }
     });
-
-    table.appendChild(tbody);
+    logBox.addEventListener("mouseout", e => {
+        if (e.target.classList.contains(classPkgGroup)) {
+            const elements = document.getElementsByClassName(classPkgGroup);
+            for (const el of elements) {
+                if (el.classList.contains(`hl-pkg-mouseover`))
+                    el.classList.remove(`hl-pkg-mouseover`);
+            }
+        }
+    });
 }
 
 
