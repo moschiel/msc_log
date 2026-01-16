@@ -202,7 +202,7 @@ function parseCC33Frame(u8buf, showOnTable) {
 function parseMessage(msgID, data, showOnTable = true) {
     const br = createBinaryReader(data, {
         processMode: showOnTable ? "collect" : "validate",
-        tableMode: "nsv"
+        tableMode: "nv"
     });
     
     // -------- switch principal --------
@@ -238,33 +238,28 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_hex_u32("Report Reason");
             break;
         }
-/*
+
         case 0x1121: {
             for (let i = 0; i < 6; i++) {
-                rows.push([`A/D[${i}] (mV)`, read_i16()]);
+                br.add_i16(`A/D[${i}] (mV)`);
             }
-
-            add_hex_u16("Security Mode Input");
-            add_hex_u16("Security Mode Output");
-
-            add_u16("Macro ID");
-            add_u32("Login ID 1");
-            add_u32("Login ID 2");
-            add_u32("RFU");
-
-            const gzCount = read_u8();
-            rows.push(["Geozones Count", gzCount]);
-
+            br.add_hex_u16("Security Mode Input");
+            br.add_hex_u16("Security Mode Output");
+            br.add_u16("Macro ID");
+            br.add_u32("Login ID 1");
+            br.add_u32("Login ID 2");
+            br.add_u32("RFU");
+            const gzCount = br.add_u8("Geozones Count");
             for (let i = 0; i < gzCount; i++) {
-                const group = read_u8();
-                const id = read_u32();
+                const group = br.read_u8(`Geozone Group[${i}]`);
+                const id = br.read_u32(`Geozone ID[${i}]`);
                 const gzId = (id & 0x00FFFFFF) >>> 0;
                 const flags = (id >>> 24) & 0xFF;
-                rows.push([`GZ[${i}]`, `Group=${group}, ID=${gzId}, Flags=${flags}`]);
+                br.add_row(`GZ[${i}]`, 5 ,`Group=${group}, ID=${gzId}, Flags=${flags}`);
             }
             break;
         }
-
+/*
         case 0x1400: {
             add_u8("Speed (km/h)");
             add_u8("Fuel Level");
