@@ -1,16 +1,10 @@
 const cbAnalyzePkg = document.getElementById("analyzePackage");
-const pkgTableContainer = document.getElementById("packageTableContainer");
-const btnClosePkgTable = document.getElementById("btnClosePkgTable");
-
 cbAnalyzePkg.addEventListener("change", () => {
     renderLogText();
 });
-btnClosePkgTable.addEventListener("click", () => {
-    pkgTableContainer.classList.toggle("hl-hidden");
-});
 
 
-// Aplica highlight dos pacotes com CC33
+// Aplica estilo e eventos aos pacotes com CC33
 let globalFrames = [];
 function analyzePackages(text) {
     const lines = text.split(/\r?\n/);
@@ -100,106 +94,6 @@ function analyzePackages(text) {
     return text;
 }
 
-/**
- * @param {Uint8Array} u8buf
- */
-function parseCC33Frame(u8buf, showOnTable) {
-    const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
-    let offset = 0;
-    let rows = [];
-
-    function need2read(n, description) {
-        if (offset + n > dv.byteLength)
-        throw new Error(`Frame truncado ao tentar ler ${description}`);
-    }
-
-    // CC33
-    need2read(2, 'frame incial');
-    if (dv.getUint16(offset, false) !== 0xCC33)
-        throw new Error("Frame inicial invalido");
-    offset += 2;
-
-    // size
-    need2read(2, 'Tamanho do pacote');
-    const pkgSize = dv.getUint16(offset, true);
-    if (showOnTable) rows.push(["Tamanho do pacote", 2, pkgSize]);
-    offset += 2;
-
-    const frameEnd = offset + pkgSize;
-    if (frameEnd > dv.byteLength)
-        throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${dv.byteLength})`);
-
-    // option
-    need2read(1, 'Option');
-    const option = dv.getUint8(offset);
-    if (showOnTable) rows.push(["Option", 1, option === 0 ? "0 - Not Provider" : `3 - Provider`]);
-    offset += 1;
-
-    if (option !== 0 && option !== 3)
-        throw new Error("Option inválida, deve ser 0 ou 3");
-
-    let esnSize, esn, packgIndex, serviceType;
-    if (option === 0) {
-        esn = "";
-    }
-    else
-    {
-        if (showOnTable) rows.push(["Ignore", 2, "campo ignorado"]);
-        offset += 2; //pula + 2
-        
-        need2read(1, 'Tamanho do SN');
-        esnSize = dv.getUint8(offset);
-        if (showOnTable) rows.push(['Tamanho do SN', 1, esnSize]);
-        offset += 1;
-        
-        need2read(esnSize, 'SerialNumber');
-        const esnBuf = u8buf.slice(offset, offset + esnSize)
-        if (showOnTable) rows.push(['SerialNumber', `${esnSize} bytes em BCD`, `${uint8ArrayToBCD(esnBuf)}`]);
-        offset += esnSize;
-    }
-
-    need2read(2, 'Index do Pacote');
-    packgIndex = dv.getUint16(offset, true); 
-    if (showOnTable) rows.push(['Index do Pacote', 2, packgIndex]);
-    offset += 2;
-
-    need2read(1, "Tipo de Serviço");
-    serviceType = dv.getUint8(offset);
-    if (showOnTable) rows.push(['Tipo de Serviço', 1, `0x${serviceType.toString(16)}`]);
-    offset += 1;
-
-
-    let newMsg = true;
-    while (newMsg && (offset < frameEnd)) {
-        need2read(2, 'ID de uma mensagem');
-        const msgId  = dv.getUint16(offset, true);
-        offset += 2;
-        
-        need2read(2, `Tamanho da mensagem 0x${msgId.toString(16)}`);
-        msgSize = dv.getUint16(offset, true); 
-        offset += 2;
-        
-        newMsg = (msgSize & 0x8000) > 0;
-        msgSize = (msgSize & 0x7FFF);
-        
-        need2read(msgSize, `${msgSize} bytes de dados da mensagem 0x${msgId.toString(16)}`);
-        const msgData = u8buf.slice(offset, offset + msgSize);
-        offset += msgSize;
-        
-        if (showOnTable) rows.push([`0x${msgId.toString(16).toUpperCase().padStart(4, '0')}`, msgSize, bufferToHex(msgData)]);
-    }
-
-    if(showOnTable) {
-        createTable(
-            "packageTable",
-            ["Parameter", "Size", "Value"],
-            rows
-        );
-        pkgTableContainer.classList.remove("hl-hidden");
-    }
-
-    return true;
-}
 
 /**
  * @param {string} classPkgGroup
