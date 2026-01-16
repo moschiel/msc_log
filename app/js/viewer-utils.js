@@ -102,3 +102,30 @@ function createTable(tableId, headers, rows) {
 
     table.appendChild(tbody);
 }
+
+const epochSecondsToString = (sec) => new Date(sec * 1000).toISOString();
+
+// ======== ASCII helpers ========
+function getAsciiStringAll() {
+    let s = "";
+    for (let i = 0; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
+    return s;
+}
+
+function splitNullTerminatedAscii(u8arr) {
+    const parts = [];
+    let cur = "";
+    for (let i = 0; i < u8arr.length; i++) {
+        const b = u8arr[i];
+        if (b === 0x00) { parts.push(cur); cur = ""; }
+        else cur += String.fromCharCode(b & 0x7F);
+    }
+    parts.push(cur);
+    return parts;
+}
+
+function asciiFromOffset(offset) {
+    let s = "";
+    for (let i = offset; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
+    return s;
+}
