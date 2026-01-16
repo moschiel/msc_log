@@ -1,8 +1,66 @@
-const pkgTableContainer = document.getElementById("packageTableContainer");
+const tablesContainer = document.getElementById("tablesContainer");
+const packageTable = document.getElementById("packageTable");
+const messageTableWrapper =  document.getElementById("messageTableWrapper");
 const btnClosePkgTable = document.getElementById("btnClosePkgTable");
 
 btnClosePkgTable.addEventListener("click", () => {
-    pkgTableContainer.classList.toggle("hl-hidden");
+    if(tablesContainer.classList.contains("hl-hidden") === false)
+        tablesContainer.classList.add("hl-hidden");
+    if(messageTableWrapper.classList.contains("hl-hidden") === false)
+        messageTableWrapper.classList.add("hl-hidden");
+});
+
+packageTable.addEventListener("dblclick", (ev) => {
+    try
+    {
+        const tr = ev.target.closest("tr");
+        if (!tr) return;
+    
+        // se tiver <thead>, evita clicar no header
+        if (tr.closest("thead")) return;
+    
+        const tds = Array.from(tr.cells);
+        if (tds.length < 3) return;
+    
+        const col1Text = tds[0].textContent.trim();
+        const col3Text = tds[2].textContent.trim();
+    
+        // 1) Primeira coluna: se começa com "0x" e len >= 6 -> Number
+        let col1Number = null;
+        if (col1Text.startsWith("0x") && col1Text.length >= 6 && isHexOnly(col1Text.substr(2, 4))) {
+            col1Number = Number(col1Text.substr(0, 6)); // funciona com "0x...."
+            if (Number.isNaN(col1Number)) return;
+        } else {
+            return;
+        }
+    
+        // 2) Terceira coluna: se for texto hex -> Uint8Array
+        let col3Bytes = null;
+        try {
+            col3Bytes = hexToBuffer(col3Text);
+        } catch (e) {
+            console.warn("Falha ao converter coluna 3 para Uint8Array:", e);
+        }
+
+        // 3) imprimir no log o valor da primeira coluna (convertido se aplicável)
+        console.log("LOG col1:", col1Text.substr(0, 6));
+        createTable("messageTable", ["Test1", "Test2", "Test3"], [
+            [1,2,3],
+            [4,5,6],
+            [1,2,3],
+            [4,5,6],
+            [1,2,3],
+            [4,5,6],
+            [1,2,3],
+            [4,5,6]
+        ]);
+        if(messageTableWrapper.classList.contains("hl-hidden"))
+            messageTableWrapper.classList.remove("hl-hidden");
+    }
+    catch(e) 
+    {
+        console.error(e.message);
+    }
 });
 
 // Mapa equivalente ao Dictionary<UInt16, string>
@@ -83,11 +141,11 @@ function getMsgName(id) {
  * @param {boolean} showOnTable,
  */
 function parseCC33Frame(u8buf, showOnTable) {
-    const br = createBinaryReader(u8buf, { 
-        processMode: showOnTable ? "collect" : "validate", 
-        tableMode: "nsv" 
+    const br = createBinaryReader(u8buf, {
+        processMode: showOnTable ? "collect" : "validate",
+        tableMode: "nsv"
     });
-    
+
     const start = br.read_u16("frame incial", false);
     if (start !== 0xCC33) throw new Error("Frame inicial invalido");
 
@@ -122,7 +180,7 @@ function parseCC33Frame(u8buf, showOnTable) {
         const msgId = br.read_u16("msgId", true);
 
         let msgSize = br.read_u16("msgSize", true);
-        
+
         newMsg = (msgSize & 0x8000) !== 0;
         msgSize = (msgSize & 0x7FFF);
 
@@ -136,7 +194,9 @@ function parseCC33Frame(u8buf, showOnTable) {
 
     if (showOnTable) {
         createTable("packageTable", br.headers, br.rows);
-        pkgTableContainer.classList.remove("hl-hidden");
+        tablesContainer.classList.remove("hl-hidden");
+        if(messageTableWrapper.classList.contains("hl-hidden") === false)
+            messageTableWrapper.classList.add("hl-hidden");
     }
 
     return true;
@@ -165,7 +225,7 @@ function showMsgFields(msgID, data) {
     }
 
     // ======== readers (LE) ========
-    const read_u8  = () => { need(1); const v = dv.getUint8(count); count += 1; return v; };
+    const read_u8 = () => { need(1); const v = dv.getUint8(count); count += 1; return v; };
     const read_i16 = () => { need(2); const v = dv.getInt16(count, true); count += 2; return v; };
     const read_u16 = () => { need(2); const v = dv.getUint16(count, true); count += 2; return v; };
     const read_i32 = () => { need(4); const v = dv.getInt32(count, true); count += 4; return v; };
@@ -176,12 +236,12 @@ function showMsgFields(msgID, data) {
     const skip = (n) => { need(n); count += n; };
 
     // ======== formatadores ========
-    const hex_u8  = (v) => `0x${(v & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`;
+    const hex_u8 = (v) => `0x${(v & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`;
     const hex_u16 = (v) => `0x${(v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`;
     const hex_u32 = (v) => `0x${(v >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
 
     // ======== adders básicos ========
-    const add_u8  = (name) => rows.push([name, read_u8()]);
+    const add_u8 = (name) => rows.push([name, read_u8()]);
     const add_i16 = (name) => rows.push([name, read_i16()]);
     const add_u16 = (name) => rows.push([name, read_u16()]);
     const add_i32 = (name) => rows.push([name, read_i32()]);
@@ -189,7 +249,7 @@ function showMsgFields(msgID, data) {
     const add_u64 = (name) => rows.push([name, read_u64().toString()]);
 
     // ======== adders hex (CORRETOS: lê e depois formata) ========
-    const add_hex_u8  = (name) => rows.push([name, hex_u8(read_u8())]);
+    const add_hex_u8 = (name) => rows.push([name, hex_u8(read_u8())]);
     const add_hex_u16 = (name) => rows.push([name, hex_u16(read_u16())]);
     const add_hex_u32 = (name) => rows.push([name, hex_u32(read_u32())]);
 
@@ -417,8 +477,8 @@ function showMsgFields(msgID, data) {
             const protoCode = strList[0];
             const strProto =
                 protoCode === "1" ? "http" :
-                protoCode === "2" ? "https" :
-                protoCode === "3" ? "ftp" : "";
+                    protoCode === "2" ? "https" :
+                        protoCode === "3" ? "ftp" : "";
 
             rows.push(["Protocol", `${strList[0]} (${strProto})`]);
             rows.push(["Host", strList[1]]);
@@ -454,8 +514,8 @@ function showMsgFields(msgID, data) {
                 const b1 = read_u8();
                 const b2 = read_u8();
                 const strID = `${b0.toString(16).toUpperCase().padStart(2, "0")} ` +
-                              `${b1.toString(16).toUpperCase().padStart(2, "0")} ` +
-                              `${b2.toString(16).toUpperCase().padStart(2, "0")}`;
+                    `${b1.toString(16).toUpperCase().padStart(2, "0")} ` +
+                    `${b2.toString(16).toUpperCase().padStart(2, "0")}`;
 
                 const size = read_u8();
                 const blob = read_bytes(size);

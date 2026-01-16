@@ -64,12 +64,19 @@ function render_viewer($selectedFile) {
 
         <div id="logBox" class="log-box"></div>
 
-        <div id="packageTableContainer" class="hl-hidden">
-            <div class="table-wrap table-wrap-viewer">
-                <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
-                </table>
+        <div id="tablesContainer" class="hl-hidden">
+            <div id="tablesFlexContainer">
+                <div class="table-wrap table-wrap-viewer">
+                    <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
+                    </table>
+                </div>
+                <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
+                    <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
+                    </table>
+                    <!-- <div id="btnClosePkgTable">❌</div> -->
+                </div>
                 <div id="btnClosePkgTable">❌</div>
-            </div>
+            <div>
         </div>
 
     </div>
