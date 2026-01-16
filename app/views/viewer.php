@@ -63,10 +63,15 @@ function render_viewer($selectedFile) {
         </div>
 
         <div id="logBox" class="log-box"></div>
-        <div class="table-wrap">
-            <table id="packageTable" class="table-clean table-sticky">
-            </table>
+
+        <div id="packageTableContainer" class="hl-hidden">
+            <div class="table-wrap table-wrap-viewer">
+                <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
+                </table>
+                <div id="btnClosePkgTable">❌</div>
+            </div>
         </div>
+
     </div>
     <script src="./app/js/viewer-utils.js"></script>
     <script src="./app/js/viewer-terms-highlight.js"></script>

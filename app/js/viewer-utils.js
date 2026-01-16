@@ -16,6 +16,12 @@ function isHexOnly(str) {
 }
 
 function hexToBuffer(hex) {
+    hex = hex.replaceAll("\r","").replaceAll("\n","");
+
+    if(isHexOnly(hex) === false) {
+        throw new Error("Frame caracter invalido");
+    }
+
     if (hex.length % 2 !== 0) {
         throw new Error("Hex string inválida (tamanho ímpar)");
     }

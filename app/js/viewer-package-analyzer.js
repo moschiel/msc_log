@@ -1,27 +1,12 @@
-class MessageData {
-    constructor(id, data) {
-        this.id = id;
-        /** @type {Uint8Array} */
-        this.data = data;
-    }
-}
-class PackageData {
-  constructor(size, option, esnSize, esn, packgIndex, serviceType, messages) {
-    this.size = size;
-    this.option = option;
-    this.esnSize = esnSize;
-    this.esn = esn;
-    this.packgIndex = packgIndex;
-    this.serviceType = serviceType;
-    /** @type {MessageData[]} */
-    this.messages = messages;
-  }
-}
-
 const cbAnalyzePkg = document.getElementById("analyzePackage");
+const pkgTableContainer = document.getElementById("packageTableContainer");
+const btnClosePkgTable = document.getElementById("btnClosePkgTable");
 
 cbAnalyzePkg.addEventListener("change", () => {
     renderLogText();
+});
+btnClosePkgTable.addEventListener("click", () => {
+    pkgTableContainer.classList.toggle("hl-hidden");
 });
 
 
@@ -33,7 +18,7 @@ function analyzePackages(text) {
     let isCollectingFrame = false;
     let frameStr = "";
     let linesToReplace = [];
-    globalFrames = [];
+    let pkgCounter = 0;
 
     lines.forEach((line, lineNumber) => {
         if (line.length > LOG_HEADER_EXAMPLE.length) {
@@ -52,15 +37,16 @@ function analyzePackages(text) {
                 linesToReplace.push(line);   
             } else {
                 if (frameStr.length > 0) {
-                    frameStr = frameStr.replace("\r", "").replace("\n", "");
-                    globalFrames.push(frameStr);
-                    
-                    const classPkgGroup = `pkg-${globalFrames.length}`;
+                    pkgCounter++;
+                    const classPkgGroup = `pkg-${pkgCounter}`;
+                    const frameBuf = hexToBuffer(frameStr);
                     let classPkgStatus = "";
-                    let parsedPkg = new PackageData();
+
                     try {
-                        parsedPkg = parseCC33Frame(frameStr);
-                        classPkgStatus = 'hl-pkg-ok';
+                        if(parseCC33Frame(frameBuf, false)) 
+                            classPkgStatus = 'hl-pkg-ok';
+                        else
+                            classPkgStatus = 'hl-pkg-err';
                     } catch (e) {
                         console.error(e.message, ", Line: ", line);
                         classPkgStatus = 'hl-pkg-err';
@@ -100,9 +86,8 @@ function analyzePackages(text) {
                         logBox.addEventListener("click", e => {
                             if (e.target.classList.contains(classPkgGroup)) {
                                 //console.log("clicou:", classPkgGroup);
-                                const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
-                                //console.log(globalFrames[index]);
-                                createPackageTable(parsedPkg);
+                                //const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
+                                parseCC33Frame(frameBuf, true);
                             }
                         });
                     }
@@ -133,21 +118,13 @@ function analyzePackages(text) {
     return text;
 }
 
-function parseCC33Frame(frameStr) {
-    frameStr = frameStr.replace("\r\n", "");
-
-    if(isHexOnly(frameStr) === false) {
-        throw new Error("Frame caracter invalido");
-    }
-
-    if (frameStr.length % 2 != 0) {
-        throw new Error("Frame string com tamanho impar");
-    }
-
-    u8buf = hexToBuffer(frameStr);
-
+/**
+ * @param {Uint8Array} u8buf
+ */
+function parseCC33Frame(u8buf, showOnTable) {
     const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
     let offset = 0;
+    let rows = [];
 
     function need2read(n, description) {
         if (offset + n > dv.byteLength)
@@ -161,17 +138,19 @@ function parseCC33Frame(frameStr) {
     offset += 2;
 
     // size
-    need2read(2, 'tamanho do pacote');
-    const size = dv.getUint16(offset, true);
+    need2read(2, 'Tamanho do pacote');
+    const pkgSize = dv.getUint16(offset, true);
+    if (showOnTable) rows.push(["Tamanho do pacote", 2, pkgSize]);
     offset += 2;
 
-    const frameEnd = offset + size;
+    const frameEnd = offset + pkgSize;
     if (frameEnd > dv.byteLength)
-        throw new Error(`Frame Size (${size}) é maior que o buffer (${dv.byteLength})`);
+        throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${dv.byteLength})`);
 
     // option
-    need2read(1, 'option');
+    need2read(1, 'Option');
     const option = dv.getUint8(offset);
+    if (showOnTable) rows.push(["Option", 1, option === 0 ? "0 - Not Provider" : `3 - Provider`]);
     offset += 1;
 
     if (option !== 0 && option !== 3)
@@ -183,81 +162,61 @@ function parseCC33Frame(frameStr) {
     }
     else
     {
+        if (showOnTable) rows.push(["Ignore", 2, "campo ignorado"]);
         offset += 2; //pula + 2
         
-        need2read(1, 'tamanho do ESN');
+        need2read(1, 'Tamanho do SN');
         esnSize = dv.getUint8(offset);
+        if (showOnTable) rows.push(['Tamanho do SN', 1, esnSize]);
         offset += 1;
         
-        need2read(esnSize, 'ESN');
-        esn = uint8ArrayToBCD(u8buf.slice(offset, offset + esnSize));
+        need2read(esnSize, 'SerialNumber');
+        const esnBuf = u8buf.slice(offset, offset + esnSize)
+        if (showOnTable) rows.push(['SerialNumber', `${esnSize} bytes em BCD`, `${uint8ArrayToBCD(esnBuf)}`]);
         offset += esnSize;
     }
 
     need2read(2, 'Index do Pacote');
     packgIndex = dv.getUint16(offset, true); 
+    if (showOnTable) rows.push(['Index do Pacote', 2, packgIndex]);
     offset += 2;
 
     need2read(1, "Tipo de Serviço");
     serviceType = dv.getUint8(offset);
+    if (showOnTable) rows.push(['Tipo de Serviço', 1, `0x${serviceType.toString(16)}`]);
     offset += 1;
 
 
     let newMsg = true;
-    const messages = [];
     while (newMsg && (offset < frameEnd)) {
         need2read(2, 'ID de uma mensagem');
-        const msgId  = dv.getUint16(offset, true); 
+        const msgId  = dv.getUint16(offset, true);
         offset += 2;
-
+        
         need2read(2, `Tamanho da mensagem 0x${msgId.toString(16)}`);
         msgSize = dv.getUint16(offset, true); 
         offset += 2;
-
+        
         newMsg = (msgSize & 0x8000) > 0;
         msgSize = (msgSize & 0x7FFF);
-
+        
         need2read(msgSize, `${msgSize} bytes de dados da mensagem 0x${msgId.toString(16)}`);
         const msgData = u8buf.slice(offset, offset + msgSize);
         offset += msgSize;
-
-        messages.push(new MessageData (msgId, msgData));
+        
+        if (showOnTable) rows.push([`0x${msgId.toString(16).toUpperCase().padStart(4, '0')}`, msgSize, bufferToHex(msgData)]);
     }
 
-    return new PackageData(
-        size,
-        option,
-        esnSize,
-        esn,
-        packgIndex,
-        serviceType,
-        messages
-    );
-}
-
-
-/**
- * @param {PackageData} pkgData
- */
-function createPackageTable(pkgData) {
-    let rows = [];
-    rows.push(["Pkg Size", pkgData.size]);
-    rows.push(["Option", pkgData.option === 0 ? "0 - Not Provider" : `3 - Provider`]);
-    if(pkgData.option === 3) {
-        rows.push(["ESN Size", pkgData.esnSize]);
-        rows.push(["ESN (BCD)", pkgData.esn]);   
+    if(showOnTable) {
+        createTable(
+            "packageTable",
+            ["Parameter", "Size", "Value"],
+            rows
+        );
+        pkgTableContainer.classList.remove("hl-hidden");
     }
-    rows.push(["Pkg Index", pkgData.packgIndex]);
-    rows.push(["Service Type", `0x${pkgData.serviceType.toString(16)}`]);
-    pkgData.messages.forEach((msg) => {
-        rows.push([`0x${msg.id.toString(16).toUpperCase()}`, bufferToHex(msg.data)]);
-    });
 
-    createTable(
-        "packageTable",
-        ["Parameter", "Value"],
-        rows
-    );
+    return true;
 }
 
 function createTable(tableId, headers, rows) {

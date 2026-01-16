@@ -9,7 +9,8 @@
   background: #ffffff;
   border: 1px solid #e5e7eb; /* borda externa suave */
   border-radius: 10px;
-  overflow: hidden; /* faz o border-radius funcionar */
+  /* faz o border-radius funcionar */
+  overflow: hidden; 
 }
 
 .table-clean thead th {
