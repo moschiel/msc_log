@@ -154,14 +154,24 @@ function parseCC33Frame(u8buf, showOnTable) {
 
     // ESN (se provider)
     if (option === 3) {
-        br.add_row_hex_u16("Ignore", false);
+        br.add_row_hex_u16("Sei lá", false);
         const esnSize = br.add_row_u8("Tamanho do SN");
         br.add_row_bytes_BCD("SerialNumber", esnSize);
     }
 
     // index / service type
     br.add_row_u16("Index do Pacote");
-    br.add_row_hex_u8("Tipo de Serviço");
+    br.add_row_u8("Tipo de Serviço", (v) => {
+        let ackType = "";
+        switch(v & 0x03) {
+            case 0x00: ackType = "No ACK requested"; break;
+            case 0x01: ackType = "ACK requested"; break;
+            case 0x02: ackType = "ACK message"; break;
+            case 0x03: ackType = "ACK invalid option"; break;
+        }
+        let connState = (v & 0x80) > 0 ? "Online" : "Offline";
+        return `${br.hex_u8(v)} - ${ackType}, ${connState}`;
+    });
 
     // mensagens
     let newMsg = true;
@@ -317,7 +327,6 @@ function parseMessage(msgID, data, showOnTable = true) {
 */
         case 0x1405: {
             br.add_row_u8("Type");
-
             const unidades = ["Tempo", "Distância"];
             const parameters = ["Total ON", "Inercia", "Torque", "Ascendente", "Descendente"];
             const faixas = ["Lenta", "Transição", "Verde", "Amarela", "Perigo", "Extra Verde"];
