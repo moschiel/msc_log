@@ -13,8 +13,8 @@ function render_browser($items, $msg) {
 <head>
     <meta charset="UTF-8">
     <title>File Browser</title>
-    <link rel="stylesheet" href="./app/css/table.css">
-    <link rel="stylesheet" href="./app/css/browser.css">
+    <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/browser.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
     <h2>Listagem: /<?= htmlspecialchars($current) ?></h2>
@@ -95,7 +95,7 @@ function render_browser($items, $msg) {
 
         </table>
     </div>
-    <script src="./app/js/browser.js"></script>
+    <script src="./app/js/browser.js?v=<?= APP_VERSION ?>"></script>
 </body>
 </html>
 <?php

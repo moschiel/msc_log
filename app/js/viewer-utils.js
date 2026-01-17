@@ -95,6 +95,7 @@ function createTable(tableId, headers, rows) {
         row.forEach(cell => {
         const td = document.createElement("td");
         td.textContent = cell;
+        // td.innerHTML = cell;
         tr.appendChild(td);
         });
         tbody.appendChild(tr);

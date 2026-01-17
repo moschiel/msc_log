@@ -1,6 +1,7 @@
 <?php
 // app/views/viewer.php
 
+
 function render_viewer($selectedFile) {
     global $ROOT_DIR;
 
@@ -12,8 +13,8 @@ function render_viewer($selectedFile) {
 <head>
     <meta charset="UTF-8">
     <title>Viewer - <?= htmlspecialchars($title) ?></title>
-    <link rel="stylesheet" href="./app/css/viewer.css">
-    <link rel="stylesheet" href="./app/css/table.css">
+    <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
     <div class="main">
@@ -73,20 +74,19 @@ function render_viewer($selectedFile) {
                 <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
                     <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
                     </table>
-                    <!-- <div id="btnClosePkgTable">❌</div> -->
                 </div>
                 <div id="btnClosePkgTable">❌</div>
             <div>
         </div>
 
     </div>
-    <script src="./app/js/viewer-utils.js"></script>
-    <script src="./app/js/viewer-binary-reader.js"></script>
-    <script src="./app/js/viewer-package-parser.js"></script>
-    <script src="./app/js/viewer-package-highlight.js"></script>
-    <script src="./app/js/viewer-terms-highlight.js"></script>
-    <script src="./app/js/viewer-render-log.js"></script>
-    <script src="./app/js/viewer-auto-refresh.js"></script>
+    <script src="./app/js/viewer-utils.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-terms-highlight.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
     <script>
         // executa no inicio
         loadSettings();
