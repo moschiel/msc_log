@@ -314,89 +314,27 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_row_u32("Driver ID");
             break;
         }
-
+*/
         case 0x1405: {
             br.add_row_u8("Type");
 
-            const addU16 = (name) => rows.push([name, read_u16()]);
-
-            addU16("Tempo Total ON - Lenta");
-            addU16("Tempo Total ON - Transição");
-            addU16("Tempo Total ON - Verde");
-            addU16("Tempo Total ON - Amarela");
-            addU16("Tempo Total ON - Perigo");
-            addU16("Tempo Total ON - Extra Verde");
-
-            addU16("Tempo Inercia - Lenta");
-            addU16("Tempo Inercia - Transição");
-            addU16("Tempo Inercia - Verde");
-            addU16("Tempo Inercia - Amarela");
-            addU16("Tempo Inercia - Perigo");
-            addU16("Tempo Inercia - Extra Verde");
-
-            addU16("Tempo Torque - Lenta");
-            addU16("Tempo Torque - Transição");
-            addU16("Tempo Torque - Verde");
-            addU16("Tempo Torque - Amarela");
-            addU16("Tempo Torque - Perigo");
-            addU16("Tempo Torque - Extra Verde");
-
-            addU16("Tempo Ascendente - Lenta");
-            addU16("Tempo Ascendente - Transição");
-            addU16("Tempo Ascendente - Verde");
-            addU16("Tempo Ascendente - Amarela");
-            addU16("Tempo Ascendente - Perigo");
-            addU16("Tempo Ascendente - Extra Verde");
-
-            addU16("Tempo Descendente - Lenta");
-            addU16("Tempo Descendente - Transição");
-            addU16("Tempo Descendente - Verde");
-            addU16("Tempo Descendente - Amarela");
-            addU16("Tempo Descendente - Perigo");
-            addU16("Tempo Descendente - Extra Verde");
-
-            addU16("Distancia Total ON - Lenta");
-            addU16("Distancia Total ON - Transição");
-            addU16("Distancia Total ON - Verde");
-            addU16("Distancia Total ON - Amarela");
-            addU16("Distancia Total ON - Perigo");
-            addU16("Distancia Total ON - Extra Verde");
-
-            addU16("Distancia Inercia - Lenta");
-            addU16("Distancia Inercia - Transição");
-            addU16("Distancia Inercia - Verde");
-            addU16("Distancia Inercia - Amarela");
-            addU16("Distancia Inercia - Perigo");
-            addU16("Distancia Inercia - Extra Verde");
-
-            addU16("Distancia Torque - Lenta");
-            addU16("Distancia Torque - Transição");
-            addU16("Distancia Torque - Verde");
-            addU16("Distancia Torque - Amarela");
-            addU16("Distancia Torque - Perigo");
-            addU16("Distancia Torque - Extra Verde");
-
-            addU16("Distancia Ascendente - Lenta");
-            addU16("Distancia Ascendente - Transição");
-            addU16("Distancia Ascendente - Verde");
-            addU16("Distancia Ascendente - Amarela");
-            addU16("Distancia Ascendente - Perigo");
-            addU16("Distancia Ascendente - Extra Verde");
-
-            addU16("Distancia Descendente - Lenta");
-            addU16("Distancia Descendente - Transição");
-            addU16("Distancia Descendente - Verde");
-            addU16("Distancia Descendente - Amarela");
-            addU16("Distancia Descendente - Perigo");
-            addU16("Distancia Descendente - Extra Verde");
-
-            addU16("Tempo Total Parado ON");
+            const unidades = ["Tempo", "Distância"];
+            const parameters = ["Total ON", "Inercia", "Torque", "Ascendente", "Descendente"];
+            const faixas = ["Lenta", "Transição", "Verde", "Amarela", "Perigo", "Extra Verde"];
+            unidades.forEach(unidade => {
+                parameters.forEach(param => {
+                    faixas.forEach(faixa => {
+                        br.add_row_u16(`${unidade} ${param} - ${faixa}`);
+                    });
+                });
+            })
+            br.add_row_u16("Tempo Total Parado ON");
             br.add_row_u32("Tempo Total do Delta");
             br.add_row_u32("Total Combustivel Consumido");
             br.add_row_u32("Driver ID");
             break;
         }
-
+/*
         case 0x4010: {
             const strList = splitNullTerminatedAscii(data);
 
