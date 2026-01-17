@@ -72,8 +72,7 @@ function uint8ArrayToBCD(buffer) {
 }
 
 // Edita tabela existente dinamicamente
-function createTable(tableId, headers, rows) {
-    const table = document.getElementById(tableId);
+function createTable(table, headers, rows) {
     table.innerHTML = "";
 
     const thead = document.createElement("thead");

@@ -75,11 +75,12 @@ function render_viewer($selectedFile) {
                     <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
                     </table>
                 </div>
-                <div id="btnClosePkgTable">❌</div>
+                <div id="btnCloseTablesContainer">❌</div>
             <div>
         </div>
 
     </div>
+    <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
@@ -87,6 +88,7 @@ function render_viewer($selectedFile) {
     <script src="./app/js/viewer-terms-highlight.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>
     <script>
         // executa no inicio
         loadSettings();

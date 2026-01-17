@@ -1,12 +1,7 @@
-const cbAnalyzePkg = document.getElementById("analyzePackage");
-cbAnalyzePkg.addEventListener("change", () => {
-    renderLogText();
-});
-
+let globalFrames = [];
 
 // Aplica estilo e eventos aos pacotes com CC33
-let globalFrames = [];
-function analyzePackages(text) {
+function highlightPackages(text) {
     const lines = text.split(/\r?\n/);
     const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
     let isCollectingFrame = false;
@@ -33,11 +28,10 @@ function analyzePackages(text) {
                 if (frameStr.length > 0) {
                     pkgCounter++;
                     const classPkgGroup = `pkg-${pkgCounter}`;
-                    const frameBuf = hexToBuffer(frameStr);
                     let classPkgStatus = "";
 
                     try {
-                        if(parseCC33Frame(frameBuf, false)) 
+                        if(parseCC33Frame(hexToBuffer(frameStr), false)) 
                             classPkgStatus = 'hl-pkg-ok';
                         else
                             classPkgStatus = 'hl-pkg-err';
@@ -65,7 +59,7 @@ function analyzePackages(text) {
                             const diffSize = linesToReplace[linesToReplace.length - 2].length - linesToReplace[linesToReplace.length - 1].length;
                             const startHexPart = hexPart.slice(0, hexPart.length - diffSize) 
                             const endHexPart =  hexPart.slice(hexPart.length - diffSize);
-                            const spanEndHexPart = `<span class="${classPkgGroup} hl-border-bottom">${endHexPart}</span>`
+                            const spanEndHexPart = `<span class="${classPkgGroup} pkg-right-part hl-border-bottom">${endHexPart}</span>`
                             newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
                         }
                         else
@@ -75,12 +69,6 @@ function analyzePackages(text) {
                         
                         text = text.replace(oldLine, newLine);
                     });
-
-                    // Associa Eventos
-                    if (classPkgStatus === 'hl-pkg-ok') {
-                        linkClickEventToFrame(classPkgGroup, frameBuf);
-                        linkHoverEventToFrame(classPkgGroup);
-                    }
 
                     frameStr = "";
                     linesToReplace = [];
@@ -94,44 +82,52 @@ function analyzePackages(text) {
     return text;
 }
 
-
-/**
- * @param {string} classPkgGroup
- * @param {Uint8Array} frameBuf
- */
-function linkClickEventToFrame(classPkgGroup, frameBuf) {
-    // Note que associamos o eventos ao logBox, 
-    // quando faria mais sentido associar ao proprio elemento com a classe 'classPkgGroup' usando 'document.getElementsByClassName(classPkgGroup)'
-    // O problema é que getElementsByClassName vai retorna nada, pois só quando retorna dessa funcao que a classe vai existir no innerHTML de fato, 
-    // nao podemos associar eventos a classes que ainda nao foram renderizadas.
-    logBox.addEventListener("click", e => {
-        if (e.target.classList.contains(classPkgGroup)) {
-            //console.log("clicou:", classPkgGroup);
-            //const index = Number(classPkgGroup.replace("pkg-", "")) - 1;
-            parseCC33Frame(frameBuf, true);
-        }
-    });
+function getHexDataFromPackage(classPkgGroup) {
+    let frameStr = "";
+    const elements = document.getElementsByClassName(classPkgGroup);
+    for (const el of elements) {
+        if(el.classList.contains('pkg-right-part'))
+            continue;
+        frameStr += el.textContent;
+    }
+    return frameStr;
 }
 
-function linkHoverEventToFrame(classPkgGroup) {
-    logBox.addEventListener("mouseover", e => {
-        if (e.target.classList.contains(classPkgGroup)) {
-            const elements = document.getElementsByClassName(classPkgGroup);
-            for (const el of elements) {
-                if (el.classList.contains(`hl-pkg-mouseover`) === false)
-                    el.classList.add(`hl-pkg-mouseover`);
+function setHoverEffectToPackage(classPkgGroup, isHover) {
+    if(isHover) {
+        // Se tem algum elemento diferente desse classPkgGroup com efeito de hover, removemos o efeito
+        for (const el of document.getElementsByClassName(`hl-pkg-hover`)) {
+            if (el.classList[0] != classPkgGroup) {
+                el.classList.remove(`hl-pkg-hover`);
             }
         }
-    });
-    logBox.addEventListener("mouseout", e => {
-        if (e.target.classList.contains(classPkgGroup)) {
-            const elements = document.getElementsByClassName(classPkgGroup);
-            for (const el of elements) {
-                if (el.classList.contains(`hl-pkg-mouseover`))
-                    el.classList.remove(`hl-pkg-mouseover`);
-            }
+    }
+
+    // setamos efeito de hover de acordo com o classPkgGroup
+    for (const el of document.getElementsByClassName(classPkgGroup)) {
+        if(isHover) {
+            if (el.classList.contains(`hl-pkg-hover`) === false)
+                el.classList.add(`hl-pkg-hover`);
+        } else {
+            if (el.classList.contains(`hl-pkg-hover`))
+                el.classList.remove(`hl-pkg-hover`);
         }
-    });
+    }
 }
 
+// Agenda hover effect aguardando o debounce
+// se o estado mudar antes do debounce, cancelamos e reagendamos novamente
+// Isso evita que o efeito seja aplicado/removido conforme movemos o mouse em diferentes partes do mesmo pacote
+// Pois gerava um efeito "piscante"
+let debouncePackageHoverRerender = null;
+let lastClassPkgGroup = null
+function schedulePackageHoverRerender(classPkgGroup, isHover) {
+    if (debouncePackageHoverRerender && lastClassPkgGroup === classPkgGroup) 
+        clearTimeout(debouncePackageHoverRerender);
+    
+    debouncePackageHoverRerender = setTimeout(() => {
+        setHoverEffectToPackage(classPkgGroup, isHover);
+    }, 50);
 
+    lastClassPkgGroup = classPkgGroup;
+}

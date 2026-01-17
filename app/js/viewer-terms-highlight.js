@@ -1,9 +1,3 @@
-// --- Elementos UI do highlight ---
-const btnToggle = document.getElementById("toggleFilters");
-const termsPanel = document.getElementById("termsPanel");
-const taTerms = document.getElementById("hlTerms");
-const cbMatchCase = document.getElementById("hlMatchCase");
-
 // Chave por arquivo (cada arquivo mantém sua lista no local.storage)
 const fileParam = new URL(window.location.href).searchParams.get("file") || "";
 const LS_KEY = "hl_terms::" + fileParam;
@@ -26,14 +20,14 @@ function loadSettings() {
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
         termsPanel.classList.remove("hl-hidden");
-        btnToggle.textContent = "Esconder marcadores";
+        btnToggleTermsVisibility.textContent = "Esconder marcadores";
     }
 }
 
-function togglePanel() {
+function toggleTermsPanelVisibility() {
     termsPanel.classList.toggle("hl-hidden");
     const open = !termsPanel.classList.contains("hl-hidden");
-    btnToggle.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
+    btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }
 
@@ -48,7 +42,7 @@ function getTermsToHighlight() {
 }
 
  // Aplica highlight nos termos (simples e funciona bem pra logs)
-function addHighlightStyleToTerms(text, termsToHighlight) {
+function highlightTerms(text, termsToHighlight) {
     const flags = cbMatchCase.checked ? "g" : "gi";
     for (const t of termsToHighlight) {
         const re = new RegExp(escapeRegex(t), flags);
@@ -58,16 +52,11 @@ function addHighlightStyleToTerms(text, termsToHighlight) {
 }
 
 // Reaplica highlight quando usuário muda termos/config
-let debounce = null;
-function scheduleRerender() {
-    if (debounce) clearTimeout(debounce);
-    debounce = setTimeout(() => {
+let debounceTermsRerender = null;
+function scheduleTermsRerender() {
+    if (debounceTermsRerender) clearTimeout(debounceTermsRerender);
+    debounceTermsRerender = setTimeout(() => {
         saveSettings();
         renderLogText();
     }, 150);
 }
-
-// Eventos
-btnToggle.addEventListener("click", togglePanel);
-taTerms.addEventListener("input", scheduleRerender);
-cbMatchCase.addEventListener("change", scheduleRerender);

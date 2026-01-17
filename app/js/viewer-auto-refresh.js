@@ -1,4 +1,3 @@
-const cbAutoRefresh = document.getElementById("autoRefresh");
 let refreshTimer = null;
 
 function ajaxUrl() {
@@ -38,10 +37,9 @@ function stopAutoRefresh() {
     refreshTimer = null;
 }
 
-// Eventos
-cbAutoRefresh.addEventListener("change", () => {
+function setAutoRefresh() {
     if (cbAutoRefresh.checked) 
         startAutoRefresh();
     else 
         stopAutoRefresh();
-});
+}

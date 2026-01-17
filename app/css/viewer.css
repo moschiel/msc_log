@@ -98,7 +98,7 @@ html, body {
     border-right: 1px solid black;
 }
 
-.hl-pkg-mouseover {
+.hl-pkg-hover {
     background: #a5ecc1;
 }
 
@@ -150,7 +150,7 @@ html, body {
 }
 
 /* Estilo do botao pra fechar a tabela */
-#btnClosePkgTable {
+#btnCloseTablesContainer {
     position: absolute;
     top: 10px;
     right: 30px;

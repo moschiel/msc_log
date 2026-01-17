@@ -1,57 +1,3 @@
-const tablesContainer = document.getElementById("tablesContainer");
-const packageTable = document.getElementById("packageTable");
-const messageTableWrapper =  document.getElementById("messageTableWrapper");
-const btnClosePkgTable = document.getElementById("btnClosePkgTable");
-
-btnClosePkgTable.addEventListener("click", () => {
-    if(tablesContainer.classList.contains("hl-hidden") === false)
-        tablesContainer.classList.add("hl-hidden");
-    if(messageTableWrapper.classList.contains("hl-hidden") === false)
-        messageTableWrapper.classList.add("hl-hidden");
-});
-
-packageTable.addEventListener("dblclick", (ev) => {
-    try
-    {
-        const tr = ev.target.closest("tr");
-        if (!tr) return;
-    
-        // se tiver <thead>, evita clicar no header
-        if (tr.closest("thead")) return;
-    
-        const tds = Array.from(tr.cells);
-        if (tds.length < 3) return;
-    
-        const col1Text = tds[0].textContent.trim();
-        const col3Text = tds[2].textContent.trim();
-    
-        // 1) Primeira coluna: se começa com "0x" e len >= 6 -> Number
-        let col1Number = null;
-        if (col1Text.startsWith("0x") && col1Text.length >= 6 && isHexOnly(col1Text.substr(2, 4))) {
-            col1Number = Number(col1Text.substr(0, 6)); // funciona com "0x...."
-            if (Number.isNaN(col1Number)) return;
-        } else {
-            return;
-        }
-    
-        // 2) Terceira coluna: se for texto hex -> Uint8Array
-        let col3Bytes = null;
-        try {
-            col3Bytes = hexToBuffer(col3Text);
-        } catch (e) {
-            console.warn("Falha ao converter coluna 3 para Uint8Array:", e);
-        }
-
-        // 3) imprimir no log o valor da primeira coluna (convertido se aplicável)
-        console.log("LOG col1:", col1Text.substr(0, 6));
-        parseMessage(col1Number, col3Bytes, true);
-    }
-    catch(e) 
-    {
-        console.error(e.message);
-    }
-});
-
 // Mapa equivalente ao Dictionary<UInt16, string>
 const msgsList = new Map([
     [0x0000, "Keep Alive"],
@@ -226,7 +172,7 @@ function parseCC33Frame(u8buf, showOnTable) {
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(br.read_bytes(frameEnd - offset)));
 
     if (showOnTable) {
-        createTable("packageTable", br.headers, br.rows);
+        createTable(packageTable, br.headers, br.rows);
         tablesContainer.classList.remove("hl-hidden");
         if(messageTableWrapper.classList.contains("hl-hidden") === false)
             messageTableWrapper.classList.add("hl-hidden");
@@ -435,7 +381,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([strID, String(size), bufferToHex(blob)]);
             }
 
-            createTable("packageTable", ["ID", "Size", "Data (Hex Buffer)"], rows);
+            createTable(packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
             return true;
         }
 
@@ -446,7 +392,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
             }
 
-            createTable("packageTable", ["ID (index)", "Data (Hex)"], rows);
+            createTable(packageTable, ["ID (index)", "Data (Hex)"], rows);
             return true;
         }
 
@@ -463,13 +409,13 @@ function parseMessage(msgID, data, showOnTable = true) {
                 }
             }
 
-            createTable("packageTable", ["ID"], rows);
+            createTable(packageTable, ["ID"], rows);
             return true;
         }
 
         case 0x4004: {
             rows.push([getAsciiStringAll()]);
-            createTable("packageTable", ["File Name"], rows);
+            createTable(packageTable, ["File Name"], rows);
             return true;
         }
 */
@@ -642,7 +588,7 @@ function parseMessage(msgID, data, showOnTable = true) {
     }
 
     if(showOnTable) {
-        createTable("messageTable", br.headers, br.rows);
+        createTable(messageTable, br.headers, br.rows);
         if(messageTableWrapper.classList.contains("hl-hidden"))
             messageTableWrapper.classList.remove("hl-hidden");
     }

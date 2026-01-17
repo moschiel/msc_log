@@ -1,5 +1,3 @@
-const logBox = document.getElementById("logBox");
-const cbAutoScroll = document.getElementById("autoScroll");
 let rawTextLog = "";
 
 function setRawLog(rawText) {
@@ -26,15 +24,16 @@ function renderLogText() {
     
     // Aplica highlight dos pacotes com CC33
     if(cbAnalyzePkg.checked) {
-        html = analyzePackages(html);
+        html = highlightPackages(html);
     }
    
     // Aplica highlight nos termos pesquisados
     if (termsToHighlight.length > 0) {
-        html = addHighlightStyleToTerms(html, termsToHighlight);
+        html = highlightTerms(html, termsToHighlight);
     }
     
     setLogBoxInnerHTML(html);
+
 }
 
 function scrollToBottomIfNeeded() {
