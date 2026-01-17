@@ -113,6 +113,40 @@ const msgsList = new Map([
     [0x200E, "Factory Reset"]
 ]);
 
+const telemetryEventsList = new Map([
+    [1,"WARNING EXCESS RPM"],
+    [2,"EXCESS RPM"],
+    [3,"WARNING SPEED EXCESS DRY"],
+    [4,"SPEED EXCESS DRY"],
+    [5,"WARNING SPEED EXCESS WET"],
+    [6,"SPEED EXCESS WET"],
+    [7,"WARNING NEUTRAL COASTING"],
+    [8,"NEUTRAL COASTING"],
+    [9,"WARNING EXCESS STOP TIME"],
+    [10,"EXCESS STOP TIME"],
+    [11,"WARNING CLUTCH EXCESS"],
+    [12,"CLUTCH EXCESS"],
+    [13,"ACC EXCESS"],
+    [14,"BRAKE EXCESS"],
+    [15,"ROTO WARNING SPEED EXCESS DRY"],
+    [16,"ROTO SPEED EXCESS DRY"],
+    [17,"ROTO WARNING SPEED EXCESS WET"],
+    [18,"ROTO SPEED EXCESS WET"],
+    [19,"G-FORCE LATERAL"],
+    [20,"AIR BREAK PRESSURE TOO LOW"],
+    [21,"SEATBELT FAULT"],
+    [22,"FUEL TANK FALL EXCESS"],
+    [23,"EXCESS LIQUID COOLING TEMPERATURE"],
+    [24,"EXCESS MOTOR OIL TEMPERATURE" ],
+    [25,"EXCESS MOTOR OIL PRESSURE" ],
+    [26,"KICKDOWN_EXCESS" ],
+    [27,"LIQUID_COOLING_LEVEL_TOO_LOW"],
+    [28,"OIL_LEVEL_TOO_LOW" ],
+    [29,"CATALYST_LEVEL_TOO_LOW" ],
+    [30,"WATER_IN_FUEL" ],
+    [31,"DIFFERENTIAL_BLOCKED"]
+]);
+
 function getMsgName(id) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
@@ -212,7 +246,7 @@ function parseCC33Frame(u8buf, showOnTable) {
 function parseMessage(msgID, data, showOnTable = true) {
     const br = createBinaryReader(data, {
         processMode: showOnTable ? "collect" : "validate",
-        tableMode: "nv"
+        tableMode: "nsv"
     });
     
     // -------- switch principal --------
@@ -438,13 +472,16 @@ function parseMessage(msgID, data, showOnTable = true) {
             createTable("packageTable", ["File Name"], rows);
             return true;
         }
-
+*/
         case 0x1402: {
-            const eventID = read_u8();
-            const evDesc = (typeof telemetryEventsList !== "undefined" && telemetryEventsList.has(eventID))
-                ? ` - ${telemetryEventsList.get(eventID)}`
-                : "";
-            rows.push(["Event ID", `${eventID}${evDesc}`]);
+            const eventID = br.add_row_u8('Event ID', (v) => {
+                let evDesc;
+                if(telemetryEventsList.has(v)) 
+                    evDesc = telemetryEventsList.get(v);
+                else
+                    evDesc = "Evento Desconhecido";
+                return `${v} - ${evDesc}`;
+            });
 
             br.add_row_u16("Max RPM");
             br.add_row_u16("Min RPM");
@@ -454,17 +491,16 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_row_u16("Break Duration");
             br.add_row_u16("RPM Limit");
             br.add_row_u16("Speed Limit");
-
-            rows.push(["Latitude", (read_i32() / 10000000.0).toFixed(7).replace(/\.?0+$/, "")]);
-            rows.push(["Longitude", (read_i32() / 10000000.0).toFixed(7).replace(/\.?0+$/, "")]);
+            br.add_row_i32_coord("Latitude");
+            br.add_row_i32_coord("Longitude");
 
             if (eventID === 19) {
-                const evType = read_u8();
-                const evLevel = read_u8();
-
-                rows.push(["Event Type", `${evType} - ${evType === 1 ? "Left" : evType === 2 ? "Right" : ""}`]);
-                rows.push(["Event Level", `${evLevel} - ${evLevel === 1 ? "Fraca" : evLevel === 2 ? "Média" : evLevel === 3 ? "Forte" : ""}`]);
-
+                br.add_row_u8("Event Type", (v) => {
+                    return `${v} - ${v === 1 ? "Left" : v === 2 ? "Right" : ""}`;
+                });
+                br.add_row_u8("Event Level", (v) => {
+                    return `${v} - ${v === 1 ? "Fraca" : v === 2 ? "Média" : v === 3 ? "Forte" : ""}`;
+                });
                 br.add_row_u16("Threshold");
                 br.add_row_u16("Max LevelUp");
                 br.add_row_i16("Forward");
@@ -478,16 +514,14 @@ function parseMessage(msgID, data, showOnTable = true) {
                 br.add_row_u16("Window");
                 br.add_row_u8("previous tank level");
                 br.add_row_u8("current tank level");
-
-                rows.push(["previous tank timestamp", epochSecondsToString(read_u32())]);
-                rows.push(["current tank timestamp", epochSecondsToString(read_u32())]);
-            } else if (dv.byteLength > count) {
-                rows.push(["Additional Data", bufferToHex(data.slice(count))]);
-                count = data.length;
+                br.add_row_u32_timestamp("previous tank timestamp");
+                br.add_row_u32_timestamp("current tank timestamp");
+            } else if (br.getLength() > br.getOffset()) {
+                br.add_row_bytes_hex("Additional Data", br.getLength() - br.getOffset());
             }
             break;
         }
-
+/*
         case 0x1404: {
             br.add_row_u8("status");
             br.add_row_u8("currentDelta");
