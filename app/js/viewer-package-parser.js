@@ -588,6 +588,7 @@ function parseMessage(msgID, data, showOnTable = true) {
     }
 
     if(showOnTable) {
+        ui.labelMessageDescription.textContent = getMsgName(msgID);
         createTable(ui.messageTable, br.headers, br.rows);
         if(ui.messageTableWrapper.classList.contains("hl-hidden"))
             ui.messageTableWrapper.classList.remove("hl-hidden");

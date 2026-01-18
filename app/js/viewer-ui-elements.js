@@ -11,5 +11,6 @@ const ui = {
     btnCloseTablesContainer: document.getElementById("btnCloseTablesContainer"),
     packageTable: document.getElementById("packageTable"),
     messageTableWrapper:  document.getElementById("messageTableWrapper"),
-    messageTable: document.getElementById("messageTable"),
+    labelMessageDescription: document.getElementById("labelMessageDescription"),
+    messageTable: document.getElementById("messageTable")
 };

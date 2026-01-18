@@ -68,10 +68,12 @@ function render_viewer($selectedFile) {
         <div id="tablesContainer" class="hl-hidden">
             <div id="tablesFlexContainer">
                 <div class="table-wrap table-wrap-viewer">
+                    <div>Pacote CC33</div>
                     <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
                     </table>
                 </div>
                 <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
+                    <div id="labelMessageDescription"></div>
                     <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
                     </table>
                 </div>

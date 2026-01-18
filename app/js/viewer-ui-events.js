@@ -52,7 +52,7 @@ ui.btnCloseTablesContainer.addEventListener("click", () => {
         ui.messageTableWrapper.classList.add("hl-hidden");
 });
 
-ui.packageTable.addEventListener("dblclick", (ev) => {
+ui.packageTable.addEventListener("click", (ev) => {
     try
     {
         const tr = ev.target.closest("tr");
