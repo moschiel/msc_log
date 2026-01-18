@@ -1,5 +1,10 @@
-// Chave por arquivo (cada arquivo mantém sua lista no local.storage)
-const fileParam = new URL(window.location.href).searchParams.get("file") || "";
+
+const ChavePorArquivo = 0; // Chave por arquivo (cada arquivo mantém sua config no local.storage)
+const ChaveGeral = 1; // Chave geral (a mesma config para todos os arquivos )
+
+const saveMode = ChaveGeral;
+
+const fileParam = saveMode === ChavePorArquivo ? (new URL(window.location.href).searchParams.get("file") || "") : "";
 const LS_KEY = "hl_terms::" + fileParam;
 const LS_CASE = "hl_case::" + fileParam;
 const LS_PANEL = "hl_panel_open::" + fileParam;
