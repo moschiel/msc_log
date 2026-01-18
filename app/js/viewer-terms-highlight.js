@@ -5,35 +5,35 @@ const LS_CASE = "hl_case::" + fileParam;
 const LS_PANEL = "hl_panel_open::" + fileParam;
 
 function saveSettings() {
-    localStorage.setItem(LS_KEY, taTerms.value);
-    localStorage.setItem(LS_CASE, cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, termsPanel.classList.contains("hl-hidden") ? "0" : "1");
+    localStorage.setItem(LS_KEY, ui.taTerms.value);
+    localStorage.setItem(LS_CASE, ui.cbMatchCase.checked ? "1" : "0");
+    localStorage.setItem(LS_PANEL, ui.termsPanel.classList.contains("hl-hidden") ? "0" : "1");
 }
 
 function loadSettings() {
     const saved = localStorage.getItem(LS_KEY);
-    if (saved !== null) taTerms.value = saved;
+    if (saved !== null) ui.taTerms.value = saved;
 
     const savedCase = localStorage.getItem(LS_CASE);
-    if (savedCase !== null) cbMatchCase.checked = (savedCase === "1");
+    if (savedCase !== null) ui.cbMatchCase.checked = (savedCase === "1");
 
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
-        termsPanel.classList.remove("hl-hidden");
-        btnToggleTermsVisibility.textContent = "Esconder marcadores";
+        ui.termsPanel.classList.remove("hl-hidden");
+        ui.btnToggleTermsVisibility.textContent = "Esconder marcadores";
     }
 }
 
 function toggleTermsPanelVisibility() {
-    termsPanel.classList.toggle("hl-hidden");
-    const open = !termsPanel.classList.contains("hl-hidden");
-    btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
+    ui.termsPanel.classList.toggle("hl-hidden");
+    const open = !ui.termsPanel.classList.contains("hl-hidden");
+    ui.btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }
 
 // Converte termos em array fazendo split por '\n'
 function getTermsToHighlight() {
-    const lines = taTerms.value.split("\n")
+    const lines = ui.taTerms.value.split("\n")
         .map(l => l.trim())
         .filter(l => l.length > 0);
 
@@ -43,7 +43,7 @@ function getTermsToHighlight() {
 
  // Aplica highlight nos termos (simples e funciona bem pra logs)
 function highlightTerms(text, termsToHighlight) {
-    const flags = cbMatchCase.checked ? "g" : "gi";
+    const flags = ui.cbMatchCase.checked ? "g" : "gi";
     for (const t of termsToHighlight) {
         const re = new RegExp(escapeRegex(t), flags);
         text = text.replace(re, (x) => `<span class="hl-term">${x}</span>`);

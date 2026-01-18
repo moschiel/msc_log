@@ -172,10 +172,10 @@ function parseCC33Frame(u8buf, showOnTable) {
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(br.read_bytes(frameEnd - offset)));
 
     if (showOnTable) {
-        createTable(packageTable, br.headers, br.rows);
-        tablesContainer.classList.remove("hl-hidden");
-        if(messageTableWrapper.classList.contains("hl-hidden") === false)
-            messageTableWrapper.classList.add("hl-hidden");
+        createTable(ui.packageTable, br.headers, br.rows);
+        ui.tablesContainer.classList.remove("hl-hidden");
+        if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
+            ui.messageTableWrapper.classList.add("hl-hidden");
     }
 
     return true;
@@ -381,7 +381,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([strID, String(size), bufferToHex(blob)]);
             }
 
-            createTable(packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
+            createTable(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
             return true;
         }
 
@@ -392,7 +392,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
             }
 
-            createTable(packageTable, ["ID (index)", "Data (Hex)"], rows);
+            createTable(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
             return true;
         }
 
@@ -409,13 +409,13 @@ function parseMessage(msgID, data, showOnTable = true) {
                 }
             }
 
-            createTable(packageTable, ["ID"], rows);
+            createTable(ui.packageTable, ["ID"], rows);
             return true;
         }
 
         case 0x4004: {
             rows.push([getAsciiStringAll()]);
-            createTable(packageTable, ["File Name"], rows);
+            createTable(ui.packageTable, ["File Name"], rows);
             return true;
         }
 */
@@ -588,9 +588,9 @@ function parseMessage(msgID, data, showOnTable = true) {
     }
 
     if(showOnTable) {
-        createTable(messageTable, br.headers, br.rows);
-        if(messageTableWrapper.classList.contains("hl-hidden"))
-            messageTableWrapper.classList.remove("hl-hidden");
+        createTable(ui.messageTable, br.headers, br.rows);
+        if(ui.messageTableWrapper.classList.contains("hl-hidden"))
+            ui.messageTableWrapper.classList.remove("hl-hidden");
     }
 
     return true;

@@ -9,12 +9,12 @@ function getRawLog() {
 }
 
 function setLogBoxInnerHTML(text) {
-    logBox.innerHTML = text;
+    ui.logBox.innerHTML = text;
 }
 
 function renderLogText() {
     const termsToHighlight = getTermsToHighlight();
-    if (termsToHighlight.length === 0 && cbAnalyzePkg.checked === false) {
+    if (termsToHighlight.length === 0 && ui.cbAnalyzePkg.checked === false) {
         setLogBoxInnerHTML(rawTextLog);
         return;
     }
@@ -23,7 +23,7 @@ function renderLogText() {
     let html = escapeHtml(rawTextLog);
     
     // Aplica highlight dos pacotes com CC33
-    if(cbAnalyzePkg.checked) {
+    if(ui.cbAnalyzePkg.checked) {
         html = highlightPackages(html);
     }
    
@@ -37,6 +37,6 @@ function renderLogText() {
 }
 
 function scrollToBottomIfNeeded() {
-    if (!cbAutoScroll.checked) return;
-    logBox.scrollTop = logBox.scrollHeight;
+    if (!ui.cbAutoScroll.checked) return;
+    ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }

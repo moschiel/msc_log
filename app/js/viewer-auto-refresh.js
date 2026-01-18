@@ -26,7 +26,7 @@ async function refreshNow() {
 function startAutoRefresh() {
     stopAutoRefresh();
     refreshTimer = setInterval(()=> {
-        if(cbAutoRefresh.checked) {
+        if(ui.cbAutoRefresh.checked) {
             refreshNow();
         }
     }, 3000);
@@ -38,7 +38,7 @@ function stopAutoRefresh() {
 }
 
 function setAutoRefresh() {
-    if (cbAutoRefresh.checked) 
+    if (ui.cbAutoRefresh.checked) 
         startAutoRefresh();
     else 
         stopAutoRefresh();

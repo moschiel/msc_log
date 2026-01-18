@@ -1,14 +1,14 @@
-cbAutoRefresh.addEventListener("change", setAutoRefresh);
+ui.cbAutoRefresh.addEventListener("change", setAutoRefresh);
 
-cbAnalyzePkg.addEventListener("change", renderLogText);
+ui.cbAnalyzePkg.addEventListener("change", renderLogText);
 
-btnToggleTermsVisibility.addEventListener("click", toggleTermsPanelVisibility);
+ui.btnToggleTermsVisibility.addEventListener("click", toggleTermsPanelVisibility);
 
-taTerms.addEventListener("input", scheduleTermsRerender);
+ui.taTerms.addEventListener("input", scheduleTermsRerender);
 
-cbMatchCase.addEventListener("change", scheduleTermsRerender);
+ui.cbMatchCase.addEventListener("change", scheduleTermsRerender);
 
-logBox.addEventListener("click", e => {
+ui.logBox.addEventListener("click", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexDataFromPackage(e.target.classList[0]);
         parseCC33Frame(hexToBuffer(frameStr), true);
@@ -16,13 +16,13 @@ logBox.addEventListener("click", e => {
 });
 
 
-logBox.addEventListener("mouseover", e => {
+ui.logBox.addEventListener("mouseover", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
         schedulePackageHoverRerender(e.target.classList[0], true);
     }
 });
 
-logBox.addEventListener("mouseout", e => {
+ui.logBox.addEventListener("mouseout", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
         schedulePackageHoverRerender(e.target.classList[0], false);
     }
@@ -45,14 +45,14 @@ function applyHoverEventListenerToPackages() {
 
 }
 
-btnCloseTablesContainer.addEventListener("click", () => {
-    if(tablesContainer.classList.contains("hl-hidden") === false)
-        tablesContainer.classList.add("hl-hidden");
-    if(messageTableWrapper.classList.contains("hl-hidden") === false)
-        messageTableWrapper.classList.add("hl-hidden");
+ui.btnCloseTablesContainer.addEventListener("click", () => {
+    if(ui.tablesContainer.classList.contains("hl-hidden") === false)
+        ui.tablesContainer.classList.add("hl-hidden");
+    if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
+        ui.messageTableWrapper.classList.add("hl-hidden");
 });
 
-packageTable.addEventListener("dblclick", (ev) => {
+ui.packageTable.addEventListener("dblclick", (ev) => {
     try
     {
         const tr = ev.target.closest("tr");

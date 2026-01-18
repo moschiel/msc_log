@@ -1,13 +1,15 @@
-const cbAutoRefresh = document.getElementById("autoRefresh");
-const cbAutoScroll = document.getElementById("autoScroll");
-const cbAnalyzePkg = document.getElementById("analyzePackage");
-const btnToggleTermsVisibility = document.getElementById("toggleFilters");
-const termsPanel = document.getElementById("termsPanel");
-const taTerms = document.getElementById("hlTerms");
-const cbMatchCase = document.getElementById("hlMatchCase");
-const logBox = document.getElementById("logBox");
-const tablesContainer = document.getElementById("tablesContainer");
-const btnCloseTablesContainer = document.getElementById("btnCloseTablesContainer");
-const packageTable = document.getElementById("packageTable");
-const messageTableWrapper =  document.getElementById("messageTableWrapper");
-const messageTable = document.getElementById("messageTable");
+const ui = {
+    cbAutoRefresh: document.getElementById("autoRefresh"),
+    cbAutoScroll: document.getElementById("autoScroll"),
+    cbAnalyzePkg: document.getElementById("analyzePackage"),
+    btnToggleTermsVisibility: document.getElementById("toggleFilters"),
+    termsPanel: document.getElementById("termsPanel"),
+    taTerms: document.getElementById("hlTerms"),
+    cbMatchCase: document.getElementById("hlMatchCase"),
+    logBox: document.getElementById("logBox"),
+    tablesContainer: document.getElementById("tablesContainer"),
+    btnCloseTablesContainer: document.getElementById("btnCloseTablesContainer"),
+    packageTable: document.getElementById("packageTable"),
+    messageTableWrapper:  document.getElementById("messageTableWrapper"),
+    messageTable: document.getElementById("messageTable"),
+};
