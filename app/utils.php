@@ -58,6 +58,58 @@ function safeReadFile($rootDir, $relativePath, $allowedExts = null) {
     return ($content === false) ? '' : $content;
 }
 
+// Lê arquivo a partir de um offset. Se offset >= tamanho atual, retorna ''.
+function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts = null) {
+    $abs = safeRealpathInRoot($rootDir, $relativePath);
+    if ($abs === false) return '';
+
+    if (!is_file($abs)) return '';
+
+    if (is_array($allowedExts)) {
+        $name = basename($abs);
+        $ok = false;
+        foreach ($allowedExts as $ext) {
+            $ext = ltrim($ext, '.');
+            if (preg_match('/\.' . preg_quote($ext, '/') . '$/i', $name)) {
+                $ok = true;
+                break;
+            }
+        }
+        if (!$ok) return '';
+    }
+
+    $size = @filesize($abs);
+    if ($size === false) return '';
+
+    $offset = (int)$offset;
+    if ($offset < 0) $offset = 0;
+
+    // Se o arquivo diminuiu (rotacionou/truncou), você pode decidir mandar tudo de novo
+    // Aqui eu mando tudo do começo.
+    if ($offset > $size) $offset = 0;
+
+    if ($offset >= $size) return '';
+
+    $fh = @fopen($abs, 'rb');
+    if (!$fh) return '';
+
+    if (@fseek($fh, $offset) !== 0) {
+        fclose($fh);
+        return '';
+    }
+
+    $data = '';
+    // Lê o restante
+    while (!feof($fh)) {
+        $chunk = fread($fh, 8192);
+        if ($chunk === false) break;
+        $data .= $chunk;
+    }
+    fclose($fh);
+    return $data;
+}
+
+
 // Link helper mantendo params
 function buildBrowserLink($dir, $sort, $autorefresh) {
     return "./index.php?dir=" . urlencode($dir) .

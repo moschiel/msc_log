@@ -116,14 +116,12 @@ html, body {
     overflow: hidden;
     box-sizing: border-box;
     height: 100%;
-        /* para o botao de fechar ficar relativo ao wrap da tabela */
+        /* para o botao de fechar ficar relativo ao container de tabelas */
     position: relative;
 }
 
 .table-wrap-viewer {
-    box-sizing: border-box;
-    /* para o botao de fechar ficar relativo ao wrap da tabela */
-    /* position: relative; */
+    /* box-sizing: border-box; */
 }
 
 .table-clean-viewer {

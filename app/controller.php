@@ -9,10 +9,37 @@ require_once __DIR__ . '/views/browser.php';
 // ---------------------------
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     header('Content-Type: text/plain; charset=UTF-8');
-    // Mantém o comportamento atual: viewer lê qualquer arquivo (sem filtro de extensão).
-    echo safeReadFile($ROOT_DIR, $selectedFile, null);
+
+    $clientLen = isset($_GET['file_len']) ? (int)$_GET['file_len'] : 0;
+    if ($clientLen < 0) $clientLen = 0;
+
+    // Resolve path e pega tamanho atual
+    $abs = safeRealpathInRoot($ROOT_DIR, $selectedFile);
+    if ($abs === false || !is_file($abs)) {
+        http_response_code(404);
+        exit;
+    }
+
+    $serverSize = @filesize($abs);
+    if ($serverSize === false) {
+        http_response_code(500);
+        exit;
+    }
+
+    // Se não cresceu, responde 204 (sem body)
+    if ($serverSize <= $clientLen) {
+        http_response_code(204);
+        // Opcional: ajuda debug
+        header('X-File-Size: ' . $serverSize);
+        exit;
+    }
+
+    // Cresceu: manda só o delta (a partir do clientLen)
+    header('X-File-Size: ' . $serverSize);
+    echo safeReadFileFromOffset($ROOT_DIR, $selectedFile, $clientLen, null);
     exit;
 }
+
 
 // ---------------------------
 // DOWNLOAD do arquivo selecionado
