@@ -32,7 +32,7 @@ function render_viewer($selectedFile) {
             </label>
 
             <label 
-                class="hl-hidden"
+                class=""
             >
                 <input type="checkbox" id="analyzePackage">
                 Analisar Pacotes
@@ -45,7 +45,7 @@ function render_viewer($selectedFile) {
             </a>
 
             <button 
-                class="hl-hidden"
+                class=""
                 type="button" 
                 id="toggleFilters">
                 Mostrar marcadores
