@@ -6,7 +6,7 @@
 
 /* Estilos para destacar pacotes CC33 no LOG */
 .hl-pkg-ok {
-    background: #f5fcf7;
+    background: #8ee7a7;
     color: black;
 }
 
@@ -17,6 +17,7 @@
 
 .hl-pkg-ok:hover {
     cursor: pointer;
+    /* background: #64e096; */
 }
 
 .hl-pkg-err:hover {

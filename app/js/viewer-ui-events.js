@@ -23,18 +23,21 @@ ui.logBox.addEventListener("click", e => {
     }
 });
 
+if(PKG_HIGHLIGHT_VERSION !== "V3") 
+{
+    ui.logBox.addEventListener("mouseover", e => {
+        if(e.target.classList.contains('hl-pkg-ok')) {
+            schedulePackageHoverRerender(e.target.classList[0], true);
+        }
+    });
 
-ui.logBox.addEventListener("mouseover", e => {
-    if(e.target.classList.contains('hl-pkg-ok')) {
-        schedulePackageHoverRerender(e.target.classList[0], true);
-    }
-});
+    ui.logBox.addEventListener("mouseout", e => {
+        if(e.target.classList.contains('hl-pkg-ok')) {
+            schedulePackageHoverRerender(e.target.classList[0], false);
+        }
+    });
+}
 
-ui.logBox.addEventListener("mouseout", e => {
-    if(e.target.classList.contains('hl-pkg-ok')) {
-        schedulePackageHoverRerender(e.target.classList[0], false);
-    }
-});
 
 // só funciona se ja existir '.hl-pkg-ok' no innerHTML do log
 // se for usar,chamar depois de setLogBoxInnerHTML()

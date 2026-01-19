@@ -38,7 +38,14 @@ function render_viewer($selectedFile) {
             </label>
 
             <label 
-                class=""
+                class="hint" 
+                data-hint="Clicar nos pacotes CC33 mostra detalhes.
+                
+Funcionalidade Experimental !!!
+
+Auto-Refresh será desabilitado.
+
+Se o LOG for muito grande, a página pode ficar lenta"
             >
                 <input type="checkbox" id="analyzePackage">
                 Analisar Pacotes
@@ -78,9 +85,7 @@ function render_viewer($selectedFile) {
         <!-- split pane container -->
         <div class="vsplit" id="vsplit"> 
             <div id="splitPaneTop" class="pane top">
-                <div id="logBox" class="log-box">
-                    Carregando...
-                </div>
+                <div id="logBox" class="log-box">Carregando...</div>
             </div>
             <div class="splitDivider" id="splitDivider" role="separator" aria-orientation="horizontal" tabindex="0">
                 <div class="splitDivider-grip"></div>

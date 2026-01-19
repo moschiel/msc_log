@@ -1,7 +1,9 @@
+const PKG_HIGHLIGHT_VERSION = "V3";
+const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 let globalFrames = [];
 
-// Aplica estilos aos pacotes com CC33
-function highlightPackages(text) {
+// Aplica estilos aos pacotes com CC33 (lento pois usa replace() em cada linha)
+function highlightPackagesV1(text) {
     const lines = text.split(/\r?\n/);
     const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
     let isCollectingFrame = false;
@@ -91,8 +93,8 @@ function highlightPackages(text) {
     return text;
 }
 
-// Aplica estilos aos pacotes com CC33 (versão rápida: sem replace() no texto inteiro)
-function fastHighlightPackages(text) {
+// Aplica estilos aos pacotes com CC33 (versão rápida: sem operacao de replace(), seta direto no vetor lines)
+function highlightPackagesV2(text) {
     const lines = text.split(/\r?\n/);
     const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
     const headerLen = LOG_HEADER_EXAMPLE.length;
@@ -121,8 +123,8 @@ function fastHighlightPackages(text) {
             else
                 classPkgStatus = "hl-pkg-err"; //classe para ficar com highlight de erro
         } catch (e) {
-            console.error(e.message);
-            classPkgStatus = "hl-pkg-err";
+            console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
+            classPkgStatus = 'hl-pkg-err';
         }
 
         const total = lineIndexes.length;
@@ -228,16 +230,122 @@ function fastHighlightPackages(text) {
     return lines.join("\n");
 }
 
+// Aplica estilos aos pacotes com CC33 (A mesma velocidade do V2, mas a pagina nao fica pesada/lenta)
+// Versao gera apenas uma tag <span> por pacote, assim tendo bem menos elementos no DOM para o browser gerenciar.
+// Tambem nao é necessário escutar evento de hover via javascript em cada pedaço do frame, pois tudo está em um único span
+// O estilo fica porco, não da pra aplicar bordas, e o header de cada linha tambem fica com background colorido)
+// E ja que o estilo fica porco, dane-se o efeito de hover tambem, removemos.
+function highlightPackagesV3(text) {
+    const lines = text.split(/\r?\n/);
+    const headerLen = LOG_HEADER_EXAMPLE.length;
+
+    let isCollectingFrame = false;
+    let lineIndexes = [];         // índices das linhas do pacote
+    let pkgCounter = 0;
+    let errPkgCounter = 0;
+
+    function flushPackage() {
+        if (lineIndexes.length === 0) return;
+
+        pkgCounter++;
+
+        const classPkgGroup = `pkg-${pkgCounter}`;
+        let classPkgStatus = "";
+
+        const total = lineIndexes.length;
+        let frameStr = "";
+        for (let i = 0; i < total; i++) {
+            frameStr += lines[lineIndexes[i]].slice(headerLen);
+        }
+
+        try {
+            classPkgStatus = parseCC33Frame(hexToBuffer(frameStr), false)
+                ? "hl-pkg-ok"
+                : "hl-pkg-err";
+        } catch (e) {
+            console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
+            classPkgStatus = "hl-pkg-err";
+            errPkgCounter++;
+        }
+
+        const firstIdx = lineIndexes[0];
+        const lastIdx = lineIndexes[total - 1];
+        if(total === 1) {
+            //se tem só uma linha, abre e fecha o span nessa linha
+            lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}</span>`;
+        } else if (total > 1) {
+            // abre span na primeira linha
+            lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}`;
+            // fecha na ultima
+            lines[lastIdx] += "</span>";
+        }
+
+        // reset do pacote
+        lineIndexes = [];
+    }
+
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+        const line = lines[lineNumber];
+
+        if (!line || line.length <= headerLen) {
+            if (isCollectingFrame) {
+                isCollectingFrame = false;
+                flushPackage();
+            }
+            continue;
+        }
+
+        const substrFrame = line.slice(headerLen);
+
+        if (!isCollectingFrame) {
+            if (substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
+                isCollectingFrame = true;
+                lineIndexes = [];
+            }
+        } else {
+            if (!isHexOnly(substrFrame)) {
+                isCollectingFrame = false;
+                flushPackage();
+                continue;
+            }
+        }
+
+        if (isCollectingFrame) {
+            lineIndexes.push(lineNumber);
+        }
+    }
+
+    if (isCollectingFrame) {
+        flushPackage();
+    }
+    
+    console.log(`pacotes analisados: ${pkgCounter}, com erro: ${errPkgCounter}`);
+    return lines.join("\n");
+}
+
 
 function getHexDataFromPackage(classPkgGroup) {
-    let frameStr = "";
-    const elements = document.getElementsByClassName(classPkgGroup);
-    for (const el of elements) {
-        if(el.classList.contains('pkg-right-part'))
-            continue;
-        frameStr += el.textContent;
+    if(PKG_HIGHLIGHT_VERSION === "V3") 
+    {
+        let frameStr = "";
+        const elements = document.getElementsByClassName(classPkgGroup);
+        const lines = elements[0].textContent.split("\n");
+        for (const line of lines) {
+            frameStr += line.slice(LOG_HEADER_EXAMPLE.length);
+        }
+        return frameStr;
     }
-    return frameStr;
+    else 
+    {
+        let frameStr = "";
+        const elements = document.getElementsByClassName(classPkgGroup);
+        for (const el of elements) {
+            if(el.classList.contains('pkg-right-part'))
+                continue;
+            frameStr += el.textContent;
+        }
+        return frameStr;
+    }
 }
 
 function setHoverEffectToPackage(classPkgGroup, isHover) {

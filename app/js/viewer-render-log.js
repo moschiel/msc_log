@@ -39,8 +39,9 @@ function renderLogText() {
     // Aplica highlight dos pacotes com CC33
     if(ui.cbAnalyzePkg.checked) {
         console.log("analisando pacotes");
-        // htmlEscaped = highlightPackages(htmlEscaped);
-        htmlEscaped = fastHighlightPackages(htmlEscaped);
+        if (PKG_HIGHLIGHT_VERSION === "V1") htmlEscaped = highlightPackagesV1(htmlEscaped);
+        else if (PKG_HIGHLIGHT_VERSION === "V2") htmlEscaped = HighlightPackagesV2(htmlEscaped);
+        else if (PKG_HIGHLIGHT_VERSION === "V3") htmlEscaped = highlightPackagesV3(htmlEscaped);
         console.log("concluído análise de pacotes");
     }
 
