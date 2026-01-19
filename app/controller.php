@@ -10,8 +10,8 @@ require_once __DIR__ . '/views/browser.php';
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     header('Content-Type: text/plain; charset=UTF-8');
 
-    $clientLen = isset($_GET['file_len']) ? (int)$_GET['file_len'] : 0;
-    if ($clientLen < 0) $clientLen = 0;
+    $clientFileOffset = isset($_GET['file_offset']) ? (int)$_GET['file_offset'] : 0;
+    if ($clientFileOffset < 0) $clientFileOffset = 0;
 
     // Resolve path e pega tamanho atual
     $abs = safeRealpathInRoot($ROOT_DIR, $selectedFile);
@@ -26,17 +26,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
         exit;
     }
 
-    // Se não cresceu, responde 204 (sem body)
-    if ($serverSize <= $clientLen) {
-        http_response_code(204);
-        // Opcional: ajuda debug
-        header('X-File-Size: ' . $serverSize);
-        exit;
-    }
-
-    // Cresceu: manda só o delta (a partir do clientLen)
     header('X-File-Size: ' . $serverSize);
-    echo safeReadFileFromOffset($ROOT_DIR, $selectedFile, $clientLen, null);
+    echo safeReadFileFromOffset($ROOT_DIR, $selectedFile, $clientFileOffset, null);
     exit;
 }
 

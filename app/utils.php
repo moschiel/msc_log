@@ -84,10 +84,6 @@ function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts =
     $offset = (int)$offset;
     if ($offset < 0) $offset = 0;
 
-    // Se o arquivo diminuiu (rotacionou/truncou), você pode decidir mandar tudo de novo
-    // Aqui eu mando tudo do começo.
-    if ($offset > $size) $offset = 0;
-
     if ($offset >= $size) return '';
 
     $fh = @fopen($abs, 'rb');

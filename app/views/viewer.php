@@ -31,19 +31,25 @@ function render_viewer($selectedFile) {
                 Auto-scroll
             </label>
 
-            <!-- <label class="hl-hidden"> -->
-            <label>
+            <label 
+                class="hl-hidden"
+            >
                 <input type="checkbox" id="analyzePackage">
                 Analisar Pacotes
             </label>
 
-            <button onclick="refreshNow()">Atualizar agora</button>
+            <!-- <button onclick="refreshNow()">Atualizar agora</button> -->
 
             <a href="<?= htmlspecialchars($downloadUrl) ?>">
                 <button>Download</button>
             </a>
 
-            <button type="button" id="toggleFilters">Mostrar marcadores</button>
+            <button 
+                class="hl-hidden"
+                type="button" 
+                id="toggleFilters">
+                Mostrar marcadores
+            </button>
 
         </div>
 
@@ -60,10 +66,10 @@ function render_viewer($selectedFile) {
                 (1 string por linha)
                 </span>
             </div>
-            <textarea id="hlTerms" class="hl-terms-box" placeholder="Ex:\nERROR\nWARN\nSPN 123\nFMI 5"></textarea>
+            <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
 
-        <div id="logBox" class="log-box"></div>
+        <div id="logBox" class="log-box">Carregando...</div>
 
         <div id="tablesContainer" class="hl-hidden">
             <div id="tablesFlexContainer">

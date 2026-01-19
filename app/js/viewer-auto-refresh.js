@@ -1,9 +1,10 @@
 let refreshTimer = null;
+let lastFileSize = 0;
 
 function ajaxUrl() {
     const url = new URL(window.location.href);
     url.searchParams.set("ajax", "1");
-    url.searchParams.set("file_len", getRawLog().length);
+    url.searchParams.set("file_offset", lastFileSize); // Nao pede o arquivo inteiro, apenas conteudo adicional se houver
     url.searchParams.delete("view");
     url.searchParams.delete("download");
     return url.toString();
@@ -12,9 +13,11 @@ function ajaxUrl() {
 async function refreshNow() {
   try {
     const resp = await fetch(ajaxUrl(), { cache: "no-store" });
-    console.log(resp.status);
-    if (resp.status === 204) {
-      return; // nada mudou
+    
+    //Armazena o tamanho total do arquivo no servidor
+    const fileSize = resp.headers.get("X-File-Size");
+    if (fileSize) {
+      lastFileSize = Number(fileSize);
     }
 
     if (!resp.ok) {
