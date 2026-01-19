@@ -39,8 +39,8 @@ function render_viewer($selectedFile) {
 
             <label 
                 class="hint" 
-                data-hint="Clicar nos pacotes CC33 mostra detalhes.
-                
+                data-hint="Detecta pacotes, e ao clicar no pacote mostra mais detalhes.
+
 Funcionalidade Experimental !!!
 
 Auto-Refresh será desabilitado.
