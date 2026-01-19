@@ -21,7 +21,7 @@ html, body {
 }
 
 /* Estilo dos Controles (CheckBoxes e Botoes) do container superior */
-.top-container {
+.header-container {
     /* border: 3px solid yellow; */
     display: flex;
     gap: 16px;
@@ -45,13 +45,65 @@ html, body {
     font-size: 12px;
 }
 
+/* split pane container, faz split do #logBox e #tablesContainer */
+.vsplit {
+  height: 100vh;          /* ou height: 600px; / 100% do pai */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  margin-top: 10PX;
+  overflow: hidden;       /* importante: não deixar "vazar" */
+}
+
+/* quando bottom está hidden, container vira "single pane" */
+.vsplit.single-pane #splitPaneTop {
+  flex: 1 1 auto !important;   /* ocupa tudo */
+}
+
+.vsplit.single-pane #splitDivider {
+  display: none !important;     /* some a barra */
+}
+
+.pane {
+  /* cada pane rola por conta própria */
+  /* overflow: auto;          */
+  /* passa para os filhos do pane a rolagem do scroll */
+  overflow: hidden;
+  /* limite mínimo (pode ajustar) */
+  /* min-height: 80px;        */
+  /* padding: 8px; */
+}
+
+.splitDivider {
+  height: 10px;
+  cursor: row-resize;
+  background: #f0f0f0;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;     /* importante pra touch */
+}
+
+.splitDivider:hover {
+  background: #e6e6e6;
+}
+
+.splitDivider-grip {
+  width: 60px;
+  height: 4px;
+  border-radius: 999px;
+  background: #bdbdbd;
+}
+
 /* Estilos da Conteiner do LOG */
 .log-box {
     /* border: 3px solid blueviolet; */
-    border: 1px solid #ddd;
+    /* border: 1px solid #ddd; */
     overflow: auto;
-    margin-top: 12px;
-    margin-bottom: 12px;
+    /* margin-top: 12px; */
+    /* margin-bottom: 12px; */
     /* height: 80vh; */
     height: 100%;
     white-space: pre;
@@ -106,7 +158,7 @@ html, body {
 /* Estilos para sobrescrever alguns estilos da table.css */
  #tablesContainer {
     width: 100%;
-    height: 1000px;
+    height: 100%;
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -114,6 +166,7 @@ html, body {
 #tablesFlexContainer {
     display: flex;
     gap: 8px;
+    padding: 10px;
     overflow: hidden;
     box-sizing: border-box;
     height: 100%;

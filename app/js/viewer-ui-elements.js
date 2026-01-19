@@ -12,5 +12,9 @@ const ui = {
     packageTable: document.getElementById("packageTable"),
     messageTableWrapper:  document.getElementById("messageTableWrapper"),
     labelMessageDescription: document.getElementById("labelMessageDescription"),
-    messageTable: document.getElementById("messageTable")
+    messageTable: document.getElementById("messageTable"),
+    vsplip: document.getElementById("vsplit"),
+    splitTopPane: document.getElementById("splitPaneTop"),
+    splitBottomPane: document.getElementById("splitPaneBottom"),
+    splitDivider: document.getElementById("splitDivider"),
 };

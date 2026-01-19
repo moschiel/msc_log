@@ -18,7 +18,7 @@ function render_viewer($selectedFile) {
 </head>
 <body>
     <div class="main">
-        <div class="top-container">
+        <div class="header-container">
             <b>Arquivo:</b> <span class="file"><?= htmlspecialchars($title) ?></span>
 
             <label>
@@ -32,7 +32,7 @@ function render_viewer($selectedFile) {
             </label>
 
             <label 
-                class="hl-hidden"
+                class=""
             >
                 <input type="checkbox" id="analyzePackage">
                 Analisar Pacotes
@@ -69,25 +69,37 @@ function render_viewer($selectedFile) {
             <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
 
-        <div id="logBox" class="log-box">Carregando...</div>
-
-        <div id="tablesContainer" class="hl-hidden">
-            <div id="tablesFlexContainer">
-                <div class="table-wrap table-wrap-viewer">
-                    <div>Pacote CC33</div>
-                    <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
-                    </table>
+        <!-- split pane container -->
+        <div class="vsplit" id="vsplit"> 
+            <div id="splitPaneTop" class="pane top">
+                <div id="logBox" class="log-box">
+                    Carregando...
                 </div>
-                <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
-                    <div id="labelMessageDescription"></div>
-                    <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
-                    </table>
+            </div>
+            <div class="splitDivider" id="splitDivider" role="separator" aria-orientation="horizontal" tabindex="0">
+                <div class="splitDivider-grip"></div>
+            </div>
+            <div id="splitPaneBottom" class="pane bottom hl-hidden">
+                <div id="tablesContainer">
+                    <div id="tablesFlexContainer">
+                        <div class="table-wrap table-wrap-viewer">
+                            <div>Pacote CC33</div>
+                            <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
+                            </table>
+                        </div>
+                        <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
+                            <div id="labelMessageDescription"></div>
+                            <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
+                            </table>
+                        </div>
+                        <div id="btnCloseTablesContainer">❌</div>
+                    </div>
                 </div>
-                <div id="btnCloseTablesContainer">❌</div>
             </div>
         </div>
     </div>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-split-pane.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>

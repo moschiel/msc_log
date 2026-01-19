@@ -173,7 +173,10 @@ function parseCC33Frame(u8buf, showOnTable) {
 
     if (showOnTable) {
         createTable(ui.packageTable, br.headers, br.rows);
-        ui.tablesContainer.classList.remove("hl-hidden");
+        if(ui.splitBottomPane.classList.contains("hl-hidden")) {
+            ui.splitBottomPane.classList.remove("hl-hidden");
+            syncSplitVisibility();
+        }
         if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
             ui.messageTableWrapper.classList.add("hl-hidden");
     }

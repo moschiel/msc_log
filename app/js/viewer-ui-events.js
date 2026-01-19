@@ -54,8 +54,10 @@ function applyHoverEventListenerToPackages() {
 }
 
 ui.btnCloseTablesContainer.addEventListener("click", () => {
-    if(ui.tablesContainer.classList.contains("hl-hidden") === false)
-        ui.tablesContainer.classList.add("hl-hidden");
+    if(ui.splitBottomPane.classList.contains("hl-hidden") === false) {
+        ui.splitBottomPane.classList.add("hl-hidden");
+        syncSplitVisibility();
+    }
     if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
         ui.messageTableWrapper.classList.add("hl-hidden");
 });
