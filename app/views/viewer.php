@@ -84,9 +84,8 @@ function render_viewer($selectedFile) {
                     </table>
                 </div>
                 <div id="btnCloseTablesContainer">❌</div>
-            <div>
+            </div>
         </div>
-
     </div>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-utils.js?v=<?= APP_VERSION ?>"></script>
