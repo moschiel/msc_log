@@ -14,7 +14,13 @@ function render_viewer($selectedFile) {
     <meta charset="UTF-8">
     <title>Viewer - <?= htmlspecialchars($title) ?></title>
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-terms.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-split-pane.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
     <div class="main">
@@ -45,7 +51,7 @@ function render_viewer($selectedFile) {
             </a>
 
             <button 
-                class="hl-hidden"
+                class="hidden"
                 type="button" 
                 id="toggleFilters">
                 Mostrar marcadores
@@ -53,7 +59,7 @@ function render_viewer($selectedFile) {
 
         </div>
 
-        <div id="termsPanel" class="hl-terms-panel hl-hidden">
+        <div id="termsPanel" class="hl-terms-panel hidden">
             <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
                 <b>Marcadores:</b>
 
@@ -79,7 +85,7 @@ function render_viewer($selectedFile) {
             <div class="splitDivider" id="splitDivider" role="separator" aria-orientation="horizontal" tabindex="0">
                 <div class="splitDivider-grip"></div>
             </div>
-            <div id="splitPaneBottom" class="pane bottom hl-hidden">
+            <div id="splitPaneBottom" class="pane bottom hidden">
                 <div id="tablesContainer">
                     <div id="tablesFlexContainer">
                         <div class="table-wrap table-wrap-viewer">
@@ -87,7 +93,7 @@ function render_viewer($selectedFile) {
                             <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
                             </table>
                         </div>
-                        <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hl-hidden">
+                        <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hidden">
                             <div id="labelMessageDescription"></div>
                             <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
                             </table>

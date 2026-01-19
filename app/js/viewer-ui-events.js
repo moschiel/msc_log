@@ -54,12 +54,12 @@ function applyHoverEventListenerToPackages() {
 }
 
 ui.btnCloseTablesContainer.addEventListener("click", () => {
-    if(ui.splitBottomPane.classList.contains("hl-hidden") === false) {
-        ui.splitBottomPane.classList.add("hl-hidden");
+    if(ui.splitBottomPane.classList.contains("hidden") === false) {
+        ui.splitBottomPane.classList.add("hidden");
         syncSplitVisibility();
     }
-    if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
-        ui.messageTableWrapper.classList.add("hl-hidden");
+    if(ui.messageTableWrapper.classList.contains("hidden") === false)
+        ui.messageTableWrapper.classList.add("hidden");
 });
 
 ui.packageTable.addEventListener("click", (ev) => {

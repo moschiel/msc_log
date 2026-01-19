@@ -1,0 +1,15 @@
+/* Estilos do Conteiner do LOG */
+.log-box {
+    /* border: 3px solid blueviolet; */
+    /* border: 1px solid #ddd; */
+    overflow: auto;
+    /* margin-top: 12px; */
+    /* margin-bottom: 12px; */
+    /* height: 80vh; */
+    height: 100%;
+    white-space: pre;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    padding: 10px;
+    background: #fafafa;
+}

@@ -12,7 +12,7 @@ const LS_PANEL = "hl_panel_open::" + fileParam;
 function saveSettings() {
     localStorage.setItem(LS_KEY, ui.taTerms.value);
     localStorage.setItem(LS_CASE, ui.cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, ui.termsPanel.classList.contains("hl-hidden") ? "0" : "1");
+    localStorage.setItem(LS_PANEL, ui.termsPanel.classList.contains("hidden") ? "0" : "1");
 }
 
 function loadSettings() {
@@ -24,14 +24,14 @@ function loadSettings() {
 
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
-        ui.termsPanel.classList.remove("hl-hidden");
+        ui.termsPanel.classList.remove("hidden");
         ui.btnToggleTermsVisibility.textContent = "Esconder marcadores";
     }
 }
 
 function toggleTermsPanelVisibility() {
-    ui.termsPanel.classList.toggle("hl-hidden");
-    const open = !ui.termsPanel.classList.contains("hl-hidden");
+    ui.termsPanel.classList.toggle("hidden");
+    const open = !ui.termsPanel.classList.contains("hidden");
     ui.btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }

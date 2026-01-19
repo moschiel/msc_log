@@ -1,0 +1,41 @@
+/* Estilos para destacar termos/marcadores no LOG */
+.hl-term {
+    background: #ffc38a;
+    border: 1px solid black;
+}
+
+/* Estilos para destacar pacotes CC33 no LOG */
+.hl-pkg-ok {
+    background: #f5fcf7;
+    color: black;
+}
+
+.hl-pkg-err {
+    background: rgb(224, 122, 122);
+    color: black;
+}
+
+.hl-pkg-ok:hover {
+    cursor: pointer;
+}
+
+.hl-pkg-err:hover {
+    cursor: pointer;
+}
+
+.hl-border-top {
+    border-top: 1px solid black;
+}
+
+.hl-border-bottom {
+    border-bottom: 1px solid black;
+}
+
+.hl-border-sides {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.hl-pkg-hover {
+    background: #a5ecc1;
+}

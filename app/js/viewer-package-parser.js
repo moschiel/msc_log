@@ -173,12 +173,12 @@ function parseCC33Frame(u8buf, showOnTable) {
 
     if (showOnTable) {
         createTable(ui.packageTable, br.headers, br.rows);
-        if(ui.splitBottomPane.classList.contains("hl-hidden")) {
-            ui.splitBottomPane.classList.remove("hl-hidden");
+        if(ui.splitBottomPane.classList.contains("hidden")) {
+            ui.splitBottomPane.classList.remove("hidden");
             syncSplitVisibility();
         }
-        if(ui.messageTableWrapper.classList.contains("hl-hidden") === false)
-            ui.messageTableWrapper.classList.add("hl-hidden");
+        if(ui.messageTableWrapper.classList.contains("hidden") === false)
+            ui.messageTableWrapper.classList.add("hidden");
     }
 
     return true;
@@ -598,8 +598,8 @@ function parseMessage(msgID, data, showOnTable = true) {
             ui.labelMessageDescription.textContent = getMsgName(msgID);
             createTable(ui.messageTable, br.headers, br.rows);
         }
-        if(ui.messageTableWrapper.classList.contains("hl-hidden"))
-            ui.messageTableWrapper.classList.remove("hl-hidden");
+        if(ui.messageTableWrapper.classList.contains("hidden"))
+            ui.messageTableWrapper.classList.remove("hidden");
     }
 
     return true;

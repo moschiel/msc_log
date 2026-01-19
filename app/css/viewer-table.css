@@ -1,0 +1,57 @@
+/* Estilos para sobrescrever alguns estilos da table.css */
+ #tablesContainer {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#tablesFlexContainer {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    overflow: hidden;
+    box-sizing: border-box;
+    height: 100%;
+        /* para o botao de fechar ficar relativo ao container de tabelas */
+    position: relative;
+}
+
+.table-wrap-viewer {
+    /* box-sizing: border-box; */
+}
+
+.table-clean-viewer {
+    overflow: auto;
+    width: 100%;
+}
+
+.table-clean-viewer th, 
+.table-clean-viewer td {
+    /* não quebra linha por padrão */
+    /* white-space: nowrap;  */
+    /* quebra linha se tiver \r\n */
+    white-space: pre-line;
+    width: fit-content;
+}
+
+/* A ultima coluna pode quebrar linha */
+.table-clean-viewer th:last-child, 
+.table-clean-viewer td:last-child {
+    /* permite quebra de linha */
+    /* white-space: normal;         */
+    /* quebra palavras grandes */
+    word-break: break-word;      
+}
+
+/* Estilo do botao pra fechar a tabela */
+#btnCloseTablesContainer {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    z-index: 3;
+    cursor: pointer;
+    background: lightcyan;
+    border: 1px solid lightcoral;
+    border-radius: 5px;
+}

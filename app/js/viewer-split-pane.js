@@ -20,7 +20,7 @@ function setSplitByTopPx(topPx) {
 }
 
 function syncSplitVisibility() {
-    const bottomHidden = ui.splitBottomPane.classList.contains("hl-hidden");
+    const bottomHidden = ui.splitBottomPane.classList.contains("hidden");
 
     if (bottomHidden) {
         ui.vsplip.classList.add("single-pane");
