@@ -1,6 +1,14 @@
-ui.cbAutoRefresh.addEventListener("change", setAutoRefresh);
+ui.cbAutoRefresh.addEventListener("change", () => {
+    if(ui.cbAutoRefresh.checked)
+        ui.cbAnalyzePkg.checked = false; //Para fazer auto-refresh, tem que desabilitar analise de pacotes, os dois ao mesmo tempo fica lento
+    setAutoRefresh(); 
+});
 
-ui.cbAnalyzePkg.addEventListener("change", renderLogText);
+ui.cbAnalyzePkg.addEventListener("change", () => {
+    if(ui.cbAnalyzePkg.checked)
+        ui.cbAutoRefresh.checked = false; //Para detectar pacotes, tem que desabilitar auto-refresh, os dois ao mesmo tempo fica lento
+    renderLogText(); 
+});
 
 ui.btnToggleTermsVisibility.addEventListener("click", toggleTermsPanelVisibility);
 
