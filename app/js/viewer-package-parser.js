@@ -194,6 +194,8 @@ function parseMessage(msgID, data, showOnTable = true) {
         processMode: showOnTable ? "collect" : "validate",
         tableMode: "nsv"
     });
+
+    let notImplemented = false;
     
     // -------- switch principal --------
     switch (msgID) {
@@ -581,15 +583,18 @@ function parseMessage(msgID, data, showOnTable = true) {
         }
 */
         default: {
-            if (showOnTable)
-                alert(`${getMsgName(msgID)} - Parseamento não implementado`);
-            return false;
+            notImplemented = true;
         }
     }
 
     if(showOnTable) {
-        ui.labelMessageDescription.textContent = getMsgName(msgID);
-        createTable(ui.messageTable, br.headers, br.rows);
+        if(notImplemented) {
+            ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
+            ui.messageTable.innerHTML = "";
+        } else {
+            ui.labelMessageDescription.textContent = getMsgName(msgID);
+            createTable(ui.messageTable, br.headers, br.rows);
+        }
         if(ui.messageTableWrapper.classList.contains("hl-hidden"))
             ui.messageTableWrapper.classList.remove("hl-hidden");
     }

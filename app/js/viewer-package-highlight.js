@@ -106,7 +106,8 @@ function fastHighlightPackages(text) {
         if (frameParts.length === 0) return;
 
         pkgCounter++;
-        console.log("Analisando pacote ", pkgCounter);
+        //console.log("Analisando pacote ", pkgCounter);
+        
         // essa classe sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
         // assim em outros mudulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
         const classPkgGroup = `pkg-${pkgCounter}`;
@@ -151,7 +152,7 @@ function fastHighlightPackages(text) {
             ) {
                 // entao temos que aplicar borda embaixo dessa linha tambem, 
                 // mas só na parte direita do frame que nao tenha caracteres de outro frame abaixo dele
-                
+
                 const lastLine = lines[lineIndexes[total - 1]];
                 const penultLine = lines[lineIndexes[total - 2]];
 
