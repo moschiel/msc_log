@@ -59,7 +59,7 @@ function safeReadFile($rootDir, $relativePath, $allowedExts = null) {
 }
 
 // Lê arquivo a partir de um offset. Se offset >= tamanho atual, retorna ''.
-function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts = null) {
+function safeReadFileFromOffset($rootDir, $relativePath, $offset, $len, $allowedExts = null) {
     $abs = safeRealpathInRoot($rootDir, $relativePath);
     if ($abs === false) return '';
 
@@ -82,9 +82,18 @@ function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts =
     if ($size === false) return '';
 
     $offset = (int)$offset;
+    $len    = (int)$len;
+
     if ($offset < 0) $offset = 0;
+    if ($len <= 0) return '';
 
     if ($offset >= $size) return '';
+
+    // Garante que não ultrapasse EOF
+    $maxLen = $size - $offset;
+    if ($len > $maxLen) {
+        $len = $maxLen;
+    }
 
     $fh = @fopen($abs, 'rb');
     if (!$fh) return '';
@@ -95,15 +104,21 @@ function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts =
     }
 
     $data = '';
-    // Lê o restante
-    while (!feof($fh)) {
-        $chunk = fread($fh, 8192);
-        if ($chunk === false) break;
+    $remaining = $len;
+
+    while ($remaining > 0 && !feof($fh)) {
+        $chunkSize = min(8192, $remaining);
+        $chunk = fread($fh, $chunkSize);
+        if ($chunk === false || $chunk === '') break;
+
         $data .= $chunk;
+        $remaining -= strlen($chunk);
     }
+
     fclose($fh);
     return $data;
 }
+
 
 
 // Link helper mantendo params

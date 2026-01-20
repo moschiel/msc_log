@@ -27,7 +27,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     }
 
     header('X-File-Size: ' . $serverSize);
-    echo safeReadFileFromOffset($ROOT_DIR, $selectedFile, $clientFileOffset, null);
+    $len = $serverSize - $clientFileOffset;
+    echo safeReadFileFromOffset($ROOT_DIR, $selectedFile, $clientFileOffset, $len, null);
     exit;
 }
 

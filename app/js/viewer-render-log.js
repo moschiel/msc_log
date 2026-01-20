@@ -8,12 +8,12 @@ function getRawLog() {
     return rawTextLog;
 }
 
-// Lento demais se for muito grande o conteudo
+// Lento demais se for muito grande o conteudo, e se tiver muita tag html
 function setLogBoxInnerHTML(text) {
     ui.logBox.innerHTML = text;
 }
 
-// Rapido pois tudo é tratado como texto (inlusive as tags html), 
+// Rapido pois tudo é tratado como texto (nao considra tags como elementos html), 
 // logo nao da pra estilizar o texto com as tags
 function setLogBoxTextContent(text) {
     ui.logBox.textContent = text;
@@ -33,25 +33,25 @@ function renderLogText(opt = {packagesHighlight: false, termsHighlight: false}) 
     // evitando interpretação indevida do log e riscos de XSS.
     // Após o escape, apenas os <span> inseridos pelo highlight
     // são HTML válido, mantendo controle total do markup.
-    let htmlEscaped = escapeHtml(getRawLog());
+    let innerHtml = escapeHtml(getRawLog());
     
     // Aplica highlight dos pacotes com CC33
     if(opt.packagesHighlight) {
         if (PKG_HIGHLIGHT_VERSION === "V1") 
-            htmlEscaped = highlightPackagesV1(htmlEscaped);
+            innerHtml = highlightPackagesV1(innerHtml);
         else // V2 ou V3
-            htmlEscaped = fastHighlightPackages(htmlEscaped);
+            innerHtml = fastHighlightPackages(innerHtml);
     }
 
     // Aplica highlight nos termos pesquisados
     if(opt.termsHighlight) {
         const termsToHighlight = getTermsToHighlight();
         if (termsToHighlight.length > 0) {
-            htmlEscaped = highlightTerms(htmlEscaped, termsToHighlight);
+            innerHtml = highlightTerms(innerHtml, termsToHighlight);
         }
     }
     
-    setLogBoxInnerHTML(htmlEscaped);
+    setLogBoxInnerHTML(innerHtml);
 }
 
 function scrollToBottomIfNeeded() {
