@@ -47,7 +47,7 @@ function render_viewer($selectedFile) {
                 <button
                     id="btnAnalyzePackage"
                     class="hint" 
-                    data-hint="Dectecta pacotes, ao clicar no pacote mostra detalhes.
+                    data-hint="Permite clicar no pacote p/ mostrar detalhes.
 
 Funcionalidade Experimental !!!
 
