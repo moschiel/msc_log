@@ -2,7 +2,7 @@ const ui = {
     cbAutoRefresh: document.getElementById("autoRefresh"),
     cbAutoScroll: document.getElementById("autoScroll"),
     btnAnalyzePkg: document.getElementById("btnAnalyzePackage"),
-    cbSkipAck: document.getElementById("cbSkipAck"),
+    cbIgnoreAck: document.getElementById("cbIgnoreAck"),
     btnToggleTermsVisibility: document.getElementById("toggleFilters"),
     termsPanel: document.getElementById("termsPanel"),
     taTerms: document.getElementById("hlTerms"),

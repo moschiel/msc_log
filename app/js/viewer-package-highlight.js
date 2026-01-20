@@ -117,7 +117,7 @@ function fastHighlightPackages(text) {
             }
 
             const {parseOk, messageIds} = parseCC33Frame(hexToBuffer(frameStr), "validate");
-            if(ui.cbSkipAck.checked && messageIds !== null) {
+            if(ui.cbIgnoreAck.checked && messageIds !== null) {
                 for (const id of messageIds) {
                     if(id === 0xFFFF || id === 0x0000) { //ACK ou KeepAlive
                         lineIndexes = []; // reset linhas
