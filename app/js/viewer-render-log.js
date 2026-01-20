@@ -37,9 +37,10 @@ function renderLogText(opt = {packagesHighlight: false, termsHighlight: false}) 
     
     // Aplica highlight dos pacotes com CC33
     if(opt.packagesHighlight) {
-        if (PKG_HIGHLIGHT_VERSION === "V1") htmlEscaped = highlightPackagesV1(htmlEscaped);
-        else if (PKG_HIGHLIGHT_VERSION === "V2") htmlEscaped = HighlightPackagesV2(htmlEscaped);
-        else if (PKG_HIGHLIGHT_VERSION === "V3") htmlEscaped = highlightPackagesV3(htmlEscaped);
+        if (PKG_HIGHLIGHT_VERSION === "V1") 
+            htmlEscaped = highlightPackagesV1(htmlEscaped);
+        else // V2 ou V3
+            htmlEscaped = fastHighlightPackages(htmlEscaped);
     }
 
     // Aplica highlight nos termos pesquisados

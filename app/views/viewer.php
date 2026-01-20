@@ -58,8 +58,8 @@ Se o LOG for muito grande, a página pode ficar lenta."
                     Analisar Pacotes
                 </button>
                 <label>
-                    <input type="checkbox" id="cbIgnoreAck" checked>
-                    Ignora ACK e KEEP-ALIVE
+                    <input type="checkbox" id="cbSkipAck" checked>
+                    Skip ACK, KEEP-ALIVE
                 </label>
             </div>
 

@@ -25,39 +25,6 @@ ui.logBox.addEventListener("click", e => {
     }
 });
 
-if(PKG_HIGHLIGHT_VERSION !== "V3") 
-{
-    ui.logBox.addEventListener("mouseover", e => {
-        if(e.target.classList.contains('hl-pkg-ok')) {
-            schedulePackageHoverRerender(e.target.classList[0], true);
-        }
-    });
-
-    ui.logBox.addEventListener("mouseout", e => {
-        if(e.target.classList.contains('hl-pkg-ok')) {
-            schedulePackageHoverRerender(e.target.classList[0], false);
-        }
-    });
-}
-
-
-// só funciona se ja existir '.hl-pkg-ok' no innerHTML do log
-// se for usar,chamar depois de setLogBoxInnerHTML()
-// mantendo aqui pra caso precise usar em outro navegador que só funcione com 'mouseenter' ao invez de 'mouseover'
-function applyHoverEventListenerToPackages() {
-    document.querySelectorAll(".hl-pkg-ok").forEach( el => {
-        el.addEventListener("mouseenter", () => {
-            // setHoverEffectToPackage(el.classList[0], true);
-            schedulePackageHoverRerender(el.classList[0], true);
-        });
-        el.addEventListener("mouseleave", () => {
-            // setHoverEffectToPackage(el.classList[0], false);
-            schedulePackageHoverRerender(el.classList[0], false);
-        });
-    });
-
-}
-
 ui.btnCloseTablesContainer.addEventListener("click", () => {
     if(ui.splitBottomPane.classList.contains("hidden") === false) {
         ui.splitBottomPane.classList.add("hidden");
