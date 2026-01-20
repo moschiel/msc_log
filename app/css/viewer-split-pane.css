@@ -17,6 +17,11 @@
   display: none !important;     /* some a barra */
 }
 
+#splitPaneTop {
+  background: #fafafa;
+  padding: 10px 0px 10px 10px;
+}
+
 .pane {
   /* cada pane rola por conta própria */
   /* overflow: auto;          */

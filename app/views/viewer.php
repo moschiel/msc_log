@@ -38,7 +38,7 @@ function render_viewer($selectedFile) {
             </label>
 
             <label 
-                class="hint" 
+                class="hidden hint" 
                 data-hint="Detecta pacotes, e ao clicar no pacote mostra mais detalhes.
 
 Funcionalidade Experimental !!!
