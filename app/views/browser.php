@@ -70,11 +70,11 @@ function render_browser($items, $msg) {
                     <td>
                     <b>📄</b>
                     <?php if (is_text_file_by_extension($item)): ?>
-                        <a href="./index.php?view=1&file=<?= urlencode($relative) ?>">
+                        <a href="./home.php?view=1&file=<?= urlencode($relative) ?>">
                             <?= htmlspecialchars($item) ?>
                         </a>
                     <?php else: ?>
-                        <a href="./index.php?download=1&file=<?= urlencode($relative) ?>">
+                        <a href="./home.php?download=1&file=<?= urlencode($relative) ?>">
                             <?= htmlspecialchars($item) ?>
                         </a>
                     <?php endif; ?>

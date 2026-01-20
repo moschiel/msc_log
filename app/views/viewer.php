@@ -6,7 +6,7 @@ function render_viewer($selectedFile) {
     global $ROOT_DIR;
 
     $title = ($selectedFile !== '') ? $selectedFile : '(nenhum arquivo)';
-    $downloadUrl = './index.php?download=1&file=' . urlencode($selectedFile);
+    $downloadUrl = './home.php?download=1&file=' . urlencode($selectedFile);
     ?>
 <!DOCTYPE html>
 <html>
@@ -57,8 +57,9 @@ Se o LOG for muito grande, a página pode ficar lenta"
                 <button>Download</button>
             </a>
 
+            <!-- Funcionalidade quebrada, deixa muito lento o log -->
             <button 
-                class="hidden"
+                class="hidden" 
                 type="button" 
                 id="toggleFilters">
                 Mostrar marcadores
@@ -66,6 +67,7 @@ Se o LOG for muito grande, a página pode ficar lenta"
 
         </div>
 
+        <!-- Funcionalidade quebrada, deixa muito lento o log -->
         <div id="termsPanel" class="hl-terms-panel hidden">
             <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
                 <b>Marcadores:</b>

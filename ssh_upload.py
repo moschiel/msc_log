@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 # lista de arquivos e diretórios locais pra subir
 items_to_upload = [
-    "./index.php",
+    "./home.php",
     "./app",
 ]
 

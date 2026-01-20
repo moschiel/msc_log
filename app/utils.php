@@ -108,7 +108,7 @@ function safeReadFileFromOffset($rootDir, $relativePath, $offset, $allowedExts =
 
 // Link helper mantendo params
 function buildBrowserLink($dir, $sort, $autorefresh) {
-    return "./index.php?dir=" . urlencode($dir) .
+    return "./home.php?dir=" . urlencode($dir) .
            "&sort=" . urlencode($sort) .
            "&autorefresh=" . urlencode($autorefresh);
 }

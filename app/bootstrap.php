@@ -2,7 +2,7 @@
 // app/bootstrap.php
 date_default_timezone_set('America/Sao_Paulo');
 
-// Diretório raiz onde o index.php está
+// Diretório raiz onde o home.php está
 $ROOT_DIR = realpath(dirname($_SERVER['SCRIPT_FILENAME']));
 if ($ROOT_DIR === false) {
     $ROOT_DIR = realpath(__DIR__ . '/..');
