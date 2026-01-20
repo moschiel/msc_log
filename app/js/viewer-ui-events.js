@@ -18,7 +18,10 @@ ui.cbMatchCase.addEventListener("change", scheduleTermsRerender);
 ui.logBox.addEventListener("click", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexDataFromPackage(e.target.classList[0]);
-        parseCC33Frame(hexToBuffer(frameStr), true);
+        const {parseOk, headers, rows} = parseCC33Frame(hexToBuffer(frameStr), "collect");
+        if(parseOk) {
+            createPackageTable(headers, rows);
+        }
     }
 });
 

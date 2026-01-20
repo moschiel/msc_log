@@ -43,21 +43,27 @@ function render_viewer($selectedFile) {
                 <button>Download</button>
             </a>
 
-            <button
-                id="btnAnalyzePackage"
-                class="hint" 
-                data-hint="Detecta pacotes, ao clicar no pacote mostra mais detalhes.
+            <div class="">
+                <button
+                    id="btnAnalyzePackage"
+                    class="hint" 
+                    data-hint="Dectecta pacotes, ao clicar no pacote mostra detalhes.
 
 Funcionalidade Experimental !!!
 
 Auto-Refresh será desabilitado.
 
 Se o LOG for muito grande, a página pode ficar lenta."
-            >
-                Analisar Pacotes
-            </button>
+                >
+                    Analisar Pacotes
+                </button>
+                <label>
+                    <input type="checkbox" id="cbIgnoreAck" checked>
+                    Ignora ACK e KEEP-ALIVE
+                </label>
+            </div>
 
-            <!-- Funcionalidade quebrada, deixa muito lento o log -->
+            <!-- Funcionalidade quebrada, deixa muito lento o log,  -->
             <button 
                 class="hidden" 
                 type="button" 

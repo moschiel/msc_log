@@ -107,11 +107,11 @@ function getMsgName(id) {
 
 /**
  * @param {Uint8Array} u8buf
- * @param {boolean} showOnTable,
+ * @param {string} processMode?: "validate" | "collect",
  */
-function parseCC33Frame(u8buf, showOnTable) {
+function parseCC33Frame(u8buf, processMode) {
     const br = createBinaryReader(u8buf, {
-        processMode: showOnTable ? "collect" : "validate",
+        processMode,
         tableMode: "nsv"
     });
 
@@ -155,8 +155,10 @@ function parseCC33Frame(u8buf, showOnTable) {
 
     // mensagens
     let newMsg = true;
+    let messageIds = [];
     while (newMsg && (br.getOffset() < frameEnd)) {
         const msgId = br.read_u16("msgId", true);
+        messageIds.push(msgId);
 
         let msgSize = br.read_u16("msgSize", true);
 
@@ -171,19 +173,23 @@ function parseCC33Frame(u8buf, showOnTable) {
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(br.read_bytes(frameEnd - offset)));
 
-    if (showOnTable) {
-        createTable(ui.packageTable, br.headers, br.rows);
-        if(ui.splitBottomPane.classList.contains("hidden")) {
-            ui.splitBottomPane.classList.remove("hidden");
-            syncSplitVisibility();
-        }
-        if(ui.messageTableWrapper.classList.contains("hidden") === false)
-            ui.messageTableWrapper.classList.add("hidden");
-    }
-
-    return true;
+    return {
+        parseOk: true, 
+        headers: br.headers, 
+        rows: br.rows,
+        messageIds: messageIds
+    };  
 }
 
+function createPackageTable(headers, rows) {
+    createTable(ui.packageTable, headers, rows);
+    if(ui.splitBottomPane.classList.contains("hidden")) {
+        ui.splitBottomPane.classList.remove("hidden");
+        syncSplitVisibility();
+    }
+    if(ui.messageTableWrapper.classList.contains("hidden") === false)
+        ui.messageTableWrapper.classList.add("hidden");
+}
 
 /**
  * Mostra os campos (parse) de uma mensagem específica (msgId + payload data),

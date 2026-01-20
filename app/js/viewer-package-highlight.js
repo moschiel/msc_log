@@ -249,25 +249,34 @@ function highlightPackagesV3(text) {
 
         pkgCounter++;
 
-        const classPkgGroup = `pkg-${pkgCounter}`;
         let classPkgStatus = "";
-
         const total = lineIndexes.length;
-        let frameStr = "";
-        for (let i = 0; i < total; i++) {
-            frameStr += lines[lineIndexes[i]].slice(headerLen);
-        }
-
+        
         try {
-            classPkgStatus = parseCC33Frame(hexToBuffer(frameStr), false)
-                ? "hl-pkg-ok"
-                : "hl-pkg-err";
+            let frameStr = "";
+            for (let i = 0; i < total; i++) {
+                frameStr += lines[lineIndexes[i]].slice(headerLen);
+            }
+
+            const {parseOk, messageIds} = parseCC33Frame(hexToBuffer(frameStr), "validate");
+            if(ui.cbIgnoreAck.checked && messageIds !== null) {
+                for (const id of messageIds) {
+                    if(id === 0xFFFF || id === 0x0000) { //ACK ou KeepAlive
+                        lineIndexes = []; // reset linhas
+                        pkgCounter--; // remove esse pacote da contagem
+                        return; // ignora pacote
+                    }
+                }
+            }
+
+            classPkgStatus = parseOk ? "hl-pkg-ok" : "hl-pkg-err";
         } catch (e) {
             console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             classPkgStatus = "hl-pkg-err";
             errPkgCounter++;
         }
 
+        const classPkgGroup = `pkg-${pkgCounter}`;
         const firstIdx = lineIndexes[0];
         const lastIdx = lineIndexes[total - 1];
         if(total === 1) {
@@ -280,7 +289,7 @@ function highlightPackagesV3(text) {
             lines[lastIdx] += "</span>";
         }
 
-        // reset do pacote
+        // reset linhas
         lineIndexes = [];
     }
 
