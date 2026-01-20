@@ -37,25 +37,25 @@ function render_viewer($selectedFile) {
                 Auto-scroll
             </label>
 
-            <label 
-                class="hidden hint" 
-                data-hint="Detecta pacotes, e ao clicar no pacote mostra mais detalhes.
-
-Funcionalidade Experimental !!!
-
-Auto-Refresh será desabilitado.
-
-Se o LOG for muito grande, a página pode ficar lenta"
-            >
-                <input type="checkbox" id="analyzePackage">
-                Analisar Pacotes
-            </label>
-
             <!-- <button onclick="refreshNow()">Atualizar agora</button> -->
 
             <a href="<?= htmlspecialchars($downloadUrl) ?>">
                 <button>Download</button>
             </a>
+
+            <button
+                id="btnAnalyzePackage"
+                class="hint" 
+                data-hint="Detecta pacotes, ao clicar no pacote mostra mais detalhes.
+
+Funcionalidade Experimental !!!
+
+Auto-Refresh será desabilitado.
+
+Se o LOG for muito grande, a página pode ficar lenta."
+            >
+                Analisar Pacotes
+            </button>
 
             <!-- Funcionalidade quebrada, deixa muito lento o log -->
             <button 

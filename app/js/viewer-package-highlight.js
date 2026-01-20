@@ -319,7 +319,8 @@ function highlightPackagesV3(text) {
         flushPackage();
     }
     
-    console.log(`pacotes analisados: ${pkgCounter}, com erro: ${errPkgCounter}`);
+    //console.log(`Total Pacotes: ${pkgCounter}, com erro: ${errPkgCounter}`);
+    alert(`Total Pacotes: ${pkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
     return lines.join("\n");
 }
 

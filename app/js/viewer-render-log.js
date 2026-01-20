@@ -19,9 +19,8 @@ function setLogBoxTextContent(text) {
     ui.logBox.textContent = text;
 }
 
-function renderLogText() {
-    const termsToHighlight = getTermsToHighlight();
-    if (termsToHighlight.length === 0 && ui.cbAnalyzePkg.checked === false) {
+function renderLogText(opt = {packagesHighlight: false, termsHighlight: false}) {
+    if (opt.packagesHighlight === false && opt.termsHighlight === false) {
         // Nao tem nada pra fazer highlight
         setLogBoxTextContent(getRawLog());
         return;
@@ -37,19 +36,18 @@ function renderLogText() {
     let htmlEscaped = escapeHtml(getRawLog());
     
     // Aplica highlight dos pacotes com CC33
-    if(ui.cbAnalyzePkg.checked) {
-        console.log("analisando pacotes");
+    if(opt.packagesHighlight) {
         if (PKG_HIGHLIGHT_VERSION === "V1") htmlEscaped = highlightPackagesV1(htmlEscaped);
         else if (PKG_HIGHLIGHT_VERSION === "V2") htmlEscaped = HighlightPackagesV2(htmlEscaped);
         else if (PKG_HIGHLIGHT_VERSION === "V3") htmlEscaped = highlightPackagesV3(htmlEscaped);
-        console.log("concluído análise de pacotes");
     }
 
     // Aplica highlight nos termos pesquisados
-    if (termsToHighlight.length > 0) {
-        console.log("pesquisando termos");
-        htmlEscaped = highlightTerms(htmlEscaped, termsToHighlight);
-        console.log("concluído pesquisa dos termos")
+    if(opt.termsHighlight) {
+        const termsToHighlight = getTermsToHighlight();
+        if (termsToHighlight.length > 0) {
+            htmlEscaped = highlightTerms(htmlEscaped, termsToHighlight);
+        }
     }
     
     setLogBoxInnerHTML(htmlEscaped);
