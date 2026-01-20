@@ -24,15 +24,15 @@ async function refreshNow() {
       throw new Error(`HTTP ${resp.status}`);
     }
 
-    const delta = await resp.text();
-    if (delta.length > 0) {
-      setRawLog(getRawLog() + delta);   // concatena só o que chegou
-      renderLogText();
+    const deltaRaw = await resp.text();
+    if (deltaRaw.length > 0) {
+      setRawLog(getRawLog() + deltaRaw);   // atualiza raw log
+      writeLogBox("append", "text", deltaRaw);   // faz append do texto
       scrollToBottomIfNeeded();
     }
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
-    setLogBoxInnerHTML("Erro ao carregar arquivo: " + e);
+    writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);
   }
 }
 

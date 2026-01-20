@@ -62,6 +62,6 @@ function scheduleTermsRerender() {
     if (debounceTermsRerender) clearTimeout(debounceTermsRerender);
     debounceTermsRerender = setTimeout(() => {
         saveSettings();
-        renderLogText({termsHighlight: true});
+        rerenderLogContent({termsHighlight: true});
     }, 150);
 }

@@ -8,21 +8,34 @@ function getRawLog() {
     return rawTextLog;
 }
 
-// Lento demais se for muito grande o conteudo, e se tiver muita tag html
-function setLogBoxInnerHTML(text) {
-    ui.logBox.innerHTML = text;
+/**
+ * @param {string} mode: "set" | "append"
+ * @param {string} type: "text" | "html"
+ * @param {string} content
+ */
+function writeLogBox(mode, type, content) {
+    if(mode === "set") 
+    {
+        if(type === "text")
+            ui.logBox.textContent = content;
+        else // html - lento demais se for muito grande o conteudo
+            ui.logBox.innerHTML = content;
+    }
+    else //append
+    {
+        if(type === "text")
+            ui.logBox.insertAdjacentText("beforeend", content);
+        else //html
+            ui.logBox.insertAdjacentHTML("beforeend", content);
+    }
 }
 
-// Rapido pois tudo é tratado como texto (nao considra tags como elementos html), 
-// logo nao da pra estilizar o texto com as tags
-function setLogBoxTextContent(text) {
-    ui.logBox.textContent = text;
-}
 
-function renderLogText(opt = {packagesHighlight: false, termsHighlight: false}) {
+// Refaz a renderização de todo o conteudo do log
+function rerenderLogContent(opt = {packagesHighlight: false, termsHighlight: false}) {
     if (opt.packagesHighlight === false && opt.termsHighlight === false) {
         // Nao tem nada pra fazer highlight
-        setLogBoxTextContent(getRawLog());
+        writeLogBox("set", "text", getRawLog());
         return;
     }
 
@@ -51,10 +64,12 @@ function renderLogText(opt = {packagesHighlight: false, termsHighlight: false}) 
         }
     }
     
-    setLogBoxInnerHTML(innerHtml);
+    writeLogBox("set", "html", innerHtml);
 }
+
 
 function scrollToBottomIfNeeded() {
     if (!ui.cbAutoScroll.checked) return;
     ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }
+

@@ -5,7 +5,7 @@ ui.cbAutoRefresh.addEventListener("change", () => {
 ui.btnAnalyzePkg.addEventListener("click", () => {
     ui.cbAutoRefresh.checked = false;
     ui.btnAnalyzePkg.disable = true;
-    renderLogText({packagesHighlight: true}); 
+    rerenderLogContent({packagesHighlight: true}); 
     ui.btnAnalyzePkg.disable = false;
 });
 
