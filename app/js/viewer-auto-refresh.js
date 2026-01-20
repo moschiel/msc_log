@@ -28,7 +28,7 @@ async function refreshNow() {
     if (deltaRaw.length > 0) {
       setRawLog(getRawLog() + deltaRaw);   // atualiza raw log
       writeLogBox("append", "text", deltaRaw);   // faz append do texto
-      scrollToBottomIfNeeded();
+      scrollLogBoxToBottomIfNeeded();
     }
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
