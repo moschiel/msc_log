@@ -140,6 +140,7 @@ function parseCC33Frame(u8buf, processMode) {
     }
 
     // index / service type
+    let connState;
     br.add_row_u16("Index do Pacote");
     br.add_row_u8("Tipo de Serviço", (v) => {
         let ackType = "";
@@ -149,7 +150,7 @@ function parseCC33Frame(u8buf, processMode) {
             case 0x02: ackType = "ACK message"; break;
             case 0x03: ackType = "ACK invalid option"; break;
         }
-        let connState = (v & 0x80) > 0 ? "Online" : "Offline";
+        connState = (v & 0x80) > 0 ? "Online" : "Offline";
         return `${br.hex_u8(v)} - ${ackType}, ${connState}`;
     });
 
@@ -175,6 +176,7 @@ function parseCC33Frame(u8buf, processMode) {
 
     return {
         parseOk: true, 
+        connState,
         headers: br.headers, 
         rows: br.rows,
         messageIds: messageIds

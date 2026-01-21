@@ -49,11 +49,15 @@ function render_viewer($selectedFile) {
                     class="hint" 
                     data-hint="Permite clicar no pacote p/ mostrar detalhes.
 
-Funcionalidade Experimental !!!
+🟢 - Pacote Online
+⚪ - Pacote Offline
+🔴 - Pacote com Erro
+
+⚠️ Funcionalidade Experimental ⚠️
 
 Auto-Refresh será desabilitado.
 
-Se o LOG for muito grande, a página pode ficar lenta."
+Se o LOG for grande, a página fica lenta."
                 >
                     Analisar Pacotes
                 </button>

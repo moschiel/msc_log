@@ -3,6 +3,7 @@ const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 let globalFrames = [];
 
 // Aplica estilos aos pacotes com CC33 (lento pois usa replace() em cada linha)
+/*
 function highlightPackagesV1(text) {
     const lines = text.split(/\r?\n/);
     const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
@@ -92,6 +93,7 @@ function highlightPackagesV1(text) {
     
     return text;
 }
+*/
 
 // Aplica estilos aos pacotes com CC33 (versão rápida: sem operacao de replace(), seta direto no vetor lines)
 function fastHighlightPackages(text) {
@@ -101,6 +103,7 @@ function fastHighlightPackages(text) {
     let isCollectingFrame = false;
     let lineIndexes = [];         // guarda os índices das linhas que pertencem ao pacote
     let pkgCounter = 0;
+    let offlinePkgCounter = 0;
     let errPkgCounter = 0;
 
     function flushPackage() {
@@ -116,7 +119,7 @@ function fastHighlightPackages(text) {
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const {parseOk, messageIds} = parseCC33Frame(hexToBuffer(frameStr), "validate");
+            const {parseOk, connState, messageIds} = parseCC33Frame(hexToBuffer(frameStr), "validate");
             if(ui.cbIgnoreAck.checked && messageIds !== null) {
                 for (const id of messageIds) {
                     if(id === 0xFFFF || id === 0x0000) { //ACK ou KeepAlive
@@ -127,7 +130,16 @@ function fastHighlightPackages(text) {
                 }
             }
 
-            classPkgStatus = parseOk ? "hl-pkg-ok" : "hl-pkg-err";
+            if(parseOk) {
+                classPkgStatus = "hl-pkg-ok";
+                if(connState === "Offline") {
+                    classPkgStatus += " hl-pkg-offline";
+                    offlinePkgCounter++;
+                }
+            } else {
+                classPkgStatus = "hl-pkg-err";
+            }
+
         } catch (e) {
             console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             classPkgStatus = "hl-pkg-err";
@@ -251,7 +263,7 @@ function fastHighlightPackages(text) {
     }
 
     //console.log(`Total Pacotes: ${pkgCounter}, com erro: ${errPkgCounter}`);
-    alert(`Total Pacotes: ${pkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
+    alert(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
     return lines.join("\n");
 }
 

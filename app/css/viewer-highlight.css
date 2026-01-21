@@ -15,6 +15,10 @@
     color: black;
 }
 
+.hl-pkg-offline {
+   background: lightgrey; 
+}
+
 .hl-pkg-ok:hover {
     cursor: pointer;
     /* background: #64e096; */

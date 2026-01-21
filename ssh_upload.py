@@ -6,6 +6,9 @@ from pathlib import Path
 import paramiko
 from dotenv import load_dotenv
 
+import re
+from datetime import datetime
+
 # lista de arquivos e diretórios locais pra subir
 items_to_upload = [
     "./home.php",
@@ -114,8 +117,30 @@ def upload_items(
         else:
             raise RuntimeError(f"Tipo não suportado (nem arquivo nem pasta): {p}")
 
+def update_app_version(home_php_path):
+    # Gera nova versão baseada em data/hora
+    new_version = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    with open(home_php_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Regex para capturar define('APP_VERSION', '...');
+    pattern = r"define\s*\(\s*['\"]APP_VERSION['\"]\s*,\s*['\"][^'\"]*['\"]\s*\)\s*;"
+
+    replacement = f"define('APP_VERSION', '{new_version}');"
+
+    new_content, count = re.subn(pattern, replacement, content)
+
+    if count == 0:
+        raise RuntimeError("APP_VERSION não encontrado em home.php")
+
+    with open(home_php_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+    return new_version
 
 def main() -> None:
+    update_app_version("./home.php")
     load_dotenv()
 
     host = env_required("SSH_HOST")
