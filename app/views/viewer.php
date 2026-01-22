@@ -100,7 +100,7 @@ Se o LOG for grande, a página fica lenta."
             <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
 
-        <div class="splitter is-vertical" id="mySplitter">
+        <div class="splitter is-vertical" id="mainSplitter">
             <div class="pane first">
                 <div id="logBox" class="log-box">Carregando...</div>
             </div>

@@ -7,7 +7,7 @@ const ui = {
     termsPanel: document.getElementById("termsPanel"),
     taTerms: document.getElementById("hlTerms"),
     cbMatchCase: document.getElementById("hlMatchCase"),
-    mySplitter: document.getElementById("mySplitter"),
+    mainSplitter: document.getElementById("mainSplitter"),
     logBox: document.getElementById("logBox"),
     packageTable: document.getElementById("packageTable"),
     messageTableWrapper:  document.getElementById("messageTableWrapper"),

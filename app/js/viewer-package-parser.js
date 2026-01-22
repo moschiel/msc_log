@@ -185,7 +185,7 @@ function parseCC33Frame(u8buf, processMode) {
 
 function createPackageTable(headers, rows) {
     util.createTable(ui.packageTable, headers, rows);
-    ui.mySplitter._setPaneVisible?.(2, true); //segundo painel visivel
+    ui.mainSplitter._setPaneVisible?.(2, true); //segundo painel visivel
 }
 
 /**
