@@ -41,11 +41,45 @@
   user-select: none;
   touch-action: none;
   background: #f0f0f0;
+
+  position: relative; /* Deixa o divider "anchor" pro botão de trocar orientacao */
 }
 
 .splitter .splitDivider:hover {
   background: #e6e6e6;
 }
+
+/* Botão toggle dentro do divider */
+.splitter .splitToggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.85);
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+
+  /* evita highlight/seleção chata */
+  user-select: none;
+}
+
+.splitter .splitToggle:hover {
+  filter: brightness(0.97);
+}
+
 
 /* Divider por orientação */
 .splitter.is-vertical .splitDivider {
@@ -109,5 +143,11 @@
 
   .splitter .splitDivider-grip {
     background: rgba(255,255,255,0.45);
+  }
+
+  .splitter .splitToggle {
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(15, 23, 42, 0.75);
+    color: rgba(255,255,255,0.85);
   }
 }

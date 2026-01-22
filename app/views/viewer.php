@@ -107,6 +107,9 @@ Se o LOG for grande, a página fica lenta."
 
             <div class="splitDivider" role="separator" tabindex="0">
                 <div class="splitDivider-grip"></div>
+                <button class="splitToggle" type="button" title="Alternar orientação (vertical/horizontal)" aria-label="Alternar orientação">
+                    ⤢
+                </button>
             </div>
 
             <div class="pane second hidden">
