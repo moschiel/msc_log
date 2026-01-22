@@ -17,11 +17,6 @@
   display: none !important;     /* some a barra */
 }
 
-#splitPaneTop {
-  /* background: #fafafa; */
-  /* padding: 8px 0px 8px 8px; */
-}
-
 .pane {
   /* cada pane rola por conta própria */
   /* overflow: auto;          */
@@ -53,4 +48,41 @@
   height: 4px;
   border-radius: 999px;
   background: #bdbdbd;
+}
+
+#splitPaneBottom {
+    /* para o botao de fechar ficar relativo ao container das tabelas */
+    position: relative;
+}
+
+/* Estilo do botao pra fechar o segundo pane */
+#btnCloseBottomPane {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    cursor: pointer;
+    background: lightcyan;
+    border: 1px solid lightcoral;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vsplit {
+    border: 1px solid rgba(255,255,255,0.15);
+    background: #0b1220; /* se quiser "base" escura pro container */
+  }
+
+  .splitDivider {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .splitDivider:hover {
+    background: rgba(255,255,255,0.10);
+  }
+
+  .splitDivider-grip {
+    background: rgba(255,255,255,0.45);
+  }
 }

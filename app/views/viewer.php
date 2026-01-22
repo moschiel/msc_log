@@ -109,21 +109,23 @@ Se o LOG for grande, a página fica lenta."
                 <div class="splitDivider-grip"></div>
             </div>
             <div id="splitPaneBottom" class="pane bottom hidden">
-                <div id="tablesContainer">
-                    <div id="tablesFlexContainer">
+                <div class="all-tables-container">
+                    <div class="single-table-container">
+                        <div>Pacote CC33</div>
                         <div class="table-wrap table-wrap-viewer">
-                            <div>Pacote CC33</div>
                             <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
                             </table>
                         </div>
-                        <div id="messageTableWrapper" class="table-wrap table-wrap-viewer hidden">
-                            <div id="labelMessageDescription"></div>
+                    </div>
+                    <div id="messageTableWrapper" class="single-table-container hidden">
+                        <div id="labelMessageDescription"></div>
+                        <div class="table-wrap table-wrap-viewer">
                             <table id="messageTable" class="table-clean table-sticky table-clean-viewer">
                             </table>
                         </div>
-                        <div id="btnCloseTablesContainer">❌</div>
                     </div>
                 </div>
+                <div id="btnCloseBottomPane">❌</div>
             </div>
         </div>
     </div>

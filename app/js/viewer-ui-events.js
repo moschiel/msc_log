@@ -25,7 +25,7 @@ ui.logBox.addEventListener("click", e => {
     }
 });
 
-ui.btnCloseTablesContainer.addEventListener("click", () => {
+ui.btnCloseBottomPane.addEventListener("click", () => {
     if(ui.splitBottomPane.classList.contains("hidden") === false) {
         ui.splitBottomPane.classList.add("hidden");
         syncSplitVisibility();
