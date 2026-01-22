@@ -18,7 +18,7 @@ ui.cbMatchCase.addEventListener("change", scheduleTermsRerender);
 ui.logBox.addEventListener("click", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexDataFromPackage(e.target.classList[0]);
-        const {parseOk, headers, rows} = parseCC33Frame(hexToBuffer(frameStr), "collect");
+        const {parseOk, headers, rows} = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
         if(parseOk) {
             createPackageTable(headers, rows);
         }
@@ -28,7 +28,7 @@ ui.logBox.addEventListener("click", e => {
 
 ui.btnCloseSecondPane.addEventListener("click", () => {
     ui.mySplitter._setPaneVisible?.(2, false);
-    setVisible(messageTableWrapper, false);
+    util.setVisible(messageTableWrapper, false);
 });
 
 
@@ -49,7 +49,7 @@ ui.packageTable.addEventListener("click", (ev) => {
     
         // 1) Primeira coluna: se começa com "0x" e len >= 6 -> Number
         let col1Number = null;
-        if (col1Text.startsWith("0x") && col1Text.length >= 6 && isHexOnly(col1Text.substr(2, 4))) {
+        if (col1Text.startsWith("0x") && col1Text.length >= 6 && util.isHexOnly(col1Text.substr(2, 4))) {
             col1Number = Number(col1Text.substr(0, 6)); // funciona com "0x...."
             if (Number.isNaN(col1Number)) return;
         } else {
@@ -59,7 +59,7 @@ ui.packageTable.addEventListener("click", (ev) => {
         // 2) Terceira coluna: se for texto hex -> Uint8Array
         let col3Bytes = null;
         try {
-            col3Bytes = hexToBuffer(col3Text);
+            col3Bytes = util.hexToBuffer(col3Text);
         } catch (e) {
             console.warn("Falha ao converter coluna 3 para Uint8Array:", e);
         }

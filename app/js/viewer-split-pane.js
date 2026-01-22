@@ -41,7 +41,7 @@ function initSplitter(splitterEl) {
   }
 
   function syncVisibility() {
-    const secondHidden = !isVisible(second);
+    const secondHidden = !util.isVisible(second);
 
     if (secondHidden) {
       splitterEl.classList.add("single-pane");
@@ -55,9 +55,9 @@ function initSplitter(splitterEl) {
 
   function setPaneVisible(pane, visible) {
     if (pane === 1)  //first pane
-      setVisible(first, visible);
+      util.setVisible(first, visible);
     else if(pane === 2) //second pane
-      setVisible(second, visible);
+      util.setVisible(second, visible);
 
     syncVisibility();
   }

@@ -168,11 +168,11 @@ function parseCC33Frame(u8buf, processMode) {
 
         const msgData = br.read_bytes("msgData", msgSize);
 
-        br.add_row(getMsgName(msgId), msgSize, bufferToHex(msgData));
+        br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
     }
 
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
-    // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, bufferToHex(br.read_bytes(frameEnd - offset)));
+    // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
 
     return {
         parseOk: true, 
@@ -184,14 +184,14 @@ function parseCC33Frame(u8buf, processMode) {
 }
 
 function createPackageTable(headers, rows) {
-    createTable(ui.packageTable, headers, rows);
+    util.createTable(ui.packageTable, headers, rows);
     ui.mySplitter._setPaneVisible?.(2, true); //segundo painel visivel
-    setVisible(ui.messageTableWrapper, false);
+    util.setVisible(ui.messageTableWrapper, false);
 }
 
 /**
  * Mostra os campos (parse) de uma mensagem específica (msgId + payload data),
- * gerando uma tabela via createTable().
+ * gerando uma tabela via util.createTable().
  *
  * @param {number} msgID  uint16
  * @param {Uint8Array} data
@@ -334,7 +334,7 @@ function parseMessage(msgID, data, showOnTable = true) {
         }
 /*
         case 0x4010: {
-            const strList = splitNullTerminatedAscii(data);
+            const strList = util.splitNullTerminatedAscii(data);
 
             if (strList.length < 6) {
                 rows.push(["Erro", "Error in Data Buffer"]);
@@ -369,7 +369,7 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_row_u32("Message ID");
             br.add_row_u32("RFU");
 
-            rows.push(["Message", asciiFromOffset(count)]);
+            rows.push(["Message", util.asciiFromOffset(count)]);
             count = data.length;
             break;
         }
@@ -387,10 +387,10 @@ function parseMessage(msgID, data, showOnTable = true) {
                 const size = read_u8();
                 const blob = read_bytes(size);
 
-                rows.push([strID, String(size), bufferToHex(blob)]);
+                rows.push([strID, String(size), util.bufferToHex(blob)]);
             }
 
-            createTable(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
+            util.createTable(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
             return true;
         }
 
@@ -401,7 +401,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
             }
 
-            createTable(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
+            util.createTable(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
             return true;
         }
 
@@ -418,13 +418,13 @@ function parseMessage(msgID, data, showOnTable = true) {
                 }
             }
 
-            createTable(ui.packageTable, ["ID"], rows);
+            util.createTable(ui.packageTable, ["ID"], rows);
             return true;
         }
 
         case 0x4004: {
             rows.push([getAsciiStringAll()]);
-            createTable(ui.packageTable, ["File Name"], rows);
+            util.createTable(ui.packageTable, ["File Name"], rows);
             return true;
         }
 */
@@ -489,13 +489,13 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_row_u8("protocol");
             br.add_row_u8("hardware");
 
-            rows.push(["firmware", bufferToHex(read_bytes(4))]);
+            rows.push(["firmware", util.bufferToHex(read_bytes(4))]);
 
             rows.push(["power_source", (read_u8() / 4.0).toFixed(2).replace(/\.?0+$/, "")]);
             rows.push(["power_battery", (read_u8() / 50.0).toFixed(2).replace(/\.?0+$/, "")]);
             br.add_row_u8("temp_battery");
 
-            rows.push(["serial_number", bufferToHex(read_bytes(5))]);
+            rows.push(["serial_number", util.bufferToHex(read_bytes(5))]);
 
             br.add_row_u32("odometer");
             br.add_row_u32("horimeter");
@@ -524,10 +524,10 @@ function parseMessage(msgID, data, showOnTable = true) {
             rows.push(["outputs", hex_u8(read_u8())]);
 
             const bb3 = read_bytes(3);
-            rows.push(["bb_pck_available_t", "0x" + bufferToHex(bb3).match(/../g).join(" 0x")]);
+            rows.push(["bb_pck_available_t", "0x" + util.bufferToHex(bb3).match(/../g).join(" 0x")]);
 
             if (dv.byteLength > count) {
-                rows.push(["SecondsPayload", bufferToHex(data.slice(count))]);
+                rows.push(["SecondsPayload", util.bufferToHex(data.slice(count))]);
                 count = data.length;
             }
             break;
@@ -600,9 +600,9 @@ function parseMessage(msgID, data, showOnTable = true) {
             ui.messageTable.innerHTML = "";
         } else {
             ui.labelMessageDescription.textContent = getMsgName(msgID);
-            createTable(ui.messageTable, br.headers, br.rows);
+            util.createTable(ui.messageTable, br.headers, br.rows);
         }
-        setVisible(ui.messageTableWrapper, true);
+        util.setVisible(ui.messageTableWrapper, true);
     }
 
     return true;

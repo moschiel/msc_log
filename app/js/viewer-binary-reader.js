@@ -174,7 +174,7 @@ function createBinaryReader(u8buf, opts = {}) {
         return b;
     };
 
-    // fallback simples caso você não passe bufferToHex
+    // fallback simples caso você não passe util.bufferToHex
     function bytesToHex(arr) {
         let s = "";
         for (let i = 0; i < arr.length; i++) {
@@ -185,7 +185,7 @@ function createBinaryReader(u8buf, opts = {}) {
 
     const add_row_bytes_BCD = (name, n) => {
         const b = read_bytes(name, n);
-        const v = uint8ArrayToBCD(b);
+        const v = util.uint8ArrayToBCD(b);
         add_row(name, `${n} bytes em BCD`, v);
         return v;
     };

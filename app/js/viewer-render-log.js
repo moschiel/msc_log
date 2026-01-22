@@ -46,7 +46,7 @@ function rerenderLogContent(opt = {packagesHighlight: false, termsHighlight: fal
     // evitando interpretação indevida do log e riscos de XSS.
     // Após o escape, apenas os <span> inseridos pelo highlight
     // são HTML válido, mantendo controle total do markup.
-    let innerHtml = escapeHtml(getRawLog());
+    let innerHtml = util.escapeHtml(getRawLog());
     
     // Aplica highlight dos pacotes com CC33
     if(opt.packagesHighlight) {

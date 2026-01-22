@@ -16,12 +16,12 @@ function highlightPackagesV1(text) {
         if (line.length > LOG_HEADER_EXAMPLE.length) {
             let substrFrame = line.substr(LOG_HEADER_EXAMPLE.length);
 
-            if (!isCollectingFrame && substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
+            if (!isCollectingFrame && substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
                 //Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 isCollectingFrame = true;
                 frameStr = "";
                 linesToReplace = [];
-            } else if (isCollectingFrame && isHexOnly(substrFrame) === false) {
+            } else if (isCollectingFrame && util.isHexOnly(substrFrame) === false) {
                 // Terminou de coletar linhas desse pacote
                 isCollectingFrame = false;
             }
@@ -40,7 +40,7 @@ function highlightPackagesV1(text) {
                     let classPkgStatus = "";
 
                     try {
-                        if(parseCC33Frame(hexToBuffer(frameStr), false)) 
+                        if(parseCC33Frame(util.hexToBuffer(frameStr), false)) 
                             classPkgStatus = 'hl-pkg-ok'; //classe para ficar com highlight ok
                         else
                             classPkgStatus = 'hl-pkg-err'; //classe para ficar com highlight de erro
@@ -119,7 +119,7 @@ function fastHighlightPackages(text) {
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const {parseOk, connState, messageIds} = parseCC33Frame(hexToBuffer(frameStr), "validate");
+            const {parseOk, connState, messageIds} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
             if(ui.cbIgnoreAck.checked && messageIds !== null) {
                 for (const id of messageIds) {
                     if(id === 0xFFFF || id === 0x0000) { //ACK ou KeepAlive
@@ -237,14 +237,14 @@ function fastHighlightPackages(text) {
         const substrFrame = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            if (substrFrame.startsWith("CC33") && isHexOnly(substrFrame)) {
+            if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
                 //Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 isCollectingFrame = true;
                 lineIndexes = [];
             }
         } else {
             // está coletando: se não for hex, termina pacote
-            if (!isHexOnly(substrFrame)) {
+            if (!util.isHexOnly(substrFrame)) {
                 // Terminou de coletar linhas desse pacote
                 isCollectingFrame = false;
                 flushPackage();

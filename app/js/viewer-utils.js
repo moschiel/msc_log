@@ -1,147 +1,164 @@
-function escapeHtml(s) {
-    return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+const util = {
 
-function escapeRegex(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+    // ======== Strings / Segurança ========
+    escapeHtml(s) {
+        return s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    },
 
-function isHexOnly(str) {
-    return /^[0-9a-fA-F]+$/.test(str);
-}
+    escapeRegex(s) {
+        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    },
 
-function hexToBuffer(hex) {
-    hex = hex.replaceAll("\r","").replaceAll("\n","");
+    // ======== Hex / Buffer ========
+    isHexOnly(str) {
+        return /^[0-9a-fA-F]+$/.test(str);
+    },
 
-    if(isHexOnly(hex) === false) {
-        throw new Error("Frame caracter invalido");
-    }
+    hexToBuffer(hex) {
+        hex = hex.replaceAll("\r", "").replaceAll("\n", "");
 
-    if (hex.length % 2 !== 0) {
-        throw new Error("Hex string inválida (tamanho ímpar)");
-    }
-
-    const buffer = new Uint8Array(hex.length / 2);
-
-    for (let i = 0; i < hex.length; i += 2) {
-        buffer[i / 2] = parseInt(hex.substr(i, 2), 16);
-    }
-
-    return buffer; // Uint8Array
-}
-
-function bufferToHex(buffer) {
-    if (!(buffer instanceof Uint8Array)) {
-        throw new Error("Esperado Uint8Array");
-    }
-
-    let hex = "";
-
-    for (let i = 0; i < buffer.length; i++) {
-        hex += buffer[i].toString(16).padStart(2, "0");
-    }
-
-    return hex.toUpperCase(); // opcional
-}
-
-function uint8ArrayToBCD(buffer) {
-    if (!(buffer instanceof Uint8Array)) {
-        throw new Error("Entrada não é Uint8Array");
-    }
-
-    let result = "";
-
-    for (const byte of buffer) {
-        const high = (byte >> 4) & 0x0F;
-        const low  = byte & 0x0F;
-
-        if (high > 9 || low > 9) {
-            throw new Error(`Nibble inválido em BCD: 0x${byte.toString(16)}`);
+        if (this.isHexOnly(hex) === false) {
+            throw new Error("Frame caracter invalido");
         }
 
-        result += high.toString();
-        result += low.toString();
-    }
+        if (hex.length % 2 !== 0) {
+            throw new Error("Hex string inválida (tamanho ímpar)");
+        }
 
-    return result;
-}
+        const buffer = new Uint8Array(hex.length / 2);
 
-// Edita tabela existente dinamicamente
-function createTable(table, headers, rows) {
-    table.innerHTML = "";
+        for (let i = 0; i < hex.length; i += 2) {
+            buffer[i / 2] = parseInt(hex.substr(i, 2), 16);
+        }
 
-    const thead = document.createElement("thead");
-    const trHead = document.createElement("tr");
+        return buffer;
+    },
 
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        trHead.appendChild(th);
-    });
+    bufferToHex(buffer) {
+        if (!(buffer instanceof Uint8Array)) {
+            throw new Error("Esperado Uint8Array");
+        }
 
-    thead.appendChild(trHead);
-    table.appendChild(thead);
+        let hex = "";
 
-    const tbody = document.createElement("tbody");
+        for (let i = 0; i < buffer.length; i++) {
+            hex += buffer[i].toString(16).padStart(2, "0");
+        }
 
-    rows.forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-        const td = document.createElement("td");
-        td.textContent = cell;
-        // td.innerHTML = cell;
-        tr.appendChild(td);
+        return hex.toUpperCase();
+    },
+
+    uint8ArrayToBCD(buffer) {
+        if (!(buffer instanceof Uint8Array)) {
+            throw new Error("Entrada não é Uint8Array");
+        }
+
+        let result = "";
+
+        for (const byte of buffer) {
+            const high = (byte >> 4) & 0x0F;
+            const low  = byte & 0x0F;
+
+            if (high > 9 || low > 9) {
+                throw new Error(`Nibble inválido em BCD: 0x${byte.toString(16)}`);
+            }
+
+            result += high.toString();
+            result += low.toString();
+        }
+
+        return result;
+    },
+
+    // ======== Table Helper ========
+    createTable(table, headers, rows) {
+        table.innerHTML = "";
+
+        const thead = document.createElement("thead");
+        const trHead = document.createElement("tr");
+
+        headers.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            trHead.appendChild(th);
         });
-        tbody.appendChild(tr);
-    });
 
-    table.appendChild(tbody);
-}
+        thead.appendChild(trHead);
+        table.appendChild(thead);
 
-const epochSecondsToString = (sec) => new Date(sec * 1000).toISOString();
+        const tbody = document.createElement("tbody");
 
-// ======== ASCII helpers ========
-function getAsciiStringAll() {
-    let s = "";
-    for (let i = 0; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
-    return s;
-}
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            row.forEach(cell => {
+                const td = document.createElement("td");
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
 
-function splitNullTerminatedAscii(u8arr) {
-    const parts = [];
-    let cur = "";
-    for (let i = 0; i < u8arr.length; i++) {
-        const b = u8arr[i];
-        if (b === 0x00) { parts.push(cur); cur = ""; }
-        else cur += String.fromCharCode(b & 0x7F);
+        table.appendChild(tbody);
+    },
+
+    // ======== Time ========
+    epochSecondsToString(sec) {
+        return new Date(sec * 1000).toISOString();
+    },
+
+    // ======== ASCII helpers ========
+    getAsciiStringAll(data) {
+        let s = "";
+        for (let i = 0; i < data.length; i++) {
+            s += String.fromCharCode(data[i] & 0x7F);
+        }
+        return s;
+    },
+
+    splitNullTerminatedAscii(u8arr) {
+        const parts = [];
+        let cur = "";
+
+        for (let i = 0; i < u8arr.length; i++) {
+            const b = u8arr[i];
+            if (b === 0x00) {
+                parts.push(cur);
+                cur = "";
+            } else {
+                cur += String.fromCharCode(b & 0x7F);
+            }
+        }
+
+        parts.push(cur);
+        return parts;
+    },
+
+    asciiFromOffset(data, offset) {
+        let s = "";
+        for (let i = offset; i < data.length; i++) {
+            s += String.fromCharCode(data[i] & 0x7F);
+        }
+        return s;
+    },
+
+    // ======== DOM / Visibility ========
+    setVisible(el, visible) {
+        if (visible)
+            el.classList.remove("hidden");
+        else
+            el.classList.add("hidden");
+    },
+
+    isVisible(el) {
+        return !el.classList.contains("hidden");
+    },
+
+    toogleVisible(el) {
+        el.classList.toggle("hidden");
     }
-    parts.push(cur);
-    return parts;
-}
-
-function asciiFromOffset(offset) {
-    let s = "";
-    for (let i = offset; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
-    return s;
-}
-
-// Elements Helpers
-function setVisible(el, visible) {
-    if(visible)
-        el.classList.remove("hidden");
-    else
-        el.classList.add("hidden");
-}
-
-function isVisible(el) {
-    return el.classList.contains("hidden") ? false : true;
-}
-
-function toogleVisible(el) {
-    el.classList.toggle("hidden");
-}
+};

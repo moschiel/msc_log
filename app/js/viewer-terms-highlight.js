@@ -12,7 +12,7 @@ const LS_PANEL = "hl_panel_open::" + fileParam;
 function saveSettings() {
     localStorage.setItem(LS_KEY, ui.taTerms.value);
     localStorage.setItem(LS_CASE, ui.cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, isVisible(ui.termsPanel) ? "1" : "0");
+    localStorage.setItem(LS_PANEL, util.isVisible(ui.termsPanel) ? "1" : "0");
 }
 
 function loadSettings() {
@@ -24,14 +24,14 @@ function loadSettings() {
 
     const savedPanel = localStorage.getItem(LS_PANEL);
     if (savedPanel === "1") {
-        setVisible(ui.termsPanel, true);
+        util.setVisible(ui.termsPanel, true);
         ui.btnToggleTermsVisibility.textContent = "Esconder marcadores";
     }
 }
 
 function toggleTermsPanelVisibility() {
-    toogleVisible(ui.termsPanel);
-    const open = isVisible(ui.termsPanel);
+    util.toogleVisible(ui.termsPanel);
+    const open = util.isVisible(ui.termsPanel);
     ui.btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
     saveSettings();
 }
@@ -50,7 +50,7 @@ function getTermsToHighlight() {
 function highlightTerms(text, termsToHighlight) {
     const flags = ui.cbMatchCase.checked ? "g" : "gi";
     for (const t of termsToHighlight) {
-        const re = new RegExp(escapeRegex(t), flags);
+        const re = new RegExp(util.escapeRegex(t), flags);
         text = text.replace(re, (x) => `<span class="hl-term">${x}</span>`);
     }
     return text;
