@@ -185,10 +185,7 @@ function parseCC33Frame(u8buf, processMode) {
 
 function createPackageTable(headers, rows) {
     createTable(ui.packageTable, headers, rows);
-    if(ui.splitBottomPane.classList.contains("hidden")) {
-        ui.splitBottomPane.classList.remove("hidden");
-        syncSplitVisibility();
-    }
+    ui.mySplitter._setPaneVisible?.(2, true); //segundo painel visivel
     if(ui.messageTableWrapper.classList.contains("hidden") === false)
         ui.messageTableWrapper.classList.add("hidden");
 }

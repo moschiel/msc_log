@@ -1,62 +1,86 @@
-/* split pane container, faz split do #logBox e #tablesContainer */
-.vsplit {
-  height: 100vh;          /* ou height: 600px; / 100% do pai */
+.splitter {
+  height: 100vh;
+  width: 100%;
   display: flex;
-  flex-direction: column;
   border: 1px solid #ccc;
-  margin-top: 10PX;
-  overflow: hidden;       /* importante: não deixar "vazar" */
-}
-
-/* quando bottom está hidden, container vira "single pane" */
-.vsplit.single-pane #splitPaneTop {
-  flex: 1 1 auto !important;   /* ocupa tudo */
-}
-
-.vsplit.single-pane #splitDivider {
-  display: none !important;     /* some a barra */
-}
-
-.pane {
-  /* cada pane rola por conta própria */
-  /* overflow: auto;          */
-  /* passa para os filhos do pane a rolagem do scroll */
+  margin-top: 10px;
   overflow: hidden;
-  /* limite mínimo (pode ajustar) */
-  /* min-height: 80px;        */
-  /* padding: 8px; */
 }
 
-.splitDivider {
-  height: 10px;
-  cursor: row-resize;
-  background: #f0f0f0;
+/* Orientações */
+.splitter.is-vertical {
+  flex-direction: column;
+}
+
+.splitter.is-horizontal {
+  flex-direction: row;
+}
+
+/* panes */
+.splitter .pane {
+  overflow: hidden;  /* passa para os filhos do pane a rolagem do scroll */
+  min-width: 0;   /* importante no horizontal pra não estourar */
+  min-height: 0;  /* importante no vertical pra não estourar */
+}
+
+/* single-pane: some divider + second */
+.splitter.single-pane .splitDivider {
+  display: none !important; /* some a barra */
+}
+
+.splitter.single-pane .pane.first {
+  flex: 1 1 auto !important; /* ocupa tudo */
+}
+
+/* Divider base */
+.splitter .splitDivider {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
-  touch-action: none;     /* importante pra touch */
+  touch-action: none;
+  background: #f0f0f0;
 }
 
-.splitDivider:hover {
+.splitter .splitDivider:hover {
   background: #e6e6e6;
 }
 
-.splitDivider-grip {
-  width: 60px;
-  height: 4px;
+/* Divider por orientação */
+.splitter.is-vertical .splitDivider {
+  height: 10px;
+  cursor: row-resize;
+}
+
+.splitter.is-horizontal .splitDivider {
+  width: 10px;
+  cursor: col-resize;
+}
+
+/* Grip: pode mudar formato dependendo do modo */
+.splitter .splitDivider-grip {
   border-radius: 999px;
   background: #bdbdbd;
 }
 
-#splitPaneBottom {
-    /* para o botao de fechar ficar relativo ao container das tabelas */
-    position: relative;
+.splitter.is-vertical .splitDivider-grip {
+  width: 60px;
+  height: 4px;
+}
+
+.splitter.is-horizontal .splitDivider-grip {
+  width: 4px;
+  height: 60px;
+}
+
+.splitter .pane.second {
+    /* para o botão btnCloseSecondPane ficar relativo ao  segundo pane */
+  position: relative;
 }
 
 /* Estilo do botao pra fechar o segundo pane */
-#btnCloseBottomPane {
+#btnCloseSecondPane {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -68,21 +92,22 @@
     font-size: 12px;
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
-  .vsplit {
+  .splitter {
     border: 1px solid rgba(255,255,255,0.15);
-    background: #0b1220; /* se quiser "base" escura pro container */
+    background: #0b1220;
   }
 
-  .splitDivider {
+  .splitter .splitDivider {
     background: rgba(255,255,255,0.06);
   }
 
-  .splitDivider:hover {
+  .splitter .splitDivider:hover {
     background: rgba(255,255,255,0.10);
   }
 
-  .splitDivider-grip {
+  .splitter .splitDivider-grip {
     background: rgba(255,255,255,0.45);
   }
 }

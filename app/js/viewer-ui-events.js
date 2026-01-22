@@ -25,14 +25,13 @@ ui.logBox.addEventListener("click", e => {
     }
 });
 
-ui.btnCloseBottomPane.addEventListener("click", () => {
-    if(ui.splitBottomPane.classList.contains("hidden") === false) {
-        ui.splitBottomPane.classList.add("hidden");
-        syncSplitVisibility();
-    }
+
+ui.btnCloseSecondPane.addEventListener("click", () => {
+    ui.mySplitter._setPaneVisible?.(2, false);
     if(ui.messageTableWrapper.classList.contains("hidden") === false)
         ui.messageTableWrapper.classList.add("hidden");
 });
+
 
 ui.packageTable.addEventListener("click", (ev) => {
     try

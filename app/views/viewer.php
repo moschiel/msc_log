@@ -100,15 +100,16 @@ Se o LOG for grande, a página fica lenta."
             <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
 
-        <!-- split pane container -->
-        <div class="vsplit" id="vsplit"> 
-            <div id="splitPaneTop" class="pane top">
+        <div class="splitter is-vertical" id="mySplitter">
+            <div class="pane first">
                 <div id="logBox" class="log-box">Carregando...</div>
             </div>
-            <div class="splitDivider" id="splitDivider" role="separator" aria-orientation="horizontal" tabindex="0">
+
+            <div class="splitDivider" role="separator" tabindex="0">
                 <div class="splitDivider-grip"></div>
             </div>
-            <div id="splitPaneBottom" class="pane bottom hidden">
+
+            <div class="pane second hidden">
                 <div class="all-tables-container">
                     <div class="single-table-container">
                         <div>Pacote CC33</div>
@@ -125,7 +126,7 @@ Se o LOG for grande, a página fica lenta."
                         </div>
                     </div>
                 </div>
-                <div id="btnCloseBottomPane">❌</div>
+                <div id="btnCloseSecondPane">❌</div>
             </div>
         </div>
     </div>

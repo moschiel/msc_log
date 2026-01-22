@@ -1,87 +1,117 @@
-const MIN_PANE_PX = 80;       // ajuste
+const MIN_PANE_PX = 80;
 
 function clamp(v, min, max) {
-    return Math.max(min, Math.min(max, v));
+  return Math.max(min, Math.min(max, v));
 }
 
-function setSplitByTopPx(topPx) {
-    const rect = ui.vsplip.getBoundingClientRect();
-    const total = rect.height;
+function initSplitter(splitterEl) {
+  const first = splitterEl.querySelector(".pane.first");
+  const second = splitterEl.querySelector(".pane.second");
+  const divider = splitterEl.querySelector(".splitDivider");
 
-    // top/bottom mínimos
-    const minTop = MIN_PANE_PX;
-    const maxTop = total - ui.splitDivider.offsetHeight - MIN_PANE_PX;
+  if (!first || !second || !divider) return;
 
-    const newTop = clamp(topPx, minTop, maxTop);
+  const isVertical = splitterEl.classList.contains("is-vertical");
 
-    // Faz o top ocupar px fixo e o bottom pegar o resto
-    ui.splitTopPane.style.flex = `0 0 ${newTop}px`;
-    ui.splitBottomPane.style.flex = `1 1 auto`;
-}
+  function getTotalSize() {
+    const rect = splitterEl.getBoundingClientRect();
+    return isVertical ? rect.height : rect.width;
+  }
 
-function syncSplitVisibility() {
-    const bottomHidden = ui.splitBottomPane.classList.contains("hidden");
+  function getDividerSize() {
+    return isVertical ? divider.offsetHeight : divider.offsetWidth;
+  }
 
-    if (bottomHidden) {
-        ui.vsplip.classList.add("single-pane");
-        // garante que o top ocupe tudo (sem altura fixa antiga)
-        ui.splitTopPane.style.flex = "1 1 auto";
-        // opcional: limpa estilos de split antigos
-        ui.splitBottomPane.style.flex = "";
+  function pointerToFirstPx(clientX, clientY) {
+    const rect = splitterEl.getBoundingClientRect();
+    return isVertical ? (clientY - rect.top) : (clientX - rect.left);
+  }
+
+  function setSplitByFirstPx(firstPx) {
+    const total = getTotalSize();
+    const divSize = getDividerSize();
+
+    const minFirst = MIN_PANE_PX;
+    const maxFirst = total - divSize - MIN_PANE_PX;
+
+    const newFirst = clamp(firstPx, minFirst, maxFirst);
+
+    first.style.flex = `0 0 ${newFirst}px`;
+    second.style.flex = `1 1 auto`;
+  }
+
+  function syncVisibility() {
+    const secondHidden = second.classList.contains("hidden");
+
+    if (secondHidden) {
+      splitterEl.classList.add("single-pane");
+      first.style.flex = "1 1 auto";
+      second.style.flex = "";
     } else {
-        ui.vsplip.classList.remove("single-pane");
-        // ao mostrar, re-aplica um split inicial (ou o último salvo)
-        const rect = ui.vsplip.getBoundingClientRect();
-        setSplitByTopPx(rect.height * 0.5); // ou sua proporção preferida
+      splitterEl.classList.remove("single-pane");
+      setSplitByFirstPx(getTotalSize() * 0.5);
     }
-}
+  }
 
-function pointerYToTopPx(clientY) {
-    const rect = ui.vsplip.getBoundingClientRect();
-    return clientY - rect.top; // posição dentro do container
-}
+  function setPaneVisible(pane, visible) {
+    if (pane === 1) { //first pane
 
-function initializeSplitPane() {
-    let dragging = false;
-
-    ui.splitDivider.addEventListener("pointerdown", (e) => {
-        dragging = true;
-        ui.splitDivider.setPointerCapture(e.pointerId);
-
-        // evita selecionar texto durante drag
-        document.body.style.userSelect = "none";
-        document.body.style.cursor = "row-resize";
-    });
-
-    ui.splitDivider.addEventListener("pointermove", (e) => {
-        if (!dragging) return;
-        setSplitByTopPx(pointerYToTopPx(e.clientY) - ui.splitDivider.offsetHeight / 2);
-    });
-
-    function stopDrag() {
-        dragging = false;
-        document.body.style.userSelect = "";
-        document.body.style.cursor = "";
     }
+    else if(pane === 2) { //second pane
+      if(visible === false) {
+        second.classList.add("hidden");
+      } else {
+        second.classList.remove("hidden");
+      }
+      syncVisibility();
+    }
+  }
 
-    ui.splitDivider.addEventListener("pointerup", stopDrag);
-    ui.splitDivider.addEventListener("pointercancel", stopDrag);
+  let dragging = false;
 
-    
-    window.addEventListener("load", () => {
-        const rect = ui.vsplip.getBoundingClientRect();
-        // setSplitByTopPx(rect.height * 0.5); // Inicial: 50/50
-        syncSplitVisibility();
-    });
+  divider.addEventListener("pointerdown", (e) => {
+    if (splitterEl.classList.contains("single-pane")) return;
 
-    // Se a tela redimensionar, mantém proporção aproximada
-    window.addEventListener("resize", () => {
-        const rect = ui.vsplip.getBoundingClientRect();
-        const topNow = ui.splitTopPane.getBoundingClientRect().height;
-        const ratio = topNow / rect.height;
-        setSplitByTopPx(rect.height * ratio);
-    });
+    dragging = true;
+    divider.setPointerCapture(e.pointerId);
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = isVertical ? "row-resize" : "col-resize";
+  });
+
+  divider.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+
+    const p = pointerToFirstPx(e.clientX, e.clientY);
+    setSplitByFirstPx(p - getDividerSize() / 2);
+  });
+
+  function stopDrag() {
+    dragging = false;
+    document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+  }
+
+  divider.addEventListener("pointerup", stopDrag);
+  divider.addEventListener("pointercancel", stopDrag);
+
+  window.addEventListener("load", () => {
+    syncVisibility();
+  });
+
+  window.addEventListener("resize", () => {
+    if (splitterEl.classList.contains("single-pane")) return;
+
+    const total = getTotalSize();
+    const firstNow = (isVertical ? first.getBoundingClientRect().height
+                                : first.getBoundingClientRect().width);
+    const ratio = firstNow / total;
+    setSplitByFirstPx(total * ratio);
+  });
+
+  // expõe um jeito simples de re-sincronizar quando você der toggle no second
+  splitterEl._syncVisibility = syncVisibility;
+  splitterEl._setPaneVisible = setPaneVisible;
 }
 
-// Executa ao carregar script
-initializeSplitPane();
+// Inicializa todos
+document.querySelectorAll(".splitter").forEach(initSplitter);
