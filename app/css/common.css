@@ -54,4 +54,23 @@ input[type="checkbox"] {
   input[type="checkbox"] {
     filter: invert(1);
   }
+
+  /* Estilo dark mode de links */
+  a {
+    color: #60a5fa;
+    text-decoration: none;
+  }
+
+  a:visited {
+    color: #93c5fd;
+  }
+
+  a:hover {
+    color: #bfdbfe;
+    text-decoration: underline;
+  }
+
+  a:active {
+    color: #3b82f6;
+  }
 }
