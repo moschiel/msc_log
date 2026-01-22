@@ -1,0 +1,57 @@
+/* 
+    Estilos compartilhados entre as views de elementos simples 
+    como fontes, botoes, checkboxes, etc.
+*/
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: #111;
+  background: #fff;
+}
+
+/* input / checkbox */
+input, button {
+  font: inherit;
+}
+
+/* botão */
+button {
+  padding: 6px 12px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background: #eee;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e0e0e0;
+}
+
+/* checkbox simples */
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ===== DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #eee;
+    background: #121212;
+  }
+
+  button {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #eee;
+  }
+
+  button:hover {
+    background: #333;
+  }
+
+  input[type="checkbox"] {
+    filter: invert(1);
+  }
+}

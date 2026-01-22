@@ -4,30 +4,25 @@
     border: 1px solid black;
 }
 
-/* Estilos para destacar pacotes CC33 no LOG */
+/* Estilos para destacar pacotes CC33 Online no LOG */
 .hl-pkg-ok {
     background: #8ee7a7;
     color: black;
 }
 
+/* Pacotes gerados quando nao tinha sinal */
+.hl-pkg-offline {
+   background: lightgrey;
+   color: black;
+}
+
+/* Destaca pacotes CC33 com erros no LOG*/
 .hl-pkg-err {
     background: rgb(224, 122, 122);
     color: black;
 }
 
-.hl-pkg-offline {
-   background: lightgrey; 
-}
-
-.hl-pkg-ok:hover {
-    cursor: pointer;
-    /* background: #64e096; */
-}
-
-.hl-pkg-err:hover {
-    cursor: pointer;
-}
-
+/* bordas */
 .hl-border-top {
     border-top: 1px solid black;
 }
@@ -39,4 +34,24 @@
 .hl-border-sides {
     border-left: 1px solid black;
     border-right: 1px solid black;
+}
+
+.hl-pkg-ok:hover, .hl-pkg-offline, .hl-pkg-err:hover {
+    cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Bordas (em vez de preto) */
+  .hl-border-top {
+    border-top: 1px solid rgba(255,255,255,0.35);
+  }
+
+  .hl-border-bottom {
+    border-bottom: 1px solid rgba(255,255,255,0.35);
+  }
+
+  .hl-border-sides {
+    border-left: 1px solid rgba(255,255,255,0.35);
+    border-right: 1px solid rgba(255,255,255,0.35);
+  }
 }

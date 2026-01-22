@@ -31,6 +31,29 @@
   line-height: 1.35;
 }
 
+/* Windows Dark mode */
+@media (prefers-color-scheme: dark) {
+  /* ===== TABELA LIMPA / LEGÍVEL (DARK MODE) ===== */
+  .table-clean {
+    color: #e5e7eb;              /* texto principal */
+    background: #1e1e1e;         /* fundo padrão Windows dark */
+    border: 1px solid #2a2a2a;   /* borda externa suave */
+
+    scrollbar-color: #475569 #0b1220;      /* thumb | track */
+  }
+
+  /* ===== CABEÇALHO ===== */
+  .table-clean thead th {
+    background: #252526;         /* header levemente mais claro */
+    color: #f3f4f6;
+    border-bottom: 1px solid #2f2f2f;
+  }
+
+  .table-clean td {
+    border-bottom: 1px solid #2f2f2f;
+  }
+}
+
 /* Hover */
 /*.table-clean tbody tr:hover {
   background: #eef6ff;

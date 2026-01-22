@@ -3,7 +3,7 @@
 
 
 function render_viewer($selectedFile) {
-    global $ROOT_DIR;
+    global $ROOT_DIR, $currentPath;
 
     $title = ($selectedFile !== '') ? $selectedFile : '(nenhum arquivo)';
     $downloadUrl = './home.php?download=1&file=' . urlencode($selectedFile);
@@ -13,18 +13,24 @@ function render_viewer($selectedFile) {
 <head>
     <meta charset="UTF-8">
     <title>Viewer - <?= htmlspecialchars($title) ?></title>
+    <link rel="stylesheet" href="./app/css/common.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-terms.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-split-pane.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
-    <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
     <div class="main">
         <div class="header-container">
+            <p>
+                <a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
+                    ⬅️
+                </a>
+            </p>
             <b>Arquivo:</b> <span class="file"><?= htmlspecialchars($title) ?></span>
 
             <label>

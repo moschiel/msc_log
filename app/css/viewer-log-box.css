@@ -1,15 +1,21 @@
-/* Estilos do Conteiner do LOG */
+/* ===== LOG BOX (light) ===== */
 .log-box {
-    /* border: 3px solid blueviolet; */
-    /* border: 1px solid #ddd; */
     overflow: auto;
-    /* margin-top: 12px; */
-    /* margin-bottom: 12px; */
-    /* height: 80vh; */
     height: 100%;
     white-space: pre;
     font-family: Consolas, monospace;
     font-size: 12px;
-    /* padding: 10px; */
     background: #fafafa;
+    color: #111;
 }
+
+/* ===== LOG BOX (dark mode) ===== */
+@media (prefers-color-scheme: dark) {
+    .log-box {
+        background: #0f172a;   /* azul bem escuro / terminal vibe */
+        color: #e5e7eb;        /* texto claro */
+
+        scrollbar-color: #475569 #0b1220;      /* thumb | track */
+    }
+}
+

@@ -5,7 +5,7 @@ function render_browser($items, $msg) {
     global $current, $sort, $autorefresh, $currentPath;
 
     $nextSort  = ($sort === 'date_desc') ? 'date_asc' : 'date_desc';
-    $sortLabel = ($sort === 'date_desc') ? 'Ordenar: Mais antigo primeiro' : 'Ordenar: Mais recente primeiro';
+    $sortLabel = ($sort === 'date_desc') ? 'Ordem: Mais novo primeiro' : 'Ordem: Mais antigo primeiro';
 
     ?>
 <!DOCTYPE html>
@@ -13,21 +13,24 @@ function render_browser($items, $msg) {
 <head>
     <meta charset="UTF-8">
     <title>File Browser</title>
+    <link rel="stylesheet" href="./app/css/common.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/browser.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
-    <h2>Listagem: /<?= htmlspecialchars($current) ?></h2>
-
-    <?php if (!empty($msg)) echo "<p><b>" . htmlspecialchars($msg) . "</b></p>"; ?>
-
     <?php if ($current !== ''):
         $parent = dirname($current);
         if ($parent === '.') $parent = '';
     ?>
-    <p>
-        <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>">Voltar</a>
-    </p>
+    
+    <h2>
+        <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>">
+            ⬅️
+        </a>
+        Listagem: /<?= htmlspecialchars($current) ?>
+    </h2>
+
+    <?php if (!empty($msg)) echo "<p><b>" . htmlspecialchars($msg) . "</b></p>"; ?>
     <?php endif; ?>
 
     <label>
@@ -36,9 +39,10 @@ function render_browser($items, $msg) {
     </label>
     <p>
         <a href="<?= buildBrowserLink($current, $nextSort, $autorefresh) ?>">
-            <button><?= htmlspecialchars($sortLabel) ?></button>
+            <button>Mudar Ordem</button>
         </a>
     </p>
+    <p><?= htmlspecialchars($sortLabel) ?></p>
     <div class="table-wrap">
         <table class="table-clean table-sticky">
             <thead>
