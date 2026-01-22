@@ -142,7 +142,7 @@ Se o LOG for grande, a página fica lenta."
     <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>
     <script>
         // executa no inicio
-        loadSettings();
+        loadTermsSettings();
         refreshNow();
     </script>
 </body>

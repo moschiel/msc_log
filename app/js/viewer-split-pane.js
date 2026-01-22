@@ -4,6 +4,23 @@ function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
+const LS_SPLITTER_IS_VERTICAL = "splliter_is_vertical::";
+
+function saveSplitterSettings(splitterEl, isVertical) {
+    localStorage.setItem(LS_SPLITTER_IS_VERTICAL + splitterEl.id, isVertical);
+}
+
+function loadSplitterSettings(splitterEl) {
+    const isVertical = localStorage.getItem(LS_SPLITTER_IS_VERTICAL + splitterEl.id);
+    if (isVertical === "true") {
+      splitterEl.classList.add("is-vertical");
+      splitterEl.classList.remove("is-horizontal");
+    } else {
+      splitterEl.classList.remove("is-vertical");
+      splitterEl.classList.add("is-horizontal");
+    }
+}
+
 function initSplitter(splitterEl) {
   const first = splitterEl.querySelector(".pane.first");
   const second = splitterEl.querySelector(".pane.second");
@@ -128,6 +145,8 @@ function initSplitter(splitterEl) {
     } else {
       applyStoredRatio();
     }
+
+    saveSplitterSettings(splitterEl, isVertical());
   }
 
   /* Eventos do Controle Divisor dos Panes */
@@ -174,9 +193,7 @@ function initSplitter(splitterEl) {
   // Eventos ao Carregar / Resize da Janela
   window.addEventListener("load", () => {
     // define orientação inicial se você quiser garantir que sempre tenha uma
-    if (!splitterEl.classList.contains("is-vertical") && !splitterEl.classList.contains("is-horizontal")) {
-      splitterEl.classList.add("is-vertical");
-    }
+    loadSplitterSettings(splitterEl);
     // layout coerente
     syncVisibility();
   });

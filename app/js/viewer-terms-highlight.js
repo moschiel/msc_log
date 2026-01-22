@@ -5,24 +5,24 @@ const ChaveGeral = 1; // Chave geral (a mesma config para todos os arquivos )
 const saveMode = ChaveGeral;
 
 const fileParam = saveMode === ChavePorArquivo ? (new URL(window.location.href).searchParams.get("file") || "") : "";
-const LS_KEY = "hl_terms::" + fileParam;
+const LS_TERMS = "hl_terms::" + fileParam;
 const LS_CASE = "hl_case::" + fileParam;
-const LS_PANEL = "hl_panel_open::" + fileParam;
+const LS_TERMS_PANEL = "hl_panel_open::" + fileParam;
 
-function saveSettings() {
-    localStorage.setItem(LS_KEY, ui.taTerms.value);
+function saveTermsSettings() {
+    localStorage.setItem(LS_TERMS, ui.taTerms.value);
     localStorage.setItem(LS_CASE, ui.cbMatchCase.checked ? "1" : "0");
-    localStorage.setItem(LS_PANEL, util.isVisible(ui.termsPanel) ? "1" : "0");
+    localStorage.setItem(LS_TERMS_PANEL, util.isVisible(ui.termsPanel) ? "1" : "0");
 }
 
-function loadSettings() {
-    const saved = localStorage.getItem(LS_KEY);
+function loadTermsSettings() {
+    const saved = localStorage.getItem(LS_TERMS);
     if (saved !== null) ui.taTerms.value = saved;
 
     const savedCase = localStorage.getItem(LS_CASE);
     if (savedCase !== null) ui.cbMatchCase.checked = (savedCase === "1");
 
-    const savedPanel = localStorage.getItem(LS_PANEL);
+    const savedPanel = localStorage.getItem(LS_TERMS_PANEL);
     if (savedPanel === "1") {
         util.setVisible(ui.termsPanel, true);
         ui.btnToggleTermsVisibility.textContent = "Esconder marcadores";
@@ -33,7 +33,7 @@ function toggleTermsPanelVisibility() {
     util.toogleVisible(ui.termsPanel);
     const open = util.isVisible(ui.termsPanel);
     ui.btnToggleTermsVisibility.textContent = open ? "Esconder marcadores" : "Mostrar marcadores";
-    saveSettings();
+    saveTermsSettings();
 }
 
 // Converte termos em array fazendo split por '\n'
@@ -61,7 +61,7 @@ let debounceTermsRerender = null;
 function scheduleTermsRerender() {
     if (debounceTermsRerender) clearTimeout(debounceTermsRerender);
     debounceTermsRerender = setTimeout(() => {
-        saveSettings();
+        saveTermsSettings();
         rerenderLogContent({termsHighlight: true});
     }, 150);
 }
