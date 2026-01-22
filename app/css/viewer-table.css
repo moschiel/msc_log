@@ -13,7 +13,7 @@
     overflow: hidden;
     box-sizing: border-box;
     height: 100%;
-        /* para o botao de fechar ficar relativo ao container de tabelas */
+    /* para o botao de fechar ficar relativo ao container das tabelas */
     position: relative;
 }
 
