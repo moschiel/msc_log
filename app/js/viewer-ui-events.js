@@ -15,13 +15,29 @@ ui.taTerms.addEventListener("input", scheduleTermsRerender);
 
 ui.cbMatchCase.addEventListener("change", scheduleTermsRerender);
 
+
+let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
     if(e.target.classList.contains('hl-pkg-ok')) {
-        let frameStr = getHexDataFromPackage(e.target.classList[0]);
-        const {parseOk, headers, rows} = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
+        let frameStr = getHexFromPackageClassGroup(e.target.classList[0]);
+        const {parseOk, headers, rows, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
         if(parseOk) {
+            // Cria tabela do pacote
             createPackageTable(headers, rows);
-        }
+            
+            // Parsea e cria tabela da ultima mensagem clicada
+            if(messages.length > 0) {
+                for(const msg of messages) {
+                    if (msg.id === lastMessageIdClicked) {
+                        parseMessage(msg.id, msg.data, true);
+                        util.setVisible(ui.messageTableWrapper, true);
+                        return;
+                    }
+                }
+            }
+            // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
+            util.setVisible(ui.messageTableWrapper, false);
+        }   
     }
 });
 
@@ -41,13 +57,15 @@ ui.packageTable.addEventListener("click", (ev) => {
         const col3Text = tds[2].textContent.trim();
     
         // 1) Primeira coluna: se começa com "0x" e len >= 6 -> Number
-        let col1Number = null;
+        let messageID = null;
         if (col1Text.startsWith("0x") && col1Text.length >= 6 && util.isHexOnly(col1Text.substr(2, 4))) {
-            col1Number = Number(col1Text.substr(0, 6)); // funciona com "0x...."
-            if (Number.isNaN(col1Number)) return;
+            messageID = Number(col1Text.substr(0, 6)); // funciona com "0x...."
+            if (Number.isNaN(messageID)) return;
         } else {
             return;
         }
+
+        lastMessageIdClicked = messageID;
     
         // 2) Terceira coluna: se for texto hex -> Uint8Array
         let col3Bytes = null;
@@ -58,8 +76,8 @@ ui.packageTable.addEventListener("click", (ev) => {
         }
 
         // 3) imprimir no log o valor da primeira coluna
-        console.log("LOG col1:", col1Text.substr(0, 6));
-        parseMessage(col1Number, col3Bytes, true);
+        // console.log("LOG col1:", col1Text.substr(0, 6));
+        parseMessage(messageID, col3Bytes, true);
     }
     catch(e) 
     {

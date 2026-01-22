@@ -119,10 +119,10 @@ function fastHighlightPackages(text) {
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const {parseOk, connState, messageIds} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
-            if(ui.cbIgnoreAck.checked && messageIds !== null) {
-                for (const id of messageIds) {
-                    if(id === 0xFFFF || id === 0x0000) { //ACK ou KeepAlive
+            const {parseOk, connState, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
+            if(ui.cbIgnoreAck.checked && messages !== null) {
+                for (const msg of messages) {
+                    if(msg.id === 0xFFFF || msg.id === 0x0000) { //ACK ou KeepAlive
                         lineIndexes = []; // reset linhas
                         pkgCounter--; // remove esse pacote da contagem
                         return; // pula pacote
@@ -268,7 +268,7 @@ function fastHighlightPackages(text) {
 }
 
 
-function getHexDataFromPackage(classPkgGroup) {
+function getHexFromPackageClassGroup(classPkgGroup) {
     if(PKG_HIGHLIGHT_VERSION === "V3") 
     {
         let frameStr = "";

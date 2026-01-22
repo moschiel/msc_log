@@ -156,10 +156,10 @@ function parseCC33Frame(u8buf, processMode) {
 
     // mensagens
     let newMsg = true;
-    let messageIds = [];
+    let messages = [];
     while (newMsg && (br.getOffset() < frameEnd)) {
         const msgId = br.read_u16("msgId", true);
-        messageIds.push(msgId);
+        messages.push(msgId);
 
         let msgSize = br.read_u16("msgSize", true);
 
@@ -167,7 +167,7 @@ function parseCC33Frame(u8buf, processMode) {
         msgSize = (msgSize & 0x7FFF);
 
         const msgData = br.read_bytes("msgData", msgSize);
-
+        messages.push({id: msgId, size: msgSize, data: msgData});
         br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
     }
 
@@ -179,14 +179,13 @@ function parseCC33Frame(u8buf, processMode) {
         connState,
         headers: br.headers, 
         rows: br.rows,
-        messageIds: messageIds
+        messages
     };  
 }
 
 function createPackageTable(headers, rows) {
     util.createTable(ui.packageTable, headers, rows);
     ui.mySplitter._setPaneVisible?.(2, true); //segundo painel visivel
-    util.setVisible(ui.messageTableWrapper, false);
 }
 
 /**
