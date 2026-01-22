@@ -364,7 +364,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 br.add_row_u32("RFU");
             }
 
-            rows.push(["Timestamp", epochSecondsToString(read_u32())]);
+            rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
 
             br.add_row_u32("Message ID");
             br.add_row_u32("RFU");
@@ -481,7 +481,7 @@ function parseMessage(msgID, data, showOnTable = true) {
             br.add_row_u8("status");
             br.add_row_u8("currentDelta");
 
-            rows.push(["Timestamp", epochSecondsToString(read_u32())]);
+            rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
 
             br.add_row_u16("sizePck");
             br.add_row_u16("posPck");
@@ -536,7 +536,7 @@ function parseMessage(msgID, data, showOnTable = true) {
         case 0x1600: {
             br.add_row_u64("Device Serial");
 
-            rows.push(["Timestamp", epochSecondsToString(read_u32())]);
+            rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
 
             br.add_row_u8("Device Position");
             br.add_row_u8("Pairing Status");

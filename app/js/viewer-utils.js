@@ -108,7 +108,7 @@ const util = {
 
     // ======== Time ========
     epochSecondsToString(sec) {
-        return new Date(sec * 1000).toISOString();
+        return new Date(sec * 1000).toISOString().replace("T", " ").replace(".000Z","");
     },
 
     // ======== ASCII helpers ========

@@ -192,7 +192,7 @@ function createBinaryReader(u8buf, opts = {}) {
 
     const add_row_u32_timestamp = (name) => {
         const u = read_u32(name);
-        const v = epochSecondsToString(u);
+        const v = util.epochSecondsToString(u);
         add_row(name, 4, v);
         return v;
     }

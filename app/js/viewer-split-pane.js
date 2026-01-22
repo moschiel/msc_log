@@ -8,15 +8,20 @@ function initSplitter(splitterEl) {
   const first = splitterEl.querySelector(".pane.first");
   const second = splitterEl.querySelector(".pane.second");
   const divider = splitterEl.querySelector(".splitDivider");
-  const toggleBtn = divider?.querySelector(".splitToggle"); 
+  const closeFirstBtn = first.querySelector(".pane-close-btn");
+  const closeSecondBtn = second.querySelector(".pane-close-btn");
+
+  // guarda estado do dragging (agarrando ou nao)
+  let dragging = false;
+  
+  // guarda ratios separados por orientação
+  let ratioV = 0.5;
+  let ratioH = 0.5;
 
   if (!first || !second || !divider) return;
 
   const isVertical = () => splitterEl.classList.contains("is-vertical");
 
-  // guarda ratios separados por orientação
-  let ratioV = 0.5;
-  let ratioH = 0.5;
 
   function getTotalSize() {
     const rect = splitterEl.getBoundingClientRect();
@@ -63,15 +68,6 @@ function initSplitter(splitterEl) {
     setSplitByFirstPx(total * r);
   }
 
-  function updateToggleIcon() {
-    if (!toggleBtn) return;
-    // se está vertical, ícone sugere horizontal
-    toggleBtn.textContent = isVertical() ? "↔" : "↕";
-    toggleBtn.title = isVertical()
-      ? "Mudar para horizontal"
-      : "Mudar para vertical";
-  }
-
   function syncVisibility() {
     const secondHidden = !util.isVisible(second);
 
@@ -85,8 +81,6 @@ function initSplitter(splitterEl) {
       applyStoredRatio();
       // setSplitByFirstPx(getTotalSize() * 0.5);
     }
-
-    updateToggleIcon();
   }
 
   function setPaneVisible(pane, visible) {
@@ -94,6 +88,19 @@ function initSplitter(splitterEl) {
     else if(pane === 2) util.setVisible(second, visible);
 
     syncVisibility();
+  }
+
+  function stopDrag() {
+    if (!dragging) return;
+
+    dragging = false;
+    document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+
+    // salva ratio ao terminar drag (modo atual)
+    const r = getCurrentRatio();
+    if (isVertical()) ratioV = r;
+    else ratioH = r;
   }
 
   // Toggle orientação via botão
@@ -121,25 +128,9 @@ function initSplitter(splitterEl) {
     } else {
       applyStoredRatio();
     }
-
-    updateToggleIcon();
   }
 
-  if (toggleBtn) {
-    // evita o click/drag no botão disparar resize
-    toggleBtn.addEventListener("pointerdown", (e) => {
-      e.stopPropagation();
-    });
-
-    toggleBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleOrientation();
-    });
-  }
-
-  let dragging = false;
-
+  /* Eventos do Controle Divisor dos Panes */
   divider.addEventListener("pointerdown", (e) => {
     if (splitterEl.classList.contains("single-pane")) return;
 
@@ -159,29 +150,34 @@ function initSplitter(splitterEl) {
     setSplitByFirstPx(p - getDividerSize() / 2);
   });
 
-  function stopDrag() {
-    if (!dragging) return;
-
-    dragging = false;
-    document.body.style.userSelect = "";
-    document.body.style.cursor = "";
-
-    // salva ratio ao terminar drag (modo atual)
-    const r = getCurrentRatio();
-    if (isVertical()) ratioV = r;
-    else ratioH = r;
-  }
+  divider.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleOrientation();
+  });
 
   divider.addEventListener("pointerup", stopDrag);
   divider.addEventListener("pointercancel", stopDrag);
 
+  // Eventos do botao de fechar o pane
+  if(closeFirstBtn) {
+    closeFirstBtn.addEventListener("click", (e) => {
+      setPaneVisible(1, false);
+    });
+  }
+  if(closeSecondBtn) {
+    closeSecondBtn.addEventListener("click", (e) => {
+      setPaneVisible(2, false);
+    });
+  }
+
+  // Eventos ao Carregar / Resize da Janela
   window.addEventListener("load", () => {
     // define orientação inicial se você quiser garantir que sempre tenha uma
     if (!splitterEl.classList.contains("is-vertical") && !splitterEl.classList.contains("is-horizontal")) {
       splitterEl.classList.add("is-vertical");
     }
-    // ícone coerente + layout coerente
-    updateToggleIcon();
+    // layout coerente
     syncVisibility();
   });
 

@@ -2,9 +2,11 @@
   height: 100vh;
   width: 100%;
   display: flex;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   margin-top: 10px;
   overflow: hidden;
+
+  position: relative; /* Deixa o divider "anchor" pro botão de trocar orientacao */
 }
 
 /* Orientações */
@@ -21,6 +23,7 @@
   overflow: hidden;  /* passa para os filhos do pane a rolagem do scroll */
   min-width: 0;   /* importante no horizontal pra não estourar */
   min-height: 0;  /* importante no vertical pra não estourar */
+  border: 1px solid #ccc;
 }
 
 /* single-pane: some divider + second */
@@ -41,45 +44,11 @@
   user-select: none;
   touch-action: none;
   background: #f0f0f0;
-
-  position: relative; /* Deixa o divider "anchor" pro botão de trocar orientacao */
 }
 
 .splitter .splitDivider:hover {
   background: #e6e6e6;
 }
-
-/* Botão toggle dentro do divider */
-.splitter .splitToggle {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-
-  border: 1px solid rgba(0,0,0,0.15);
-  background: rgba(255,255,255,0.85);
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 14px;
-  line-height: 1;
-  padding: 0;
-
-  /* evita highlight/seleção chata */
-  user-select: none;
-}
-
-.splitter .splitToggle:hover {
-  filter: brightness(0.97);
-}
-
 
 /* Divider por orientação */
 .splitter.is-vertical .splitDivider {
@@ -108,29 +77,58 @@
   height: 60px;
 }
 
-.splitter .pane.second {
-    /* para o botão btnCloseSecondPane ficar relativo ao  segundo pane */
+.splitter .pane {
+    /* para o botão .pane-close-btn ficar relativo ao pane pai*/
   position: relative;
 }
 
-/* Estilo do botao pra fechar o segundo pane */
-#btnCloseSecondPane {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 3;
-    cursor: pointer;
-    background: lightcyan;
-    border: 1px solid lightcoral;
-    border-radius: 5px;
-    font-size: 12px;
+/* Botão de fechar pane (X) */
+.pane-close-btn {
+  position: absolute;          /* o pane deve ser position: relative */
+  top: 0px;
+  right: 0px;
+
+  width: 24px;
+  height: 24px;
+  /* border-radius: 6px; */
+
+  border-left: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.85);
+  color: #1f2937;              /* cinza escuro */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+
+  cursor: pointer;
+  user-select: none;
+
+  /* feedback sutil */
+  transition: background 120ms ease, transform 80ms ease;
+}
+
+.pane-close-btn:hover {
+  background: rgba(255,255,255,0.95);
+}
+
+.pane-close-btn:active {
+  transform: scale(0.92);
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .splitter {
-    border: 1px solid rgba(255,255,255,0.15);
+    /* border: 1px solid rgba(255,255,255,0.15); */
     background: #0b1220;
+  }
+
+  .splitter .pane {
+    border: 1px solid rgba(255,255,255,0.15);
   }
 
   .splitter .splitDivider {
@@ -145,9 +143,14 @@
     background: rgba(255,255,255,0.45);
   }
 
-  .splitter .splitToggle {
-    border: 1px solid rgba(255,255,255,0.18);
+  .pane-close-btn {
+    border-left: 1px solid rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.18);
     background: rgba(15, 23, 42, 0.75);
     color: rgba(255,255,255,0.85);
+  }
+
+  .pane-close-btn:hover {
+    background: rgba(15, 23, 42, 0.9);
   }
 }

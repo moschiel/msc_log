@@ -105,11 +105,8 @@ Se o LOG for grande, a página fica lenta."
                 <div id="logBox" class="log-box">Carregando...</div>
             </div>
 
-            <div class="splitDivider" role="separator" tabindex="0">
+            <div class="splitDivider" role="separator" tabindex="0" title="Arrastar ou Duplo Clique">
                 <div class="splitDivider-grip"></div>
-                <button class="splitToggle" type="button" title="Alternar orientação (vertical/horizontal)" aria-label="Alternar orientação">
-                    ⤢
-                </button>
             </div>
 
             <div class="pane second hidden">
@@ -129,7 +126,7 @@ Se o LOG for grande, a página fica lenta."
                         </div>
                     </div>
                 </div>
-                <div id="btnCloseSecondPane">❌</div>
+                <div class="pane-close-btn" title="Fechar Painel">x</div>
             </div>
         </div>
     </div>

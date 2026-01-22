@@ -25,13 +25,6 @@ ui.logBox.addEventListener("click", e => {
     }
 });
 
-
-ui.btnCloseSecondPane.addEventListener("click", () => {
-    ui.mySplitter._setPaneVisible?.(2, false);
-    util.setVisible(messageTableWrapper, false);
-});
-
-
 ui.packageTable.addEventListener("click", (ev) => {
     try
     {
