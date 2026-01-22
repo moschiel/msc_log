@@ -129,3 +129,19 @@ function asciiFromOffset(offset) {
     for (let i = offset; i < data.length; i++) s += String.fromCharCode(data[i] & 0x7F);
     return s;
 }
+
+// Elements Helpers
+function setVisible(el, visible) {
+    if(visible)
+        el.classList.remove("hidden");
+    else
+        el.classList.add("hidden");
+}
+
+function isVisible(el) {
+    return el.classList.contains("hidden") ? false : true;
+}
+
+function toogleVisible(el) {
+    el.classList.toggle("hidden");
+}

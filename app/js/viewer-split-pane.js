@@ -41,7 +41,7 @@ function initSplitter(splitterEl) {
   }
 
   function syncVisibility() {
-    const secondHidden = second.classList.contains("hidden");
+    const secondHidden = !isVisible(second);
 
     if (secondHidden) {
       splitterEl.classList.add("single-pane");
@@ -54,17 +54,12 @@ function initSplitter(splitterEl) {
   }
 
   function setPaneVisible(pane, visible) {
-    if (pane === 1) { //first pane
+    if (pane === 1)  //first pane
+      setVisible(first, visible);
+    else if(pane === 2) //second pane
+      setVisible(second, visible);
 
-    }
-    else if(pane === 2) { //second pane
-      if(visible === false) {
-        second.classList.add("hidden");
-      } else {
-        second.classList.remove("hidden");
-      }
-      syncVisibility();
-    }
+    syncVisibility();
   }
 
   let dragging = false;

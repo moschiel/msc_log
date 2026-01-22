@@ -28,8 +28,7 @@ ui.logBox.addEventListener("click", e => {
 
 ui.btnCloseSecondPane.addEventListener("click", () => {
     ui.mySplitter._setPaneVisible?.(2, false);
-    if(ui.messageTableWrapper.classList.contains("hidden") === false)
-        ui.messageTableWrapper.classList.add("hidden");
+    setVisible(messageTableWrapper, false);
 });
 
 

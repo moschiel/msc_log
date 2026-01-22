@@ -186,8 +186,7 @@ function parseCC33Frame(u8buf, processMode) {
 function createPackageTable(headers, rows) {
     createTable(ui.packageTable, headers, rows);
     ui.mySplitter._setPaneVisible?.(2, true); //segundo painel visivel
-    if(ui.messageTableWrapper.classList.contains("hidden") === false)
-        ui.messageTableWrapper.classList.add("hidden");
+    setVisible(ui.messageTableWrapper, false);
 }
 
 /**
@@ -603,8 +602,7 @@ function parseMessage(msgID, data, showOnTable = true) {
             ui.labelMessageDescription.textContent = getMsgName(msgID);
             createTable(ui.messageTable, br.headers, br.rows);
         }
-        if(ui.messageTableWrapper.classList.contains("hidden"))
-            ui.messageTableWrapper.classList.remove("hidden");
+        setVisible(ui.messageTableWrapper, true);
     }
 
     return true;
