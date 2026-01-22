@@ -100,7 +100,7 @@ Se o LOG for grande, a página fica lenta."
             <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
 
-        <div class="splitter is-vertical" id="mainSplitter">
+        <div id="mainSplitter" class="splitter is-vertical">
             <div class="pane first">
                 <div id="logBox" class="log-box">Carregando...</div>
             </div>
@@ -111,13 +111,13 @@ Se o LOG for grande, a página fica lenta."
 
             <div class="pane second hidden">
                 <div class="all-tables-container">
-                    <div class="single-table-container">
-                        <div>Pacote CC33</div>
-                        <div class="table-wrap table-wrap-viewer">
-                            <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
-                            </table>
+                        <div class="single-table-container">
+                            <div>Pacote CC33</div>
+                            <div class="table-wrap table-wrap-viewer">
+                                <table id="packageTable" class="table-clean table-sticky table-clean-viewer">
+                                </table>
+                            </div>
                         </div>
-                    </div>
                     <div id="messageTableWrapper" class="single-table-container hidden">
                         <div id="labelMessageDescription"></div>
                         <div class="table-wrap table-wrap-viewer">

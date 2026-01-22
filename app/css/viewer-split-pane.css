@@ -19,7 +19,7 @@
 }
 
 /* panes */
-.splitter .pane {
+.splitter > .pane {
   overflow: hidden;  /* passa para os filhos do pane a rolagem do scroll */
   min-width: 0;   /* importante no horizontal pra não estourar */
   min-height: 0;  /* importante no vertical pra não estourar */
@@ -27,16 +27,16 @@
 }
 
 /* single-pane: some divider + second */
-.splitter.single-pane .splitDivider {
+.splitter.single-pane > .splitDivider {
   display: none !important; /* some a barra */
 }
 
-.splitter.single-pane .pane.first {
+.splitter.single-pane > .pane.first {
   flex: 1 1 auto !important; /* ocupa tudo */
 }
 
 /* Divider base */
-.splitter .splitDivider {
+.splitter > .splitDivider {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -51,12 +51,12 @@
 }
 
 /* Divider por orientação */
-.splitter.is-vertical .splitDivider {
+.splitter.is-vertical > .splitDivider {
   height: 10px;
   cursor: row-resize;
 }
 
-.splitter.is-horizontal .splitDivider {
+.splitter.is-horizontal > .splitDivider {
   width: 10px;
   cursor: col-resize;
 }
@@ -67,12 +67,12 @@
   background: #bdbdbd;
 }
 
-.splitter.is-vertical .splitDivider-grip {
+.splitter.is-vertical > .splitDivider > .splitDivider-grip {
   width: 60px;
   height: 4px;
 }
 
-.splitter.is-horizontal .splitDivider-grip {
+.splitter.is-horizontal > .splitDivider > .splitDivider-grip {
   width: 4px;
   height: 60px;
 }
