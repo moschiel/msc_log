@@ -2,11 +2,11 @@ ui.cbAutoRefresh.addEventListener("change", () => {
     setAutoRefresh(); 
 });
 
-ui.btnAnalyzePkg.addEventListener("click", () => {
+ui.btnHighlightPkg.addEventListener("click", () => {
     ui.cbAutoRefresh.checked = false;
-    ui.btnAnalyzePkg.disable = true;
+    ui.btnHighlightPkg.disable = true;
     rerenderLogContent({packagesHighlight: true}); 
-    ui.btnAnalyzePkg.disable = false;
+    ui.btnHighlightPkg.disable = false;
 });
 
 ui.btnToggleTermsVisibility.addEventListener("click", toggleTermsPanelVisibility);

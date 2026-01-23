@@ -51,21 +51,19 @@ function render_viewer($selectedFile) {
 
             <div class="">
                 <button
-                    id="btnAnalyzePackage"
+                    id="btnHighlightPkg"
                     class="hint" 
-                    data-hint="Permite clicar no pacote p/ mostrar detalhes.
+                    data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
 ⚪ - Pacote Offline
 🔴 - Pacote com Erro
 
-⚠️ Funcionalidade Experimental ⚠️
+- Auto-Refresh será desativado.
 
-Auto-Refresh será desabilitado.
-
-Se o LOG for grande, a página fica lenta."
+- Se o LOG for grande, a página fica lenta."
                 >
-                    Analisar Pacotes
+                    Marcar Pacotes
                 </button>
                 <label>
                     <input type="checkbox" id="cbIgnoreAck" checked>
