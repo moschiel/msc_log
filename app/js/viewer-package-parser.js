@@ -601,7 +601,7 @@ function parseMessage(msgID, data, showOnTable = true) {
             ui.labelMessageDescription.textContent = getMsgName(msgID);
             util.createTable(ui.messageTable, br.headers, br.rows);
         }
-        util.setVisible(ui.messageTableWrapper, true);
+        ui.tableSplitter._setPaneVisible(2, true);
     }
 
     return true;

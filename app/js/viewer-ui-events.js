@@ -30,13 +30,12 @@ ui.logBox.addEventListener("click", e => {
                 for(const msg of messages) {
                     if (msg.id === lastMessageIdClicked) {
                         parseMessage(msg.id, msg.data, true);
-                        util.setVisible(ui.messageTableWrapper, true);
                         return;
                     }
                 }
             }
             // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-            util.setVisible(ui.messageTableWrapper, false);
+            ui.tableSplitter._setPaneVisible(2, false);
         }   
     }
 });

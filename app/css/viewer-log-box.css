@@ -2,6 +2,7 @@
 .log-box {
     overflow: auto;
     height: 100%;
+    width: 100%;
     white-space: pre;
     font-family: Consolas, monospace;
     font-size: 12px;

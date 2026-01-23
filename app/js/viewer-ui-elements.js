@@ -9,8 +9,8 @@ const ui = {
     cbMatchCase: document.getElementById("hlMatchCase"),
     mainSplitter: document.getElementById("mainSplitter"),
     logBox: document.getElementById("logBox"),
+    tableSplitter: document.getElementById("tableSplitter"),
     packageTable: document.getElementById("packageTable"),
-    messageTableWrapper:  document.getElementById("messageTableWrapper"),
     labelMessageDescription: document.getElementById("labelMessageDescription"),
     messageTable: document.getElementById("messageTable"),
 };

@@ -1,45 +1,13 @@
 /* Estilos para sobrescrever alguns estilos da table.css */
 
-.all-tables-container {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
+.single-table-container {
     overflow: hidden;
     box-sizing: border-box;
-    height: 100%;
+    display: flex;
+    flex-direction: column; 
     width: 100%;
 }
 
-.single-table-container {
-   display: flex;
-   flex-direction: column; 
-   width: 100%;
-}
-
-.table-wrap-viewer {
-    /* position: relative; */
-    /* box-sizing: border-box; */
-}
-
-.table-clean-viewer {
-    overflow: auto;
+.single-table-container table {
     width: 100%;
-}
-
-.table-clean-viewer th, 
-.table-clean-viewer td {
-    /* não quebra linha por padrão */
-    /* white-space: nowrap;  */
-    /* quebra linha se tiver \r\n */
-    white-space: pre-line;
-    width: fit-content;
-}
-
-/* A ultima coluna pode quebrar linha */
-.table-clean-viewer th:last-child, 
-.table-clean-viewer td:last-child {
-    /* permite quebra de linha */
-    /* white-space: normal;         */
-    /* quebra palavras grandes */
-    word-break: break-word;      
 }
