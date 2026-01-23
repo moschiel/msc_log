@@ -150,9 +150,9 @@
     background: #0b1220;
   }
 
-  .splitter .pane {
-    /* border: 1px solid rgba(255,255,255,0.15); */
-  }
+  /*.splitter .pane {
+     border: 1px solid rgba(255,255,255,0.15); 
+  }*/
 
   .splitter.is-vertical > .splitDivider {
     border-top: 1px solid rgba(255,255,255,0.15);
