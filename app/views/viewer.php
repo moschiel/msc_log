@@ -71,17 +71,18 @@ function render_viewer($selectedFile) {
                 </label>
             </div>
 
-            <!-- Funcionalidade quebrada, deixa muito lento o log,  -->
+            <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
             <button 
                 class="hidden" 
                 type="button" 
                 id="toggleFilters">
                 Mostrar marcadores
             </button>
+            -->
 
         </div>
 
-        <!-- Funcionalidade quebrada, deixa muito lento o log -->
+        <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
         <div id="termsPanel" class="hl-terms-panel hidden">
             <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
                 <b>Marcadores:</b>
@@ -97,6 +98,7 @@ function render_viewer($selectedFile) {
             </div>
             <textarea id="hlTerms" class="hl-terms-box"></textarea>
         </div>
+         -->
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical">
             <div class="pane first">

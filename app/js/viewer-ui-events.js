@@ -9,11 +9,11 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     ui.btnHighlightPkg.disable = false;
 });
 
-ui.btnToggleTermsVisibility.addEventListener("click", toggleTermsPanelVisibility);
+ui.btnToggleTermsVisibility?.addEventListener("click", toggleTermsPanelVisibility);
 
-ui.taTerms.addEventListener("input", scheduleTermsRerender);
+ui.taTerms?.addEventListener("input", scheduleTermsRerender);
 
-ui.cbMatchCase.addEventListener("change", scheduleTermsRerender);
+ui.cbMatchCase?.addEventListener("change", scheduleTermsRerender);
 
 
 let lastMessageIdClicked = 0;
