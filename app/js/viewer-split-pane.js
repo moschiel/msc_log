@@ -198,12 +198,36 @@ function initSplitter(splitterEl) {
     syncVisibility();
   });
 
-  window.addEventListener("resize", () => {
+  let resizingFromObserverMutex = false; //evita cair num loop infinito de resize
+
+  const ro = new ResizeObserver(entries => {
+    if (resizingFromObserverMutex) return;
+
+    const entry = entries[0];
+    if (!entry) return;
+
+    // evita rodar quando está invisível
     if (splitterEl.classList.contains("single-pane")) return;
 
-    // reaplica o ratio salvo do modo atual
+    resizingFromObserverMutex = true;
+
+    // reaplica o ratio salvo para o tamanho novo
     applyStoredRatio();
+
+    resizingFromObserverMutex = false;
   });
+
+  ro.observe(splitterEl);
+
+
+  // versao antiga de resize, antes só atualiza se a janela do navegador mudasse de tamanho, 
+  // agora se o elemento splitter mudar de tamanho por qualquer razao, atualiza o seu divider position
+  // window.addEventListener("resize", () => {
+  //   if (splitterEl.classList.contains("single-pane")) return;
+
+  //   // reaplica o ratio salvo do modo atual
+  //   applyStoredRatio();
+  // });
 
   // funcoes de acesso externo vinculados ao elemento
   splitterEl._syncVisibility = syncVisibility;
