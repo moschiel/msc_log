@@ -12,3 +12,14 @@
 .single-table-container table {
     width: 100%;
 }
+
+
+.single-table-container table td:nth-child(1) {
+    /* largura minima da primeira coluna (nao fica menor que isso) */
+    width: 140px;
+}
+
+.single-table-container table td:nth-child(2) {
+    /* largura minima da segunda coluna (nao fica menor que isso) */
+    width: 70px;
+}

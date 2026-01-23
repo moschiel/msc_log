@@ -27,6 +27,9 @@
   padding: 10px 14px;
   vertical-align: top;
   line-height: 1.35;
+
+  white-space: pre-wrap;   /* respeita \n e \r\n, fazendo pular linha */
+  word-break: break-word;  /* evita estourar a célula */
 }
 
 /* Hover */
