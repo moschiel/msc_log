@@ -3,6 +3,7 @@
   width: 100%;
   display: flex;
   border: 1px solid #ccc;
+  background: #fafafa;
   margin-top: 10px;
   overflow: hidden;
   position: relative; /* Deixa o divider "anchor" pro botão de trocar orientacao */

@@ -186,7 +186,7 @@ function createBinaryReader(u8buf, opts = {}) {
     const add_row_bytes_BCD = (name, n) => {
         const b = read_bytes(name, n);
         const v = util.uint8ArrayToBCD(b);
-        add_row(name, `${n} bytes em BCD`, v);
+        add_row(name, `${n} (BCD)`, v);
         return v;
     };
 
