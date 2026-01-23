@@ -3,6 +3,7 @@ const ui = {
     cbAutoScroll: document.getElementById("autoScroll"),
     btnHighlightPkg: document.getElementById("btnHighlightPkg"),
     cbIgnoreAck: document.getElementById("cbIgnoreAck"),
+    messageSelector: document.getElementById("messageSelector"),
     btnToggleTermsVisibility: document.getElementById("toggleFilters"),
     termsPanel: document.getElementById("termsPanel"),
     taTerms: document.getElementById("hlTerms"),

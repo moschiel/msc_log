@@ -1,3 +1,22 @@
+window.addEventListener("load", () => {
+   // carrega options no messageSelector
+    for (const [id, info] of msgsList) {
+        if(info.timelineSupport) {
+            const opt = document.createElement("option");
+            const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
+            opt.value = id;
+            opt.textContent = `${idHex} - ${info.description}`;
+            ui.messageSelector.appendChild(opt);
+        }
+    }
+
+    //carrega termos marcados p/ pesquisa pelo usuario
+    loadTermsSettings();
+
+    //forca um refresh inicial do logBox
+    refreshNow();
+});
+
 ui.cbAutoRefresh.addEventListener("change", () => {
     setAutoRefresh(); 
 });

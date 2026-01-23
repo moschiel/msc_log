@@ -26,12 +26,14 @@ function render_viewer($selectedFile) {
 <body>
     <div class="main">
         <div class="header-container">
-            <p>
-                <a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
+            <p><a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
                     ⬅️
-                </a>
-            </p>
-            <b>Arquivo:</b> <span class="file"><?= htmlspecialchars($title) ?></span>
+            </a></p>
+
+            <div>
+                <b>Arquivo:</b> 
+                <span class="file"><?= htmlspecialchars($title) ?></span>
+            </div>
 
             <label>
                 <input type="checkbox" id="autoRefresh">
@@ -61,14 +63,20 @@ function render_viewer($selectedFile) {
 
 - Auto-Refresh será desativado.
 
-- Se o LOG for grande, a página fica lenta."
-                >
+- Se o LOG for grande, a página fica lenta." >
                     Marcar Pacotes
                 </button>
                 <label>
                     <input type="checkbox" id="cbIgnoreAck" checked>
                     Ignore ACK, KEEP-ALIVE
                 </label>
+            </div>
+
+            <div>
+                <label for="messageSelector">Listar:</label>
+                <select name="messageSelector" id="messageSelector">
+                    <option value="none">--</option>
+                </select>
             </div>
 
             <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
@@ -155,11 +163,6 @@ function render_viewer($selectedFile) {
     <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>
-    <script>
-        // executa no inicio
-        loadTermsSettings();
-        refreshNow();
-    </script>
 </body>
 </html>
 <?php
