@@ -23,7 +23,7 @@ ui.logBox.addEventListener("click", e => {
         const {parseOk, headers, rows, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
         if(parseOk) {
             // Cria tabela do pacote
-            createPackageTable(headers, rows);
+            showParsedPackageOnTable(headers, rows);
             
             // Parsea e cria tabela da ultima mensagem clicada
             if(messages.length > 0) {

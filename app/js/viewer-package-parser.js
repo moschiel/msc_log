@@ -183,11 +183,6 @@ function parseCC33Frame(u8buf, processMode) {
     };  
 }
 
-function createPackageTable(headers, rows) {
-    util.createTable(ui.packageTable, headers, rows);
-    ui.mainSplitter._setPaneVisible?.(2, true); //segundo painel visivel
-}
-
 /**
  * Mostra os campos (parse) de uma mensagem específica (msgId + payload data),
  * gerando uma tabela via util.createTable().
@@ -201,7 +196,7 @@ function parseMessage(msgID, data, showOnTable = true) {
         tableMode: "nsv"
     });
 
-    let notImplemented = false;
+    let implemented = true;
     
     // -------- switch principal --------
     switch (msgID) {
@@ -589,21 +584,30 @@ function parseMessage(msgID, data, showOnTable = true) {
         }
 */
         default: {
-            notImplemented = true;
+            implemented = false;
         }
     }
 
     if(showOnTable) {
-        if(notImplemented) {
-            ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
-            ui.messageTable.innerHTML = "";
-        } else {
-            ui.labelMessageDescription.textContent = getMsgName(msgID);
-            util.createTable(ui.messageTable, br.headers, br.rows);
-        }
-        ui.tableSplitter._setPaneVisible(2, true);
+        showParsedMessageOnTable(implemented, msgID, br.headers, br.rows);
     }
 
     return true;
+}
+
+function showParsedPackageOnTable(headers, rows) {
+    util.createTable(ui.packageTable, headers, rows);
+    ui.mainSplitter._setPaneVisible?.(2, true); // painel dp pacote parseado visivel
+}
+
+function showParsedMessageOnTable(implemented, msgID, headers, rows) {
+    if(implemented === false) {
+        ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
+        ui.messageTable.innerHTML = "";
+    } else {
+        ui.labelMessageDescription.textContent = getMsgName(msgID);
+        util.createTable(ui.messageTable, headers, rows);
+    }
+    ui.tableSplitter._setPaneVisible(2, true); // painel de mensagem parseado visivel
 }
 
