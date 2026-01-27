@@ -38,9 +38,9 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnAutoRefreshViewer"
                 type="button"
-                class="on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
                 aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
-                title="Auto-Refresh Log Content (3s)"
+                data-hint="Auto-Refresh (3s)"
             >
                 <span class="on-off-btn-icon">⟳</span>
             </button>
@@ -48,9 +48,9 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnAutoScroll"
                 type="button"
-                class="on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
                 aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
-                title="Auto-Scroll"
+                data-hint="Auto-Scroll"
             >
                 <span class="on-off-btn-icon">⇣</span>
             </button>
