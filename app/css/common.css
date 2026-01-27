@@ -10,12 +10,12 @@ body {
 }
 
 /* input / checkbox */
-input, button {
+input, .normal-btn {
   font: inherit;
 }
 
 /* botão */
-button {
+.normal-btn {
   padding: 6px 12px;
   border: 1px solid #999;
   border-radius: 6px;
@@ -23,8 +23,56 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.normal-btn:hover {
   background: #e0e0e0;
+}
+
+/* botão ON/OFF (toogle) */
+.on-off-btn {
+  appearance: none;
+  border: 1px solid rgba(128,128,128,0.35);
+  background: rgba(128,128,128,0.12);
+  color: inherit;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  opacity: 0.6;
+
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.on-off-btn:hover {
+  background: rgba(128,128,128,0.18);
+}
+
+.on-off-btn:active {
+  transform: translateY(1px);
+}
+
+.on-off-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(100,150,255,0.35);
+}
+
+.on-off-btn-icon {
+  font-size: 16px;
+}
+
+/* ON */
+.on-off-btn.is-pressed {
+  border-color: rgba(80,160,110,0.55);
+  background: rgba(80,160,110,0.22);
+  opacity: 1;
 }
 
 /* checkbox simples */
@@ -61,6 +109,45 @@ select:disabled {
   cursor: not-allowed;
 }
 
+/* Estilos para hint (dicas) de elementos on hover */
+.hint {
+  position: relative;
+  cursor: help;
+}
+
+.hint::after {
+  content: attr(data-hint);
+  position: absolute;
+  z-index: 1000;
+  left: 50%;
+  /* aparece emcima do elemento*/
+  /* bottom: 120%;  */
+  /* 👈 aparece embaixo do */
+  top: 120%;                 
+  transform: translateX(-50%);
+
+  white-space: pre; /* permite quebrar linha */
+  display: inline-block;
+  width: max-content;     /* width = maior linha */
+  max-width: 90vw;        /* segurança pra não sair da tela */
+
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: left;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.hint:hover::after {
+  opacity: 1;
+}
+
+
 
 /* ===== DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
@@ -69,13 +156,13 @@ select:disabled {
     background: #121212;
   }
 
-  button {
+  .normal-btn {
     background: #2a2a2a;
     border-color: #555;
     color: #eee;
   }
 
-  button:hover {
+  .normal-btn:hover {
     background: #333;
   }
 

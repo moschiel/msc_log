@@ -1,26 +1,29 @@
 let timer = null;
-const cb = document.getElementById("autorefresh");
+const btnAutoRefresh = document.getElementById("btnAutoRefresh");
 
-function start() {
-    stop();
+function startAutoRefresh() {
+    stopAutoRefresh();
     timer = setInterval(() => location.reload(), 3000);
 }
-function stop() {
+function stopAutoRefresh() {
     if (timer) clearInterval(timer);
     timer = null;
 }
 
-cb.addEventListener("change", () => {
+btnAutoRefresh.addEventListener("click", () => {
     const url = new URL(window.location.href);
-    if (cb.checked) {
+
+    const isPressed = util.toogleOnOffButton(btnAutoRefresh);
+    if (isPressed) {
         url.searchParams.set("autorefresh", "1");
         window.history.replaceState(null, "", url.toString());
-        start();
+        startAutoRefresh();
     } else {
         url.searchParams.delete("autorefresh");
         window.history.replaceState(null, "", url.toString());
-        stop();
+        stopAutoRefresh();
     }
 });
 
-if (cb.checked) start();
+if (util.isOnOffButtonPressed(btnAutoRefresh)) 
+    startAutoRefresh();

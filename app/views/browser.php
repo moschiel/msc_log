@@ -33,13 +33,19 @@ function render_browser($items, $msg) {
     <?php if (!empty($msg)) echo "<p><b>" . htmlspecialchars($msg) . "</b></p>"; ?>
     <?php endif; ?>
 
-    <label>
-        <input type="checkbox" id="autorefresh" <?= $autorefresh === '1' ? 'checked' : '' ?>>
-        Auto-refresh (3s)
-    </label>
+    <button 
+        id="btnAutoRefresh"
+        type="button"
+        class="on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+        aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
+        title="Auto-Refresh (3s)"
+    >
+        <span class="on-off-btn-icon">⟳</span>
+    </button>
+
     <p>
         <a href="<?= buildBrowserLink($current, $nextSort, $autorefresh) ?>">
-            <button>Mudar Ordem</button>
+            <button class="normal-btn">Mudar Ordem</button>
         </a>
     </p>
     <p><?= htmlspecialchars($sortLabel) ?></p>
@@ -99,6 +105,7 @@ function render_browser($items, $msg) {
 
         </table>
     </div>
+    <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/browser.js?v=<?= APP_VERSION ?>"></script>
 </body>
 </html>

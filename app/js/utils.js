@@ -160,5 +160,17 @@ const util = {
 
     toogleVisible(el) {
         el.classList.toggle("hidden");
+    },
+
+    // ======== TWO STATES BUTTON ========
+    toogleOnOffButton(el) {
+        el.classList.toggle("is-pressed");
+        const isPressed = el.classList.contains("is-pressed");
+        el.setAttribute("aria-pressed", isPressed ? "true" : "false");
+        return isPressed;
+    },
+
+    isOnOffButtonPressed(el) {
+        return el.classList.contains("is-pressed");
     }
 };
