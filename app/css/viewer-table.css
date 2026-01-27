@@ -23,3 +23,8 @@
     /* largura minima da segunda coluna (nao fica menor que isso) */
     width: 70px;
 }
+
+.single-table-container table td {
+  white-space: pre-wrap;   /* respeita \n e \r\n, fazendo pular linha */
+  word-break: break-word;  /* evita estourar a célula */
+}
