@@ -45,16 +45,16 @@ function render_viewer($selectedFile) {
                 Auto-scroll
             </label>
 
-            <!-- <button onclick="refreshNow()">Atualizar agora</button> -->
+            <!-- <button class="normal-btn" onclick="refreshNow()">Atualizar agora</button> -->
 
             <a href="<?= htmlspecialchars($downloadUrl) ?>">
-                <button>Download</button>
+                <button class="normal-btn">Download</button>
             </a>
 
             <div class="">
                 <button
                     id="btnHighlightPkg"
-                    class="hint" 
+                    class="normal-btn hint" 
                     data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
@@ -81,7 +81,7 @@ function render_viewer($selectedFile) {
 
             <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
             <button 
-                class="hidden" 
+                class="normal-btn hidden" 
                 type="button" 
                 id="toggleFilters">
                 Mostrar marcadores
@@ -153,9 +153,9 @@ function render_viewer($selectedFile) {
             </div>
         </div>
     </div>
+    <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-split-pane.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
