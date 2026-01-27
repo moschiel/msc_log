@@ -17,12 +17,18 @@ window.addEventListener("load", () => {
     refreshNow();
 });
 
-ui.cbAutoRefresh.addEventListener("change", () => {
-    setAutoRefresh(); 
+ui.btnAutoRefreshViewer.addEventListener("click", () => {
+    util.toogleOnOffButton(ui.btnAutoRefreshViewer);
+    setAutoRefreshViewer(); 
 });
 
+ui.btnAutoScroll.addEventListener("click", () => {
+    util.toogleOnOffButton(ui.btnAutoScroll);
+});
+
+
 ui.btnHighlightPkg.addEventListener("click", () => {
-    ui.cbAutoRefresh.checked = false;
+    util.setOnOffButton(btnAutoRefreshViewer, false);
     ui.btnHighlightPkg.disable = true;
     rerenderLogContent({packagesHighlight: true}); 
     ui.btnHighlightPkg.disable = false;

@@ -69,7 +69,7 @@ function rerenderLogContent(opt = {packagesHighlight: false, termsHighlight: fal
 
 
 function scrollLogBoxToBottomIfNeeded() {
-    if (!ui.cbAutoScroll.checked) return;
-    ui.logBox.scrollTop = ui.logBox.scrollHeight;
+    if (util.isOnOffButtonPressed(ui.btnAutoScroll))
+        ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }
 

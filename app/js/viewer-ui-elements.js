@@ -1,6 +1,6 @@
 const ui = {
-    cbAutoRefresh: document.getElementById("autoRefresh"),
-    cbAutoScroll: document.getElementById("autoScroll"),
+    btnAutoRefreshViewer: document.getElementById("btnAutoRefreshViewer"),
+    btnAutoScroll: document.getElementById("btnAutoScroll"),
     btnHighlightPkg: document.getElementById("btnHighlightPkg"),
     cbIgnoreAck: document.getElementById("cbIgnoreAck"),
     messageSelector: document.getElementById("messageSelector"),

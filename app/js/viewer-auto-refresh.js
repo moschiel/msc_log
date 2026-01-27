@@ -37,23 +37,23 @@ async function refreshNow() {
 }
 
 
-function startAutoRefresh() {
-    stopAutoRefresh();
+function startAutoRefreshViewer() {
+    stopAutoRefreshViewer();
     refreshTimer = setInterval(()=> {
-        if(ui.cbAutoRefresh.checked) {
+        if(util.isOnOffButtonPressed(ui.btnAutoRefreshViewer)) {
             refreshNow();
         }
     }, 3000);
 }
 
-function stopAutoRefresh() {
+function stopAutoRefreshViewer() {
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = null;
 }
 
-function setAutoRefresh() {
-    if (ui.cbAutoRefresh.checked) 
-        startAutoRefresh();
+function setAutoRefreshViewer() {
+    if (util.isOnOffButtonPressed(ui.btnAutoRefreshViewer)) 
+        startAutoRefreshViewer();
     else 
-        stopAutoRefresh();
+        stopAutoRefreshViewer();
 }

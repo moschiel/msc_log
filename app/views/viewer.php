@@ -35,15 +35,25 @@ function render_viewer($selectedFile) {
                 <span class="file"><?= htmlspecialchars($title) ?></span>
             </div>
 
-            <label>
-                <input type="checkbox" id="autoRefresh">
-                Auto-refresh (3s)
-            </label>
+            <button 
+                id="btnAutoRefreshViewer"
+                type="button"
+                class="on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
+                title="Auto-Refresh Log Content (3s)"
+            >
+                <span class="on-off-btn-icon">⟳</span>
+            </button>
 
-            <label>
-                <input type="checkbox" id="autoScroll" checked>
-                Auto-scroll
-            </label>
+            <button 
+                id="btnAutoScroll"
+                type="button"
+                class="on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
+                title="Auto-Scroll"
+            >
+                <span class="on-off-btn-icon">⇣</span>
+            </button>
 
             <!-- <button class="normal-btn" onclick="refreshNow()">Atualizar agora</button> -->
 
