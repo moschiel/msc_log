@@ -112,19 +112,20 @@ select:disabled {
 /* Estilos para hint (dicas) de elementos on hover */
 .hint {
   position: relative;
-  cursor: help;
+  /* cursor: help; */
 }
 
 .hint::after {
   content: attr(data-hint);
   position: absolute;
   z-index: 1000;
-  left: 50%;
+  left: 0%;
+  /* left: 50%; */
   /* aparece emcima do elemento*/
   /* bottom: 120%;  */
   /* 👈 aparece embaixo do */
   top: 120%;                 
-  transform: translateX(-50%);
+  /* transform: translateX(-50%); */
 
   white-space: pre; /* permite quebrar linha */
   display: inline-block;
