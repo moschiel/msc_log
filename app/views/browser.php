@@ -36,10 +36,10 @@ function render_browser($items, $msg) {
     <button 
         id="btnAutoRefresh"
         type="button"
-        class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+        class="hint toogle-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
         data-hint="Auto-Refresh (3s)"
     >
-        <span class="on-off-btn-icon">⟳</span>
+        <span class="toogle-btn-icon">⟳</span>
     </button>
 
     <p>

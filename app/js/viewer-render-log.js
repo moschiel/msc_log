@@ -8,6 +8,14 @@ function getRawLog() {
     return rawTextLog;
 }
 
+function clearRawLog() {
+    setRawLog("");
+}
+
+function clearLogBox() {
+    writeLogBox("set", "html", "Carregando...");
+}
+
 /**
  * @param {string} mode: "set" | "append"
  * @param {string} type: "text" | "html"
@@ -28,11 +36,13 @@ function writeLogBox(mode, type, content) {
         else if(type === "html")
             ui.logBox.insertAdjacentHTML("beforeend", content);
     }
+
+    scrollLogBoxToBottomIfNeeded();
 }
 
 
 function scrollLogBoxToBottomIfNeeded() {
-    if (util.isOnOffButtonPressed(ui.btnAutoScroll))
+    if (util.isToogleButtonPressed(ui.btnAutoScroll))
         ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }
 

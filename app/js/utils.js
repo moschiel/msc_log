@@ -163,20 +163,20 @@ const util = {
     },
 
     // ======== TWO STATES BUTTON ========
-    setOnOffButton(el, pressed) {
+    setToogleButton(el, pressed) {
         if(pressed) 
             el.classList.add("is-pressed");
         else
             el.classList.remove("is-pressed");
     },
 
-    toogleOnOffButton(el) {
+    toogleButton(el) {
         el.classList.toggle("is-pressed");
         const isPressed = el.classList.contains("is-pressed");
         return isPressed;
     },
 
-    isOnOffButtonPressed(el) {
+    isToogleButtonPressed(el) {
         return el.classList.contains("is-pressed");
     }
 };

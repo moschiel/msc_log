@@ -28,7 +28,7 @@ input, .normal-btn {
 }
 
 /* botão ON/OFF (toogle) */
-.on-off-btn {
+.toogle-btn {
   appearance: none;
   border: 1px solid rgba(128,128,128,0.35);
   color: inherit;
@@ -54,31 +54,31 @@ input, .normal-btn {
     transform 120ms ease;
 }
 
-.on-off-btn:hover {
+.toogle-btn:hover {
   background: rgba(128,128,128,0.18);
 }
 
-.on-off-btn:active {
+.toogle-btn:active {
   transform: translateY(1px);
 }
 
-.on-off-btn:focus-visible {
+.toogle-btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(100,150,255,0.35);
 }
 
-.on-off-btn-icon {
+.toogle-btn-icon {
   font-size: 20px;
 }
 
 /* ON */
-.on-off-btn.is-pressed {
+.toogle-btn.is-pressed {
   border-color: rgba(80,160,110,0.55);
   background: rgba(80,160,110,0.30);
   opacity: 1;
 }
 
-.on-off-btn.is-pressed:hover {
+.toogle-btn.is-pressed:hover {
   background: rgba(80,160,110,0.40);
 }
 
@@ -170,14 +170,14 @@ select:disabled {
     color: #eee;
   }
 
-  .on-off-btn {
+  .toogle-btn {
     color: rgba(255,255,255,0.6);
   }
 
-  .on-off-btn:hover {
+  .toogle-btn:hover {
     background: rgba(255,255,255,0.12);
   }
-  .on-off-btn.is-pressed:hover {
+  .toogle-btn.is-pressed:hover {
     background: rgba(80,160,110,0.40);
   }
 

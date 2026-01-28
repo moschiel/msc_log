@@ -1,9 +1,15 @@
 const PKG_HIGHLIGHT_VERSION = "V1";
 const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
-let globalFrames = [];
+
 let pkgCounter = 0;
 let offlinePkgCounter = 0;
 let errPkgCounter = 0;
+
+function clearHighlightedPkgCounters() {
+    pkgCounter = 0;
+    offlinePkgCounter = 0;
+    errPkgCounter = 0;
+}
 
 // Aplica estilos aos pacotes com CC33 (versão rápida: sem operacao de replace(), seta direto no vetor lines)
 function fastHighlightPackages(text) {
@@ -164,9 +170,11 @@ function fastHighlightPackages(text) {
         }
     }
 
-    // se o arquivo acabou no meio de um pacote, fecha ele também
+    // se o texto acabou no meio de um pacote, fecha ele também
     if (isCollectingFrame) {
-        flushPackage();
+        // comentado, pois se o texto terminou no meio de um pacote, 
+        // nao da pra dizer se esta ok ou com erro
+        //flushPackage();  
     }
 
     console.log(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);

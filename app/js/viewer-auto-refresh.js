@@ -2,14 +2,20 @@ let refreshTimer = null;
 let lastFileSize = 0;
 let tailPending = "";
 
-function clearTailLogData() {
-  lastFileSize = 0;
+function clearTailPending() {
   tailPending = "";
-  pkgCounter = 0;
-  offlinePkgCounter = 0;
-  errPkgCounter = 0;
-  setRawLog("");
-  writeLogBox("set", "html", "Carregando...");
+}
+
+function setTailPending(text) {
+  tailPending = text;
+}
+
+function clearAllLogData() {
+  lastFileSize = 0;
+  clearTailPending();
+  clearHighlightedPkgCounters();
+  clearRawLog();
+  clearLogBox();
 }
 
 function ajaxUrl() {
@@ -34,10 +40,10 @@ async function tailRefreshNow() {
       // alguem deve ter editado o conteudo do arquivo manualmente, 
       // nesse caso relemos o conteudo do arquivo do inicio      // arquivo "voltou"/diminuiu: reset geral
       ui.btnTailAutoRefresh.disable = true;
-      if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) stopTailAutoRefresh();
-      clearTailLogData();
+      if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) stopTailAutoRefresh();
+      clearAllLogData();
       tailRefreshNow();
-      if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) startTailAutoRefresh();
+      if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) startTailAutoRefresh();
       ui.btnTailAutoRefresh.disable = false;
       return;
     }
@@ -48,8 +54,8 @@ async function tailRefreshNow() {
 
     if (fileSize !== null) {
       if (lastFileSize === 0) {
-        // lendo arquivo do inicio, limpa qualquer coisa no logbox
-        clearTailLogData();
+        // lendo arquivo do inicio, limpa tudo
+        clearAllLogData();
       }
       lastFileSize = fileSize;
     }
@@ -60,9 +66,9 @@ async function tailRefreshNow() {
     // Atualiza raw log
     setRawLog(getRawLog() + deltaText);
 
-    if (util.isOnOffButtonPressed(ui.btnHighlightPkg)) {
+    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
       // Junta pending + delta e separa parte segura vs resto
-      const { safeText, pending } = tailSplitWithPendingCC33(tailPending, deltaText, LOG_HEADER_EXAMPLE.length);
+      const { safeText, pending } = tailSplitWithPendingCC33(tailPending, deltaText);
       tailPending = pending;
   
       // Se não tem nada seguro, não renderiza nada (espera o próximo chunk completar)
@@ -75,8 +81,6 @@ async function tailRefreshNow() {
     } else {
       writeLogBox("append", "text", deltaText);
     }
-
-    scrollLogBoxToBottomIfNeeded();
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
     writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);
@@ -87,7 +91,7 @@ async function tailRefreshNow() {
 function startTailAutoRefresh() {
     stopTailAutoRefresh();
     refreshTimer = setInterval(()=> {
-        if(util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) {
+        if(util.isToogleButtonPressed(ui.btnTailAutoRefresh)) {
             tailRefreshNow();
         }
     }, 3000);
@@ -99,7 +103,7 @@ function stopTailAutoRefresh() {
 }
 
 function setTailAutoRefresh() {
-    if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) 
+    if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) 
         startTailAutoRefresh();
     else 
         stopTailAutoRefresh();
@@ -123,8 +127,9 @@ function setTailAutoRefresh() {
  * @param {number} headerLen
  * @returns {{ before: string, rest: string }}
  */
-function splitTailIfEndsWithIncompleteCC33(textChunk, headerLen) {
+function splitTailIfEndsWithIncompleteCC33(textChunk) {
   if (!textChunk) return { before: "", rest: "" };
+  const headerLen = LOG_HEADER_EXAMPLE.length;
 
   const lines = textChunk.split(/\r?\n/);
 
@@ -207,8 +212,8 @@ function splitTailIfEndsWithIncompleteCC33(textChunk, headerLen) {
  * Wrapper recomendado pro tail: concatena pendência + chunk e separa de novo.
  * NÃO adiciona '\n' automaticamente (tail pode cortar no meio de uma linha).
  */
-function tailSplitWithPendingCC33(pending, chunk, headerLen) {
+function tailSplitWithPendingCC33(pending, chunk) {
   const combined = (pending || "") + (chunk || "");
-  const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined, headerLen);
+  const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
   return { safeText: before || "", pending: rest || "" };
 }

@@ -37,19 +37,19 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnTailAutoRefresh"
                 type="button"
-                class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint toogle-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
                 data-hint="Tail Auto-Refresh (3s)"
             >
-                <span class="on-off-btn-icon">⟳</span>
+                <span class="toogle-btn-icon">⟳</span>
             </button>
 
             <button 
                 id="btnAutoScroll"
                 type="button"
-                class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint toogle-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
                 data-hint="Auto-Scroll"
             >
-                <span class="on-off-btn-icon">⇣</span>
+                <span class="toogle-btn-icon">⇣</span>
             </button>
 
             <!-- <button class="normal-btn" onclick="tailRefreshNow()">Atualizar agora</button> -->
@@ -61,7 +61,7 @@ function render_viewer($selectedFile) {
             <div class="">
                 <button
                     id="btnHighlightPkg"
-                    class="on-off-btn hint" 
+                    class="toogle-btn hint" 
                     data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
@@ -70,7 +70,7 @@ function render_viewer($selectedFile) {
 
 - Se o LOG for grande, a página fica lenta." >
                     <!-- Mostrar Pacotes -->
-                    <span class="on-off-btn-icon">▦</span>
+                    <span class="toogle-btn-icon">▦</span>
                 </button>
                 <label>
                     <input type="checkbox" id="cbIgnoreAck" checked>

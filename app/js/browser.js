@@ -13,7 +13,7 @@ function stopAutoRefresh() {
 btnAutoRefresh.addEventListener("click", () => {
     const url = new URL(window.location.href);
 
-    const isPressed = util.toogleOnOffButton(btnAutoRefresh);
+    const isPressed = util.toogleButton(btnAutoRefresh);
     if (isPressed) {
         url.searchParams.set("autorefresh", "1");
         window.history.replaceState(null, "", url.toString());
@@ -25,5 +25,5 @@ btnAutoRefresh.addEventListener("click", () => {
     }
 });
 
-if (util.isOnOffButtonPressed(btnAutoRefresh)) 
+if (util.isToogleButtonPressed(btnAutoRefresh)) 
     startAutoRefresh();

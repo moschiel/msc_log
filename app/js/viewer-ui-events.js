@@ -15,27 +15,29 @@ window.addEventListener("load", () => {
 });
 
 ui.btnTailAutoRefresh.addEventListener("click", () => {
-    util.toogleOnOffButton(ui.btnTailAutoRefresh);
+    util.toogleButton(ui.btnTailAutoRefresh);
     setTailAutoRefresh(); 
 });
 
 ui.btnAutoScroll.addEventListener("click", () => {
-    util.toogleOnOffButton(ui.btnAutoScroll);
+    util.toogleButton(ui.btnAutoScroll);
 });
 
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    const isPressed = util.toogleOnOffButton(ui.btnHighlightPkg);
     ui.btnHighlightPkg.disable = true;
-
     ui.btnTailAutoRefresh.disable = true;
-    if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) stopTailAutoRefresh();
-    clearTailLogData();
-    tailRefreshNow();
-    if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) startTailAutoRefresh();
-    ui.btnTailAutoRefresh.disable = false;
-/*
+
+    clearHighlightedPkgCounters();
+    clearLogBox();
+    
+    const isPressed = util.toogleButton(ui.btnHighlightPkg);
+    
     if(isPressed) {
+        // Recalcula pending baseado no rawLog atual
+        const { safeText, pending } = tailSplitWithPendingCC33("", getRawLog());
+        setTailPending(pending);
+
         // IMPORTANTE: Escapa HTML primeiro
         // Escapa o conteúdo bruto do log antes de usar innerHTML.
         // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
@@ -43,18 +45,21 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         // evitando interpretação indevida do log e riscos de XSS.
         // Após o escape, apenas os <span> inseridos pelo highlight
         // são HTML válido, mantendo controle total do markup.
-        let innerHtml = util.escapeHtml(getRawLog());
+        let innerHtml = util.escapeHtml(safeText);
         // Aplica highlight dos pacotes com CC33
         innerHtml = fastHighlightPackages(innerHtml);
         writeLogBox("set", "html", innerHtml);
     }
     else 
     {
-        // Nao tem nada pra fazer highlight
+        //nao precisa analisar "pending", pois nao queremos destacar o pacote mesmo
+        clearTailPending();
+        // Nao tem nada pra fazer highlight, setamos o texto puro
         writeLogBox("set", "text", getRawLog()); 
     }
-*/ 
+ 
     ui.btnHighlightPkg.disable = false;
+    ui.btnTailAutoRefresh.disable = false;
 });
 
 
