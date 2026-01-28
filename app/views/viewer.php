@@ -17,7 +17,6 @@ function render_viewer($selectedFile) {
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
-    <link rel="stylesheet" href="./app/css/viewer-terms.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-split-pane.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
@@ -36,10 +35,10 @@ function render_viewer($selectedFile) {
             </div>
 
             <button 
-                id="btnAutoRefreshViewer"
+                id="btnTailAutoRefresh"
                 type="button"
                 class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
-                data-hint="Auto-Refresh (3s)"
+                data-hint="Tail Auto-Refresh (3s)"
             >
                 <span class="on-off-btn-icon">⟳</span>
             </button>
@@ -53,7 +52,7 @@ function render_viewer($selectedFile) {
                 <span class="on-off-btn-icon">⇣</span>
             </button>
 
-            <!-- <button class="normal-btn" onclick="refreshNow()">Atualizar agora</button> -->
+            <!-- <button class="normal-btn" onclick="tailRefreshNow()">Atualizar agora</button> -->
 
             <a href="<?= htmlspecialchars($downloadUrl) ?>">
                 <button class="normal-btn">Download</button>
@@ -85,35 +84,7 @@ function render_viewer($selectedFile) {
                     <option value="none">--</option>
                 </select>
             </div>
-
-            <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
-            <button 
-                class="normal-btn hidden" 
-                type="button" 
-                id="toggleFilters">
-                Mostrar marcadores
-            </button>
-            -->
-
         </div>
-
-        <!-- Elemento desativado, funcionalidade de marcar palavras pesquisadas deixa muito lento o log,  
-        <div id="termsPanel" class="hl-terms-panel hidden">
-            <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-                <b>Marcadores:</b>
-
-                <label>
-                <input type="checkbox" id="hlMatchCase" checked>
-                Match Case
-                </label>
-
-                <span style="color:#666; font-size:12px;">
-                (1 string por linha)
-                </span>
-            </div>
-            <textarea id="hlTerms" class="hl-terms-box"></textarea>
-        </div>
-         -->
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical">
             <div class="pane first">
@@ -166,7 +137,6 @@ function render_viewer($selectedFile) {
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-terms-highlight.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>

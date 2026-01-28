@@ -1,99 +1,9 @@
-const PKG_HIGHLIGHT_VERSION = "V2";
+const PKG_HIGHLIGHT_VERSION = "V1";
 const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 let globalFrames = [];
-
-// Aplica estilos aos pacotes com CC33 (lento pois usa replace() em cada linha)
-/*
-function highlightPackagesV1(text) {
-    const lines = text.split(/\r?\n/);
-    const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
-    let isCollectingFrame = false;
-    let frameStr = "";
-    let linesToReplace = [];
-    let pkgCounter = 0;
-
-    lines.forEach((line, lineNumber) => {
-        if (line.length > LOG_HEADER_EXAMPLE.length) {
-            let substrFrame = line.substr(LOG_HEADER_EXAMPLE.length);
-
-            if (!isCollectingFrame && substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
-                //Encontrou inicio do frame, inicia a coleta das linhas seguintes
-                isCollectingFrame = true;
-                frameStr = "";
-                linesToReplace = [];
-            } else if (isCollectingFrame && util.isHexOnly(substrFrame) === false) {
-                // Terminou de coletar linhas desse pacote
-                isCollectingFrame = false;
-            }
-            
-            if(isCollectingFrame) {
-                // Coleta mais uma linha do pacote atual
-                frameStr += substrFrame;
-                linesToReplace.push(line);   
-            } else {
-                if (frameStr.length > 0) {
-                    pkgCounter++;
-                    console.log("Analisando pacote ", pkgCounter);
-                    // essa classe sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
-                    // assim em outros mudulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
-                    const classPkgGroup = `pkg-${pkgCounter}`; 
-                    let classPkgStatus = "";
-
-                    try {
-                        if(parseCC33Frame(util.hexToBuffer(frameStr), false)) 
-                            classPkgStatus = 'hl-pkg-ok'; //classe para ficar com highlight ok
-                        else
-                            classPkgStatus = 'hl-pkg-err'; //classe para ficar com highlight de erro
-                    } catch (e) {
-                        console.error(e.message, ", Line: ", line);
-                        classPkgStatus = 'hl-pkg-err';
-                    }
-                    
-                    // substitui todas as linhas desse pacote, por linhas estilizadas com a tag span
-                    linesToReplace.forEach((oldLine, lineIndex) => {
-                        let classBorder = "hl-border-sides"; // adiciona borda nas laterais
-                        if(lineIndex == 0)
-                            classBorder += " hl-border-top"; // primeira linha do pacote tem borda no topo
-                        if(lineIndex == (linesToReplace.length - 1))
-                            classBorder += " hl-border-bottom"; //ultima linha do pacote tempo borda embaixo
-
-                        const headerPart = oldLine.slice(0, LOG_HEADER_EXAMPLE.length);
-                        const hexPart = oldLine.substr(LOG_HEADER_EXAMPLE.length);
-                        let newLine = "";
-                        
-                        if ( linesToReplace.length >= 2 // Se o pacote tem mais de duas linhas no log
-                            && lineIndex === (linesToReplace.length - 2) // Se essa é a penultima linha
-                            && (linesToReplace[linesToReplace.length - 1].length < linesToReplace[linesToReplace.length - 2].length) // E a ultima linha eh menor que a penultima linha
-                        )
-                        {
-                            // entao temos que aplicar borda embaixo dessa linha tambem, mas so na parte do frame que nao tenha caracteres de outro frame abaixo dele
-
-                            const diffSize = linesToReplace[linesToReplace.length - 2].length - linesToReplace[linesToReplace.length - 1].length;
-                            const startHexPart = hexPart.slice(0, hexPart.length - diffSize) 
-                            const endHexPart =  hexPart.slice(hexPart.length - diffSize);
-                            const spanEndHexPart = `<span class="${classPkgGroup} pkg-right-part hl-border-bottom">${endHexPart}</span>`
-                            newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${startHexPart}${spanEndHexPart}</span>`;
-                        }
-                        else
-                        {
-                            newLine = `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
-                        }
-                        
-                        text = text.replace(oldLine, newLine);
-                    });
-
-                    frameStr = "";
-                    linesToReplace = [];
-                }
-
-                isCollectingFrame = false;
-            }
-        }
-    });
-    
-    return text;
-}
-*/
+let pkgCounter = 0;
+let offlinePkgCounter = 0;
+let errPkgCounter = 0;
 
 // Aplica estilos aos pacotes com CC33 (versão rápida: sem operacao de replace(), seta direto no vetor lines)
 function fastHighlightPackages(text) {
@@ -102,9 +12,6 @@ function fastHighlightPackages(text) {
 
     let isCollectingFrame = false;
     let lineIndexes = [];         // guarda os índices das linhas que pertencem ao pacote
-    let pkgCounter = 0;
-    let offlinePkgCounter = 0;
-    let errPkgCounter = 0;
 
     function flushPackage() {
         if (lineIndexes.length === 0) return;
@@ -150,7 +57,7 @@ function fastHighlightPackages(text) {
         // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
         const classPkgGroup = `pkg-${pkgCounter}`;
 
-        if (PKG_HIGHLIGHT_VERSION === "V3") 
+        if (PKG_HIGHLIGHT_VERSION === "V2") 
         {
             // Versao 3 gera apenas uma tag <span> POR PACOTE, tendo menos elementos DOM para o browser gerenciar, deixando a pagina mais leve.
             // O estilo fica porco, não da pra aplicar bordas, e o header de cada linha tambem fica com background colorido
@@ -166,7 +73,7 @@ function fastHighlightPackages(text) {
                 lines[lastIdx] += "</span>";
             }         
         }
-        else if (PKG_HIGHLIGHT_VERSION === "V2")
+        else if (PKG_HIGHLIGHT_VERSION === "V1")
         {            
             // Versao 2 gera uma tag <span> PARA CADA LINHA DO PACOTE, o que pode deixar o browser lento devido a muitos elementos no DOM.
             // Mas pelo menos o estilo fica bem mais bonitinho, onde só o frame é destacado com borda, deixando o header de fora.
@@ -262,14 +169,14 @@ function fastHighlightPackages(text) {
         flushPackage();
     }
 
-    //console.log(`Total Pacotes: ${pkgCounter}, com erro: ${errPkgCounter}`);
+    console.log(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
     //alert(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
     return lines.join("\n");
 }
 
 
 function getHexFromPackageClassGroup(classPkgGroup) {
-    if(PKG_HIGHLIGHT_VERSION === "V3") 
+    if(PKG_HIGHLIGHT_VERSION === "V2") 
     {
         let frameStr = "";
         const elements = document.getElementsByClassName(classPkgGroup);
@@ -279,7 +186,7 @@ function getHexFromPackageClassGroup(classPkgGroup) {
         }
         return frameStr;
     }
-    else 
+    else //V1 
     {
         let frameStr = "";
         const elements = document.getElementsByClassName(classPkgGroup);

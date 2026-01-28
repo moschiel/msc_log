@@ -10,16 +10,13 @@ window.addEventListener("load", () => {
         }
     }
 
-    //carrega termos marcados p/ pesquisa pelo usuario
-    loadTermsSettings();
-
     //forca um refresh inicial do logBox
-    refreshNow();
+    tailRefreshNow();
 });
 
-ui.btnAutoRefreshViewer.addEventListener("click", () => {
-    util.toogleOnOffButton(ui.btnAutoRefreshViewer);
-    setAutoRefreshViewer(); 
+ui.btnTailAutoRefresh.addEventListener("click", () => {
+    util.toogleOnOffButton(ui.btnTailAutoRefresh);
+    setTailAutoRefresh(); 
 });
 
 ui.btnAutoScroll.addEventListener("click", () => {
@@ -30,15 +27,35 @@ ui.btnAutoScroll.addEventListener("click", () => {
 ui.btnHighlightPkg.addEventListener("click", () => {
     const isPressed = util.toogleOnOffButton(ui.btnHighlightPkg);
     ui.btnHighlightPkg.disable = true;
-    rerenderLogContent({packagesHighlight: isPressed}); 
+
+    ui.btnTailAutoRefresh.disable = true;
+    if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) stopTailAutoRefresh();
+    clearTailLogData();
+    tailRefreshNow();
+    if (util.isOnOffButtonPressed(ui.btnTailAutoRefresh)) startTailAutoRefresh();
+    ui.btnTailAutoRefresh.disable = false;
+/*
+    if(isPressed) {
+        // IMPORTANTE: Escapa HTML primeiro
+        // Escapa o conteúdo bruto do log antes de usar innerHTML.
+        // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
+        // sejam tratados como TEXTO, e não como HTML executável,
+        // evitando interpretação indevida do log e riscos de XSS.
+        // Após o escape, apenas os <span> inseridos pelo highlight
+        // são HTML válido, mantendo controle total do markup.
+        let innerHtml = util.escapeHtml(getRawLog());
+        // Aplica highlight dos pacotes com CC33
+        innerHtml = fastHighlightPackages(innerHtml);
+        writeLogBox("set", "html", innerHtml);
+    }
+    else 
+    {
+        // Nao tem nada pra fazer highlight
+        writeLogBox("set", "text", getRawLog()); 
+    }
+*/ 
     ui.btnHighlightPkg.disable = false;
 });
-
-ui.btnToggleTermsVisibility?.addEventListener("click", toggleTermsPanelVisibility);
-
-ui.taTerms?.addEventListener("input", scheduleTermsRerender);
-
-ui.cbMatchCase?.addEventListener("change", scheduleTermsRerender);
 
 
 let lastMessageIdClicked = 0;
