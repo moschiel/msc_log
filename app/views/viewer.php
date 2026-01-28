@@ -48,12 +48,11 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnAutoScroll"
                 type="button"
-                class="hint normal-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
                 aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
                 data-hint="Auto-Scroll"
             >
-                Marcar Pacotes
-                <!-- <span class="on-off-btn-icon">⇣</span> -->
+                <span class="on-off-btn-icon">⇣</span>
             </button>
 
             <!-- <button class="normal-btn" onclick="refreshNow()">Atualizar agora</button> -->
@@ -65,7 +64,7 @@ function render_viewer($selectedFile) {
             <div class="">
                 <button
                     id="btnHighlightPkg"
-                    class="on-off-btn hint" 
+                    class="normal-btn hint" 
                     data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
@@ -75,7 +74,8 @@ function render_viewer($selectedFile) {
 - Auto-Refresh será desativado.
 
 - Se o LOG for grande, a página fica lenta." >
-                    <span class="on-off-btn-icon">▦</span>
+                    Mostrar Pacotes
+                    <!-- <span class="on-off-btn-icon">▦</span> -->
                 </button>
                 <label>
                     <input type="checkbox" id="cbIgnoreAck" checked>
