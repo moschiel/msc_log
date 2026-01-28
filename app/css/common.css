@@ -31,7 +31,6 @@ input, .normal-btn {
 .on-off-btn {
   appearance: none;
   border: 1px solid rgba(128,128,128,0.35);
-  background: rgba(128,128,128,0.12);
   color: inherit;
   border-radius: 10px;
   /* padding: 4px 6px; */
@@ -44,7 +43,9 @@ input, .normal-btn {
   justify-content: center;
   user-select: none;
 
-  opacity: 0.6;
+  border-color: rgba(128,128,128,0.25);
+  background: rgba(128,128,128,0.08);
+  color: rgba(0,0,0,0.65);
 
   transition:
     background 120ms ease,
@@ -73,8 +74,12 @@ input, .normal-btn {
 /* ON */
 .on-off-btn.is-pressed {
   border-color: rgba(80,160,110,0.55);
-  background: rgba(80,160,110,0.22);
+  background: rgba(80,160,110,0.30);
   opacity: 1;
+}
+
+.on-off-btn.is-pressed:hover {
+  background: rgba(80,160,110,0.40);
 }
 
 /* checkbox simples */
@@ -163,6 +168,17 @@ select:disabled {
     background: #2a2a2a;
     border-color: #555;
     color: #eee;
+  }
+
+  .on-off-btn {
+    color: rgba(255,255,255,0.6);
+  }
+
+  .on-off-btn:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  .on-off-btn.is-pressed:hover {
+    background: rgba(80,160,110,0.40);
   }
 
   .normal-btn:hover {

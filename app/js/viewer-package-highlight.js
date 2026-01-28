@@ -263,7 +263,7 @@ function fastHighlightPackages(text) {
     }
 
     //console.log(`Total Pacotes: ${pkgCounter}, com erro: ${errPkgCounter}`);
-    alert(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
+    //alert(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
     return lines.join("\n");
 }
 

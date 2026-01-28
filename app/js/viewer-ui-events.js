@@ -28,9 +28,9 @@ ui.btnAutoScroll.addEventListener("click", () => {
 
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    util.setOnOffButton(btnAutoRefreshViewer, false);
+    const isPressed = util.toogleOnOffButton(ui.btnHighlightPkg);
     ui.btnHighlightPkg.disable = true;
-    rerenderLogContent({packagesHighlight: true}); 
+    rerenderLogContent({packagesHighlight: isPressed}); 
     ui.btnHighlightPkg.disable = false;
 });
 

@@ -168,13 +168,11 @@ const util = {
             el.classList.add("is-pressed");
         else
             el.classList.remove("is-pressed");
-        el.setAttribute("aria-pressed", pressed);
     },
 
     toogleOnOffButton(el) {
         el.classList.toggle("is-pressed");
         const isPressed = el.classList.contains("is-pressed");
-        el.setAttribute("aria-pressed", isPressed ? "true" : "false");
         return isPressed;
     },
 

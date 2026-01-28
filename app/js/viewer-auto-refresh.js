@@ -16,18 +16,39 @@ async function refreshNow() {
     
     //Armazena o tamanho total do arquivo no servidor
     const fileSize = resp.headers.get("X-File-Size");
-    if (fileSize) {
-      lastFileSize = Number(fileSize);
+    
+    if (fileSize < lastFileSize) {
+      // Ué, o arquivo diminuiu? 
+      // alguem deve ter editado o conteudo do arquivo manualmente, 
+      // nesse caso relemos o conteudo do arquivo do inicio
+      lastFileSize = 0;
+      refreshNow();
+      return;
     }
 
     if (!resp.ok) {
       throw new Error(`HTTP ${resp.status}`);
     }
 
+    if(fileSize) {
+      if(lastFileSize === 0) {
+         // lendo arquivo do inicio, limpa qualquer coisa no logbox
+        setRawLog("");
+        writeLogBox("set", "html", "");
+      }
+      lastFileSize = Number(fileSize);
+    }
+
     const deltaRaw = await resp.text();
     if (deltaRaw.length > 0) {
       setRawLog(getRawLog() + deltaRaw);   // atualiza raw log
-      writeLogBox("append", "text", deltaRaw);   // faz append do texto
+      if(util.isOnOffButtonPressed(ui.btnHighlightPkg)) {
+        let innerHTML = util.escapeHtml(deltaRaw);
+        innerHTML = fastHighlightPackages(innerHTML);
+        writeLogBox("append", "html", innerHTML); 
+      } else {
+        writeLogBox("append", "text", deltaRaw);   // faz append do texto
+      }
       scrollLogBoxToBottomIfNeeded();
     }
   } catch (e) {

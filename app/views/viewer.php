@@ -39,7 +39,6 @@ function render_viewer($selectedFile) {
                 id="btnAutoRefreshViewer"
                 type="button"
                 class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
-                aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
                 data-hint="Auto-Refresh (3s)"
             >
                 <span class="on-off-btn-icon">⟳</span>
@@ -49,7 +48,6 @@ function render_viewer($selectedFile) {
                 id="btnAutoScroll"
                 type="button"
                 class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
-                aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
                 data-hint="Auto-Scroll"
             >
                 <span class="on-off-btn-icon">⇣</span>
@@ -64,18 +62,16 @@ function render_viewer($selectedFile) {
             <div class="">
                 <button
                     id="btnHighlightPkg"
-                    class="normal-btn hint" 
+                    class="on-off-btn hint" 
                     data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
 ⚪ - Pacote Offline
 🔴 - Pacote com Erro
 
-- Auto-Refresh será desativado.
-
 - Se o LOG for grande, a página fica lenta." >
-                    Mostrar Pacotes
-                    <!-- <span class="on-off-btn-icon">▦</span> -->
+                    <!-- Mostrar Pacotes -->
+                    <span class="on-off-btn-icon">▦</span>
                 </button>
                 <label>
                     <input type="checkbox" id="cbIgnoreAck" checked>

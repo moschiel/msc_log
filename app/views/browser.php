@@ -37,7 +37,6 @@ function render_browser($items, $msg) {
         id="btnAutoRefresh"
         type="button"
         class="hint on-off-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
-        aria-pressed="<?= $autorefresh === '1' ? 'true' : 'false' ?>"
         data-hint="Auto-Refresh (3s)"
     >
         <span class="on-off-btn-icon">⟳</span>
