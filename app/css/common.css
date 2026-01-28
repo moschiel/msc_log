@@ -34,7 +34,9 @@ input, .normal-btn {
   background: rgba(128,128,128,0.12);
   color: inherit;
   border-radius: 10px;
-  padding: 6px 10px;
+  /* padding: 4px 6px; */
+  height: 30px;
+  width: 30px;
   cursor: pointer;
   line-height: 1;
   display: inline-flex;
@@ -65,7 +67,7 @@ input, .normal-btn {
 }
 
 .on-off-btn-icon {
-  font-size: 16px;
+  font-size: 20px;
 }
 
 /* ON */
