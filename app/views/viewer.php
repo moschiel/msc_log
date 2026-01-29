@@ -58,14 +58,15 @@ function render_viewer($selectedFile) {
             <button
                 id="btnHighlightPkg"
                 class="toogle-btn hint" 
-                data-hint="Permite clicar no pacote p/ ver detalhes.
+                data-hint="Detectar Pacotes.
+
+Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
 ⚪ - Pacote Offline
 🔴 - Pacote com Erro
 
 Se o LOG for grande, a página fica lenta." >
-                <!-- Mostrar Pacotes -->
                 <span class="toogle-btn-icon">▦</span>
             </button>
 

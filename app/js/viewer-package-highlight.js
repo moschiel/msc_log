@@ -33,16 +33,13 @@ function fastHighlightPackages(text) {
             }
 
             const {parseOk, connState, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
-            const ignoreAck = readPkgHighlightConfig("ignoreAck") === "1";
-            const ignoreKeepAlive = readPkgHighlightConfig("ignoreKeepAlive") === "1";
-            
-            if((ignoreAck || ignoreKeepAlive) && messages !== null) {
-                for (const msg of messages) {
-                    if(((msg.id === 0xFFFF) && ignoreAck) || ((msg.id === 0x0000) && ignoreKeepAlive)) { //ACK ou KeepAlive
-                        lineIndexes = []; // reset linhas
-                        pkgCounter--; // remove esse pacote da contagem
-                        return; // pula pacote
-                    }
+
+            for (const msg of messages) {
+                if((msg.id === 0xFFFF && readPkgHighlightConfig("ignoreAck") === "1")
+                 ||(msg.id === 0x0000 && readPkgHighlightConfig("ignoreKeepAlive") === "1")) {
+                    lineIndexes = []; // reset linhas
+                    pkgCounter--; // remove esse pacote da contagem
+                    return; // pula pacote
                 }
             }
 

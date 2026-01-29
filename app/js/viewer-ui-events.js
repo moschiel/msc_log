@@ -75,15 +75,35 @@ ui.btnPkgConfig.addEventListener("click", () => {
     Modal.open({
         title: "Configurações",
         bodyHtml: `
-      <label>
+<div>
+    <div style="padding-bottom: 16px;">
+        Destacar Pacotes
+    </div>
+    <label>
         <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
-        Ignorar ACK
-      </label>
-      <br>
-      <label>
+        Ignorar 0xFFFF (ACK)
+    </label>
+    <br>
+    <label>
         <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
-        Ignorar KEEP-ALIVE
-      </label>
+        Ignorar 0x0000 (KEEP-ALIVE)
+    </label>
+<div>
+<div class="modal-divider"></div>
+<div>
+    <div style="padding-bottom: 16px;">
+        Mostrar Módulos
+    </div>
+    <label>
+        <input id="" type="checkbox"}>
+        DEBUG
+    </label>
+    <br>
+    <label>
+        <input id="" type="checkbox">
+        TM
+    </label>
+<div>
     `
     });
 
