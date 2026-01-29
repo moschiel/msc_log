@@ -1,18 +1,8 @@
 let refreshTimer = null;
 let lastFileSize = 0;
-let tailPendingCC33 = "";
-
-function clearTailPendingCC33() {
-  tailPendingCC33 = "";
-}
-
-function setTailPendingCC33(text) {
-  tailPendingCC33 = text;
-}
 
 function clearAllLogData() {
   lastFileSize = 0;
-  clearTailPendingCC33();
   clearHighlightedPkgCounters();
   clearRawLog();
   clearLogBox();
@@ -68,8 +58,7 @@ async function tailRefreshNow() {
 
     if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
       // Junta pendingText + deltaText e separa parte segura vs resto
-      let { safeText, pendingText } = tailSplitWithPendingCC33(tailPendingCC33, deltaText);
-      tailPendingCC33 = pendingText;
+      let { safeText, pendingText } = tailSplitWithPendingCC33(getLogBoxPendingPacket(), deltaText);
       
       // texto seguro para ser analisado os pacotes
       if (safeText && safeText.length > 0) {
@@ -81,7 +70,7 @@ async function tailRefreshNow() {
       //texto com pacote CC33 incompleto no final (pendente de ser completado)
       //nesse caso nao parseamos o pacote se nao chegou tudo
       //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
-      writeLogBoxPending("set", "text", pendingText ? pendingText : "");
+      setLogBoxPendingPacket(pendingText ? pendingText : "");
     } 
     else 
     {
@@ -90,7 +79,7 @@ async function tailRefreshNow() {
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
     writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);
-    writeLogBoxPending("set", "text", "");
+    setLogBoxPendingPacket("");
   }
 }
 

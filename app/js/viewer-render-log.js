@@ -14,7 +14,7 @@ function clearRawLog() {
 
 function clearLogBox() {
     writeLogBox("set", "html", "Carregando...");
-    writeLogBoxPending("set", "html", "");
+    setLogBoxPendingPacket("");
 }
 
 /**
@@ -23,7 +23,7 @@ function clearLogBox() {
  * @param {string} content
  */
 function writeLogBox(mode, type, content, isPendingCC33Content = false) {
-    const el = isPendingCC33Content ? ui.logPendingCC33Content : ui.logContent;
+    const el = isPendingCC33Content ? ui.logPendingPacketContent : ui.logContent;
 
     if(mode === "set") 
     {
@@ -48,10 +48,13 @@ function writeLogBox(mode, type, content, isPendingCC33Content = false) {
  * @param {string} type: "text" | "html"
  * @param {string} content
  */
-function writeLogBoxPending(mode, type, content) {
-    writeLogBox(mode, type, content, true);
+function setLogBoxPendingPacket(content) {
+    writeLogBox("set", "text", content, true);
 }
 
+function getLogBoxPendingPacket() {
+    return ui.logPendingPacketContent.textContent;
+}
 
 function scrollLogBoxToBottomIfNeeded() {
     if (util.isToogleButtonPressed(ui.btnAutoScroll))

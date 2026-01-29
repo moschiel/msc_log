@@ -88,7 +88,7 @@ function render_viewer($selectedFile) {
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical">
             <div class="pane first">
-                <div id="logBox" class="log-box"><span id="logContent">Carregando...</span><span id="logPendingCC33Content"></span>
+                <div id="logBox" class="log-box"><span id="logContent">Carregando...</span><span id="logPendingPacketContent"></span>
                 </div>
             </div>
 

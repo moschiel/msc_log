@@ -36,11 +36,9 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     if(isPressed) {
         // Recalcula pendingCC33 baseado no rawLog atual
         const { safeText, pendingText } = tailSplitWithPendingCC33("", getRawLog());
-        setTailPendingCC33(pendingText);
 
         // texto seguro para ser analisado os pacotes
         if (safeText && safeText.length > 0) {
-            
             // IMPORTANTE: Escapa HTML primeiro
             // Escapa o conteúdo bruto do log antes de usar innerHTML.
             // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
@@ -57,15 +55,13 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         //texto com pacote CC33 incompleto no final (pendente de ser completado)
         //nesse caso nao parseamos o pacote se nao chegou tudo
         //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
-        writeLogBoxPending("set", "text", pendingText ? pendingText : "");
+        setLogBoxPendingPacket(pendingText ? pendingText : "");
     }
     else 
     {
-        //nao precisa analisar "pendingText", pois nao queremos destacar o pacote mesmo
-        clearTailPendingCC33();
         // Nao tem nada pra fazer highlight, setamos o texto puro
         writeLogBox("set", "text", getRawLog());
-        writeLogBoxPending("set", "text", ""); 
+        setLogBoxPendingPacket(""); 
     }
  
     ui.btnHighlightPkg.disable = false;

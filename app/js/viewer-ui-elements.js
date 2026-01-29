@@ -7,7 +7,7 @@ const ui = {
     mainSplitter: document.getElementById("mainSplitter"),
     logBox: document.getElementById("logBox"),
     logContent: document.getElementById("logContent"),
-    logPendingCC33Content: document.getElementById("logPendingCC33Content"),
+    logPendingPacketContent: document.getElementById("logPendingPacketContent"),
     tableSplitter: document.getElementById("tableSplitter"),
     packageTable: document.getElementById("packageTable"),
     labelMessageDescription: document.getElementById("labelMessageDescription"),
