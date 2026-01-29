@@ -82,6 +82,29 @@ input, .normal-btn {
   background: rgba(80,160,110,0.40);
 }
 
+/* Botao Emoji */
+.emoji-btn{
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  line-height: 1;
+  font: inherit; /* mantém tamanho do emoji conforme fonte */
+}
+
+.emoji-btn:focus{
+  outline: none;
+}
+
+.emoji-btn:focus-visible{
+  outline: 2px solid #3b82f6; /* foco acessível */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* checkbox simples */
 input[type="checkbox"] {
   width: 16px;

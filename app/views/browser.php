@@ -25,7 +25,7 @@ function render_browser($items, $msg) {
     
     <h2>
         <a href="<?= buildBrowserLink($parent, $sort, $autorefresh) ?>">
-            ⬅️
+            <button class="emoji-btn">⬅️</button>
         </a>
         Listagem: /<?= htmlspecialchars($current) ?>
     </h2>
@@ -95,7 +95,7 @@ function render_browser($items, $msg) {
                     <td>
                         <form method="POST" onsubmit="return confirm('Deletar <?= htmlspecialchars($item) ?>?');">
                             <input type="hidden" name="delete" value="<?= htmlspecialchars($item) ?>">
-                            <button type="submit" class="icon-btn">🗑️</button>
+                            <button type="submit" class="emoji-btn">🗑️</button>
                         </form>
                     </td>
                 </tr>

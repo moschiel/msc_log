@@ -25,13 +25,16 @@ function render_viewer($selectedFile) {
 <body>
     <div class="main">
         <div class="header-container">
-            <p><a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
-                    ⬅️
-            </a></p>
+            <a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
+                <button class="emoji-btn">⬅️</button>
+            </a>
 
             <div>
                 <b>Arquivo:</b> 
                 <span class="file"><?= htmlspecialchars($title) ?></span>
+                <a href="<?= htmlspecialchars($downloadUrl) ?>">
+                    <button class="emoji-btn">💾</button>
+                </a>
             </div>
 
             <button 
@@ -53,10 +56,6 @@ function render_viewer($selectedFile) {
             </button>
 
             <!-- <button class="normal-btn" onclick="tailRefreshNow()">Atualizar agora</button> -->
-
-            <a href="<?= htmlspecialchars($downloadUrl) ?>">
-                <button class="normal-btn">Download</button>
-            </a>
 
             <div class="">
                 <button
