@@ -31,10 +31,9 @@ function render_viewer($selectedFile) {
             </a>
 
             <div>
-                <b>Arquivo:</b> 
-                <span class="file"><?= htmlspecialchars($title) ?></span>
+                <b>Arquivo:</b>
                 <a href="<?= htmlspecialchars($downloadUrl) ?>">
-                    <button class="emoji-btn">💾</button>
+                    <span class="file"><?= htmlspecialchars($title) ?></span>
                 </a>
             </div>
 
@@ -55,9 +54,6 @@ function render_viewer($selectedFile) {
             >
                 <span class="toogle-btn-icon">⇣</span>
             </button>
-
-            <!-- <button class="normal-btn" onclick="tailRefreshNow()">Atualizar agora</button> -->
-
             
             <button
                 id="btnHighlightPkg"
@@ -73,7 +69,7 @@ Se o LOG for grande, a página fica lenta." >
                 <span class="toogle-btn-icon">▦</span>
             </button>
 
-            <button class="normal-btn"
+            <button class="emoji-btn"
                 data-modal-title="Configuracões"
                 data-modal-body="
                     <label>
