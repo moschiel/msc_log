@@ -14,6 +14,7 @@ function clearRawLog() {
 
 function clearLogBox() {
     writeLogBox("set", "html", "Carregando...");
+    writeLogBoxPending("set", "html", "");
 }
 
 /**
@@ -21,23 +22,34 @@ function clearLogBox() {
  * @param {string} type: "text" | "html"
  * @param {string} content
  */
-function writeLogBox(mode, type, content) {
+function writeLogBox(mode, type, content, isPendingCC33Content = false) {
+    const el = isPendingCC33Content ? ui.logPendingCC33Content : ui.logContent;
+
     if(mode === "set") 
     {
         if(type === "text")
-            ui.logBox.textContent = content;
+            el.textContent = content;
         else if(type === "html") // html - lento demais se for muito grande o conteudo
-            ui.logBox.innerHTML = content;
+            el.innerHTML = content;
     }
     else if(mode === "append")
     {
         if(type === "text")
-            ui.logBox.insertAdjacentText("beforeend", content);
+            el.insertAdjacentText("beforeend", content);
         else if(type === "html")
-            ui.logBox.insertAdjacentHTML("beforeend", content);
+            el.insertAdjacentHTML("beforeend", content);
     }
 
     scrollLogBoxToBottomIfNeeded();
+}
+
+/**
+ * @param {string} mode: "set" | "append"
+ * @param {string} type: "text" | "html"
+ * @param {string} content
+ */
+function writeLogBoxPending(mode, type, content) {
+    writeLogBox(mode, type, content, true);
 }
 
 

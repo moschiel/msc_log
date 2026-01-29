@@ -11,22 +11,39 @@
     padding-left: 6px;
 }
 
-  /*
-   * XUNXO PARA ZONA MORTA ENTRE LINHAS CONSECUTIVAS DOS PACOTES CC33 NO LOG
-   *
-   * Com white-space: pre, as quebras de linha criam um "gap invisível"
-   * entre as linhas (line-height). Sem esse padding / inline-block,
-   * existe uma faixa entre duas linhas consecutivas que NÃO pertence
-   * a nenhum <span>, quando o mouse fica exatamente entre as duas linhas
-   * o evento de click nao funcionará.
-   *
-   * Este padding garante que o <span> cubra toda a altura visual da linha,
-   * eliminando a zona morta de hover/click.
-   */
-.log-box span {
-  display: inline-block;
-  padding: 1px 0;
-  cursor: pointer;
+/* =========================================================
+ * SPANS DE CONTEÚDO (containers)
+ * ========================================================= */
+#logContent,
+#logPendingCC33Content {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    cursor: auto;
+}
+
+/* =========================================================
+ * XUNXO PARA ZONA MORTA ENTRE LINHAS DOS PACOTES CC33
+ *
+ * Com white-space: pre, as quebras de linha criam um "gap
+ * invisível" entre linhas (line-height). Sem esse padding /
+ * inline-block, existe uma faixa entre duas linhas consecutivas
+ * que NÃO pertence a nenhum <span>.
+ *
+ * Este padding garante que o <span> cubra toda a altura visual
+ * da linha, eliminando a zona morta de hover/click.
+ * ========================================================= */
+.log-box .pkg {
+    display: inline-block;
+    padding: 1px 0;
+    cursor: pointer;
+}
+
+/* =========================================================
+ * VISUAL DO PENDING (frame incompleto)
+ * ========================================================= */
+#logPendingCC33Content {
+    opacity: 0.65;
 }
 
 /* ===== LOG BOX (dark mode) ===== */
@@ -34,8 +51,10 @@
     .log-box {
         background: #0f172a;   /* azul bem escuro / terminal vibe */
         color: #e5e7eb;        /* texto claro */
+        scrollbar-color: #475569 #0b1220;  /* thumb | track */
+    }
 
-        scrollbar-color: #475569 #0b1220;      /* thumb | track */
+    #logPendingCC33Content {
+        opacity: 0.7;
     }
 }
-

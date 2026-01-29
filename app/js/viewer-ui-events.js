@@ -34,28 +34,38 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
     
     if(isPressed) {
-        // Recalcula pending baseado no rawLog atual
-        const { safeText, pending } = tailSplitWithPendingCC33("", getRawLog());
-        setTailPending(pending);
+        // Recalcula pendingCC33 baseado no rawLog atual
+        const { safeText, pendingText } = tailSplitWithPendingCC33("", getRawLog());
+        setTailPendingCC33(pendingText);
 
-        // IMPORTANTE: Escapa HTML primeiro
-        // Escapa o conteúdo bruto do log antes de usar innerHTML.
-        // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
-        // sejam tratados como TEXTO, e não como HTML executável,
-        // evitando interpretação indevida do log e riscos de XSS.
-        // Após o escape, apenas os <span> inseridos pelo highlight
-        // são HTML válido, mantendo controle total do markup.
-        let innerHtml = util.escapeHtml(safeText);
-        // Aplica highlight dos pacotes com CC33
-        innerHtml = fastHighlightPackages(innerHtml);
-        writeLogBox("set", "html", innerHtml);
+        // texto seguro para ser analisado os pacotes
+        if (safeText && safeText.length > 0) {
+            
+            // IMPORTANTE: Escapa HTML primeiro
+            // Escapa o conteúdo bruto do log antes de usar innerHTML.
+            // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
+            // sejam tratados como TEXTO, e não como HTML executável,
+            // evitando interpretação indevida do log e riscos de XSS.
+            // Após o escape, apenas os <span> inseridos pelo highlight
+            // são HTML válido, mantendo controle total do markup.
+            let innerHTML = util.escapeHtml(safeText);
+            // Aplica highlight dos pacotes com CC33
+            innerHTML = fastHighlightPackages(innerHTML);
+            writeLogBox("set", "html", innerHTML);
+        }
+
+        //texto com pacote CC33 incompleto no final (pendente de ser completado)
+        //nesse caso nao parseamos o pacote se nao chegou tudo
+        //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
+        writeLogBoxPending("set", "text", pendingText ? pendingText : "");
     }
     else 
     {
-        //nao precisa analisar "pending", pois nao queremos destacar o pacote mesmo
-        clearTailPending();
+        //nao precisa analisar "pendingText", pois nao queremos destacar o pacote mesmo
+        clearTailPendingCC33();
         // Nao tem nada pra fazer highlight, setamos o texto puro
-        writeLogBox("set", "text", getRawLog()); 
+        writeLogBox("set", "text", getRawLog());
+        writeLogBoxPending("set", "text", ""); 
     }
  
     ui.btnHighlightPkg.disable = false;

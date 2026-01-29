@@ -6,6 +6,8 @@ const ui = {
     messageSelector: document.getElementById("messageSelector"),
     mainSplitter: document.getElementById("mainSplitter"),
     logBox: document.getElementById("logBox"),
+    logContent: document.getElementById("logContent"),
+    logPendingCC33Content: document.getElementById("logPendingCC33Content"),
     tableSplitter: document.getElementById("tableSplitter"),
     packageTable: document.getElementById("packageTable"),
     labelMessageDescription: document.getElementById("labelMessageDescription"),

@@ -88,7 +88,8 @@ function render_viewer($selectedFile) {
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical">
             <div class="pane first">
-                <div id="logBox" class="log-box">Carregando...</div>
+                <div id="logBox" class="log-box"><span id="logContent">Carregando...</span><span id="logPendingCC33Content"></span>
+                </div>
             </div>
 
             <div class="splitDivider" role="separator" tabindex="0" title="Arrastar ou Duplo Clique">

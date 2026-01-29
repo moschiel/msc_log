@@ -1,18 +1,18 @@
 let refreshTimer = null;
 let lastFileSize = 0;
-let tailPending = "";
+let tailPendingCC33 = "";
 
-function clearTailPending() {
-  tailPending = "";
+function clearTailPendingCC33() {
+  tailPendingCC33 = "";
 }
 
-function setTailPending(text) {
-  tailPending = text;
+function setTailPendingCC33(text) {
+  tailPendingCC33 = text;
 }
 
 function clearAllLogData() {
   lastFileSize = 0;
-  clearTailPending();
+  clearTailPendingCC33();
   clearHighlightedPkgCounters();
   clearRawLog();
   clearLogBox();
@@ -67,23 +67,30 @@ async function tailRefreshNow() {
     setRawLog(getRawLog() + deltaText);
 
     if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
-      // Junta pending + delta e separa parte segura vs resto
-      const { safeText, pending } = tailSplitWithPendingCC33(tailPending, deltaText);
-      tailPending = pending;
-  
-      // Se não tem nada seguro, não renderiza nada (espera o próximo chunk completar)
-      if (!safeText || safeText.length === 0) {
-        return;
+      // Junta pendingText + deltaText e separa parte segura vs resto
+      let { safeText, pendingText } = tailSplitWithPendingCC33(tailPendingCC33, deltaText);
+      tailPendingCC33 = pendingText;
+      
+      // texto seguro para ser analisado os pacotes
+      if (safeText && safeText.length > 0) {
+        let innerHTML = util.escapeHtml(safeText);
+        innerHTML = fastHighlightPackages(innerHTML);
+        writeLogBox("append", "html", innerHTML);
       }
-      let innerHTML = util.escapeHtml(safeText);
-      innerHTML = fastHighlightPackages(innerHTML);
-      writeLogBox("append", "html", innerHTML);
-    } else {
+
+      //texto com pacote CC33 incompleto no final (pendente de ser completado)
+      //nesse caso nao parseamos o pacote se nao chegou tudo
+      //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
+      writeLogBoxPending("set", "text", pendingText ? pendingText : "");
+    } 
+    else 
+    {
       writeLogBox("append", "text", deltaText);
     }
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
     writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);
+    writeLogBoxPending("set", "text", "");
   }
 }
 
@@ -143,6 +150,22 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
     return isHexOnlyNonEmpty(p) || isHexPrefixNonEmpty(p);
   };
 
+  //header example: "[20251104-100340][0314593089][DBG][NET ]: "
+  const startsWithHeader = (line) => {
+    if(line.length > 0 && line[0] !== '[') return false;
+    /* se quiser verificar o resto, só descomentar
+    if(line.length > 16 && line[16] !== ']') return false;
+    if(line.length > 17 && line[17] !== '[') return false;
+    if(line.length > 28 && line[28] !== ']') return false;
+    if(line.length > 29 && line[29] !== '[') return false;
+    if(line.length > 33 && line[33] !== ']') return false;
+    if(line.length > 34 && line[34] !== '[') return false;
+    if(line.length > 39 && line[39] !== ']') return false;
+    if(line.length > 40 && line[40] !== ':') return false;
+    if(line.length > 41 && line[41] !== ' ') return false;*/
+    return true;
+  }
+
   const startsWithCC33 = (line) => {
     const p = getPayload(line);
     return p.length >= 4 && p.slice(0, 4).toUpperCase() === "CC33";
@@ -152,7 +175,7 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
   const lastLine = lines[lastIdx];
 
   // Caso A) terminou no meio do header OU exatamente no header => guardar última linha no rest
-  if (lastLine.length <= headerLen) {
+  if (lastLine.length <= headerLen && startsWithHeader(lastLine)) {
     if (lastIdx === 0) {
       return { before: "", rest: lastLine };
     }
@@ -212,8 +235,8 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
  * Wrapper recomendado pro tail: concatena pendência + chunk e separa de novo.
  * NÃO adiciona '\n' automaticamente (tail pode cortar no meio de uma linha).
  */
-function tailSplitWithPendingCC33(pending, chunk) {
-  const combined = (pending || "") + (chunk || "");
+function tailSplitWithPendingCC33(pendingText, chunk) {
+  const combined = (pendingText || "") + (chunk || "");
   const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
-  return { safeText: before || "", pending: rest || "" };
+  return { safeText: before || "", pendingText: rest || "" };
 }
