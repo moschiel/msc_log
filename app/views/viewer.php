@@ -12,7 +12,7 @@ function render_viewer($selectedFile) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Viewer - <?= htmlspecialchars($title) ?></title>
+    <title><?= htmlspecialchars($title) ?></title>
     <link rel="stylesheet" href="./app/css/common.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/modal.css?v=<?= APP_VERSION ?>">
@@ -33,7 +33,7 @@ function render_viewer($selectedFile) {
             <div>
                 <b>Arquivo:</b>
                 <a href="<?= htmlspecialchars($downloadUrl) ?>">
-                    <span class="file"><?= htmlspecialchars($title) ?></span>
+                    <span><?= htmlspecialchars($title) ?></span>
                 </a>
             </div>
 
@@ -69,15 +69,8 @@ Se o LOG for grande, a página fica lenta." >
                 <span class="toogle-btn-icon">▦</span>
             </button>
 
-            <button class="emoji-btn"
-                data-modal-title="Configuracões"
-                data-modal-body="
-                    <label>
-                        <input type='checkbox' id='cbIgnoreAck' checked>
-                        Ignore ACK, KEEP-ALIVE
-                    </label>">
-                ⚙️
-            </button>
+            <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
+
 
             <div class="hidden">
                 <label for="messageSelector">Listar:</label>
@@ -151,7 +144,9 @@ Se o LOG for grande, a página fica lenta." >
             </div>
         </div>
     </div>
-    
+    <script>
+        const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 
+    </script>    
     <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/modal.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>

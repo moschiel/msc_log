@@ -1,7 +1,7 @@
 window.addEventListener("load", () => {
-   // carrega options no messageSelector
+    // carrega options no messageSelector
     for (const [id, info] of msgsList) {
-        if(info.timelineSupport) {
+        if (info.timelineSupport) {
             const opt = document.createElement("option");
             const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
             opt.value = id;
@@ -16,7 +16,7 @@ window.addEventListener("load", () => {
 
 ui.btnTailAutoRefresh.addEventListener("click", () => {
     util.toogleButton(ui.btnTailAutoRefresh);
-    setTailAutoRefresh(); 
+    setTailAutoRefresh();
 });
 
 ui.btnAutoScroll.addEventListener("click", () => {
@@ -30,10 +30,10 @@ ui.btnHighlightPkg.addEventListener("click", () => {
 
     clearHighlightedPkgCounters();
     clearLogBox();
-    
+
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
-    
-    if(isPressed) {
+
+    if (isPressed) {
         // Recalcula pendingCC33 baseado no rawLog atual
         const { safeText, pendingText } = tailSplitWithPendingCC33("", getRawLog());
 
@@ -57,30 +57,63 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
         setLogBoxPendingPacket(pendingText ? pendingText : "");
     }
-    else 
-    {
+    else {
         // Nao tem nada pra fazer highlight, setamos o texto puro
         writeLogBox("set", "text", getRawLog());
-        setLogBoxPendingPacket(""); 
+        setLogBoxPendingPacket("");
     }
- 
+
     ui.btnHighlightPkg.disable = false;
     ui.btnTailAutoRefresh.disable = false;
 });
 
+ui.btnPkgConfig.addEventListener("click", () => {
+
+    const ignoreAck = readPkgHighlightConfig("ignoreAck") === "1";
+    const ignoreKeepAlive = readPkgHighlightConfig("ignoreKeepAlive") === "1";
+
+    Modal.open({
+        title: "Configurações",
+        bodyHtml: `
+      <label>
+        <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
+        Ignorar ACK
+      </label>
+      <br>
+      <label>
+        <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
+        Ignorar KEEP-ALIVE
+      </label>
+    `
+    });
+
+    const modalBody = document.getElementById("modalBody");
+    const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
+    const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
+
+    cbIgnoreAck.onchange = () => {
+        savePkgHighlightConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
+    };
+
+    cbIgnoreKeepAlive.onchange = () => {
+        savePkgHighlightConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
+    };
+});
+
+
 
 let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
-    if(e.target.classList.contains('hl-pkg-ok')) {
+    if (e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexFromPackageClassGroup(e.target.classList[0]);
-        const {parseOk, headers, rows, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
-        if(parseOk) {
+        const { parseOk, headers, rows, messages } = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
+        if (parseOk) {
             // Cria tabela do pacote
             showParsedPackageOnTable(headers, rows);
-            
+
             // Parsea e cria tabela da ultima mensagem clicada
-            if(messages.length > 0) {
-                for(const msg of messages) {
+            if (messages.length > 0) {
+                for (const msg of messages) {
                     if (msg.id === lastMessageIdClicked) {
                         parseMessage(msg.id, msg.data, true);
                         return;
@@ -89,25 +122,24 @@ ui.logBox.addEventListener("click", e => {
             }
             // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
             ui.tableSplitter._setPaneVisible(2, false);
-        }   
+        }
     }
 });
 
 ui.packageTable.addEventListener("click", (ev) => {
-    try
-    {
+    try {
         const tr = ev.target.closest("tr");
         if (!tr) return;
-    
+
         // se tiver <thead>, evita clicar no header
         if (tr.closest("thead")) return;
-    
+
         const tds = Array.from(tr.cells);
         if (tds.length < 3) return;
-    
+
         const col1Text = tds[0].textContent.trim();
         const col3Text = tds[2].textContent.trim();
-    
+
         // 1) Primeira coluna: se começa com "0x" e len >= 6 -> Number
         let messageID = null;
         if (col1Text.startsWith("0x") && col1Text.length >= 6 && util.isHexOnly(col1Text.substr(2, 4))) {
@@ -118,7 +150,7 @@ ui.packageTable.addEventListener("click", (ev) => {
         }
 
         lastMessageIdClicked = messageID;
-    
+
         // 2) Terceira coluna: se for texto hex -> Uint8Array
         let col3Bytes = null;
         try {
@@ -131,8 +163,7 @@ ui.packageTable.addEventListener("click", (ev) => {
         // console.log("LOG col1:", col1Text.substr(0, 6));
         parseMessage(messageID, col3Bytes, true);
     }
-    catch(e) 
-    {
+    catch (e) {
         console.error(e.message);
     }
 });

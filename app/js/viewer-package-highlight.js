@@ -33,9 +33,12 @@ function fastHighlightPackages(text) {
             }
 
             const {parseOk, connState, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
-            if(ui.cbIgnoreAck.checked && messages !== null) {
+            const ignoreAck = readPkgHighlightConfig("ignoreAck") === "1";
+            const ignoreKeepAlive = readPkgHighlightConfig("ignoreKeepAlive") === "1";
+            
+            if((ignoreAck || ignoreKeepAlive) && messages !== null) {
                 for (const msg of messages) {
-                    if(msg.id === 0xFFFF || msg.id === 0x0000) { //ACK ou KeepAlive
+                    if(((msg.id === 0xFFFF) && ignoreAck) || ((msg.id === 0x0000) && ignoreKeepAlive)) { //ACK ou KeepAlive
                         lineIndexes = []; // reset linhas
                         pkgCounter--; // remove esse pacote da contagem
                         return; // pula pacote
@@ -205,4 +208,23 @@ function getHexFromPackageClassGroup(classPkgGroup) {
         }
         return frameStr;
     }
+}
+
+function savePkgHighlightConfig(config, value) {
+    const key = `${LOG_FILE_NAME}::pkg-highlight::${config}`;
+    localStorage.setItem(key, value);
+    console.log("save", key);
+}
+
+function readPkgHighlightConfig(config) {
+    const key = `${LOG_FILE_NAME}::pkg-highlight::${config}`;
+    const v = localStorage.getItem(key);
+
+    if(v === null) {
+        // retorna valores default de acordo com a config
+        if(config === "ignoreAck") return "1";
+        if(config === "ignoreKeepAlive") return "1";
+    }
+
+    return v;
 }
