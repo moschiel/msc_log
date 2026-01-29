@@ -1,16 +1,10 @@
-/* Estilos para destacar termos/marcadores no LOG */
-.hl-term {
-    background: #ffc38a;
-    border: 1px solid black;
-}
-
 /* Estilos para destacar pacotes CC33 Online no LOG */
 .hl-pkg-ok {
     background: #8ee7a7;
     color: black;
 }
 
-/* Pacotes gerados quando nao tinha sinal */
+/* Destaca Pacotes gerados quando nao tinha sinal */
 .hl-pkg-offline {
    background: lightgrey;
    color: black;
@@ -22,7 +16,7 @@
     color: black;
 }
 
-/* bordas */
+/* bordas dos pacotes */
 .hl-border-top {
     border-top: 1px solid black;
 }

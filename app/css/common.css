@@ -9,7 +9,11 @@ body {
   background: #fff;
 }
 
-/* input / checkbox */
+/* Estilo para esconder elementos dinamicamente via js */
+.hidden {
+    display: none !important;
+}
+
 input, .normal-btn {
   font: inherit;
 }

@@ -15,6 +15,7 @@ function render_viewer($selectedFile) {
     <title>Viewer - <?= htmlspecialchars($title) ?></title>
     <link rel="stylesheet" href="./app/css/common.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/modal.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-split-pane.css?v=<?= APP_VERSION ?>">
@@ -57,27 +58,32 @@ function render_viewer($selectedFile) {
 
             <!-- <button class="normal-btn" onclick="tailRefreshNow()">Atualizar agora</button> -->
 
-            <div class="">
-                <button
-                    id="btnHighlightPkg"
-                    class="toogle-btn hint" 
-                    data-hint="Permite clicar no pacote p/ ver detalhes.
+            
+            <button
+                id="btnHighlightPkg"
+                class="toogle-btn hint" 
+                data-hint="Permite clicar no pacote p/ ver detalhes.
 
 🟢 - Pacote Online
 ⚪ - Pacote Offline
 🔴 - Pacote com Erro
 
-- Se o LOG for grande, a página fica lenta." >
-                    <!-- Mostrar Pacotes -->
-                    <span class="toogle-btn-icon">▦</span>
-                </button>
-                <label>
-                    <input type="checkbox" id="cbIgnoreAck" checked>
-                    Ignore ACK, KEEP-ALIVE
-                </label>
-            </div>
+Se o LOG for grande, a página fica lenta." >
+                <!-- Mostrar Pacotes -->
+                <span class="toogle-btn-icon">▦</span>
+            </button>
 
-            <div>
+            <button class="normal-btn"
+                data-modal-title="Configuracões"
+                data-modal-body="
+                    <label>
+                        <input type='checkbox' id='cbIgnoreAck' checked>
+                        Ignore ACK, KEEP-ALIVE
+                    </label>">
+                ⚙️
+            </button>
+
+            <div class="hidden">
                 <label for="messageSelector">Listar:</label>
                 <select name="messageSelector" id="messageSelector">
                     <option value="none">--</option>
@@ -131,7 +137,27 @@ function render_viewer($selectedFile) {
             </div>
         </div>
     </div>
+    
+    <!-- Modal único (reutilizado por tudo) -->
+    <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <strong id="modalTitle">Título</strong>
+                <button class="normal-btn" data-modal-close type="button">✕</button>
+            </div>
+
+            <div class="modal-body" id="modalBody">
+                Corpo do modal
+            </div>
+
+            <div class="modal-footer">
+                <button class="normal-btn" data-modal-close type="button">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/modal.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-split-pane.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
