@@ -6,29 +6,28 @@ const PKG_HIGHLIGHT_VERSION = "V1";
 // seta direto no vetor lines de acordo com os indexes passados)
 function highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes) {
     let classPkgStatus = "";
-    
-    if(parseOk) {
+
+    if (parseOk) {
         classPkgStatus = "hl-pkg-ok";
-        if(connState === "Offline") {
+        if (connState === "Offline") {
             classPkgStatus += " hl-pkg-offline";
         }
     } else {
         classPkgStatus = "hl-pkg-err";
     }
-    
+
     // 'classPkgGroup' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
     const classPkgGroup = `pkg-${pkgCounter}`;
-    const headerLen = LOG_HEADER_EXAMPLE.length; 
+    const headerLen = LOG_HEADER_EXAMPLE.length;
     const total = lineIndexes.length;
-    
-    if (PKG_HIGHLIGHT_VERSION === "V2") 
-    {
+
+    if (PKG_HIGHLIGHT_VERSION === "V2") {
         // Versao 2 gera apenas uma tag <span> POR PACOTE, tendo menos elementos DOM para o browser gerenciar, deixando a pagina mais leve.
         // O estilo fica porco, não da pra aplicar bordas, e o header de cada linha tambem fica com background colorido
         const firstIdx = lineIndexes[0];
         const lastIdx = lineIndexes[total - 1];
-        if(total === 1) {
+        if (total === 1) {
             //se tem só uma linha, abre e fecha o span nessa linha
             lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}</span>`;
         } else if (total > 1) {
@@ -36,10 +35,9 @@ function highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes) {
             lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}`;
             // fecha na ultima
             lines[lastIdx] += "</span>";
-        }         
+        }
     }
-    else if (PKG_HIGHLIGHT_VERSION === "V1")
-    {            
+    else if (PKG_HIGHLIGHT_VERSION === "V1") {
         // Versao 1 gera uma tag <span> PARA CADA LINHA DO PACOTE, o que pode deixar o browser lento devido a muitos elementos no DOM.
         // Mas pelo menos o estilo fica bem mais bonitinho, onde só o frame é destacado com borda, deixando o header de fora.
         for (let i = 0; i < total; i++) {
@@ -91,9 +89,26 @@ function highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes) {
     }
 }
 
+function writeLogWithHighlightPackage(mode, textContent) {
+    // Junta pendingText + deltaText e separa parte segura vs resto
+    let { safeText, pendingText } = tailSplitWithPendingCC33(getLogBoxPendingPacket(), textContent);
+
+    // texto seguro para ser analisado os pacotes CC33
+    if (safeText && safeText.length > 0) {
+        let innerHTML = util.escapeHtml(safeText);
+        // Aplica highlight dos pacotes com CC33
+        innerHTML = detectCC33Frames(innerHTML, { highlight: true });
+        writeLogBox(mode, "html", innerHTML);
+    }
+
+    //texto com pacote CC33 incompleto no final (pendente de ser completado)
+    //nesse caso nao parseamos o pacote se nao chegou tudo
+    //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
+    setLogBoxPendingPacket(pendingText ? pendingText : "");
+}
+
 function getHexFromPackageClassGroup(classPkgGroup) {
-    if(PKG_HIGHLIGHT_VERSION === "V2") 
-    {
+    if (PKG_HIGHLIGHT_VERSION === "V2") {
         let frameStr = "";
         const elements = document.getElementsByClassName(classPkgGroup);
         const lines = elements[0].textContent.split("\n");
@@ -107,7 +122,7 @@ function getHexFromPackageClassGroup(classPkgGroup) {
         let frameStr = "";
         const elements = document.getElementsByClassName(classPkgGroup);
         for (const el of elements) {
-            if(el.classList.contains('pkg-right-part'))
+            if (el.classList.contains('pkg-right-part'))
                 continue;
             frameStr += el.textContent;
         }

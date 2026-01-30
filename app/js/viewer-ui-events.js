@@ -31,25 +31,12 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     clearLogBox();
 
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
-
-    if (isPressed) {
-        // Recalcula pendingCC33 baseado no rawLog atual
-        const { safeText, pendingText } = tailSplitWithPendingCC33("", getRawLog());
-
-        // texto seguro para ser analisado os pacotes
-        if (safeText && safeText.length > 0) {
-            let innerHTML = util.escapeHtml(safeText);
-            // Aplica highlight dos pacotes com CC33
-            innerHTML = detectCC33Frames(innerHTML, {highlight: true});
-            writeLogBox("set", "html", innerHTML);
-        }
-
-        //texto com pacote CC33 incompleto no final (pendente de ser completado)
-        //nesse caso nao parseamos o pacote se nao chegou tudo
-        //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
-        setLogBoxPendingPacket(pendingText ? pendingText : "");
+    if (isPressed) 
+    {
+        writeLogWithHighlightPackage("set", getRawLog());
     }
-    else {
+    else 
+    {
         // Nao tem nada pra fazer highlight, setamos o texto puro
         writeLogBox("set", "text", getRawLog());
         setLogBoxPendingPacket("");
