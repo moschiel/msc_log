@@ -16,9 +16,9 @@ function render_viewer($selectedFile) {
     <link rel="stylesheet" href="./app/css/common.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/modal.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/split-pane.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
-    <link rel="stylesheet" href="./app/css/viewer-split-pane.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=<?= APP_VERSION ?>">
@@ -150,8 +150,8 @@ Permite clicar nos pacotes p/ ver detalhes.
     </script>    
     <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/modal.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/split-pane.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-split-pane.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
