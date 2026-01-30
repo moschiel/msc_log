@@ -3,7 +3,7 @@ const ui = {
     btnAutoScroll: document.getElementById("btnAutoScroll"),
     btnHighlightPkg: document.getElementById("btnHighlightPkg"),
     btnPkgConfig: document.getElementById("btnPkgConfig"),
-    messageSelector: document.getElementById("messageSelector"),
+    selListMessage: document.getElementById("selListMessage"),
     mainSplitter: document.getElementById("mainSplitter"),
     logBox: document.getElementById("logBox"),
     logContent: document.getElementById("logContent"),

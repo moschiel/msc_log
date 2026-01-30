@@ -40,7 +40,7 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnTailAutoRefresh"
                 type="button"
-                class="hint toogle-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint toogle-btn"
                 data-hint="Tail Auto-Refresh (3s)"
             >
                 <span class="toogle-btn-icon">⟳</span>
@@ -49,7 +49,7 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnAutoScroll"
                 type="button"
-                class="hint toogle-btn <?= $autorefresh === '1' ? 'is-pressed' : '' ?>"
+                class="hint toogle-btn"
                 data-hint="Auto-Scroll"
             >
                 <span class="toogle-btn-icon">⇣</span>
@@ -72,10 +72,9 @@ Permite clicar nos pacotes p/ ver detalhes.
 
             <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
 
-
-            <div class="hidden">
-                <label for="messageSelector">Listar:</label>
-                <select name="messageSelector" id="messageSelector">
+            <div class="">
+                <label for="selListMessage">Listar:</label>
+                <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                 </select>
             </div>
@@ -155,6 +154,7 @@ Permite clicar nos pacotes p/ ver detalhes.
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/viewer-list-message.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>

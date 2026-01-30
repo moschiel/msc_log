@@ -1,6 +1,14 @@
 const util = {
 
     // ======== Strings / Segurança ========
+
+    // escapeHtml
+    // Escapa o conteúdo bruto do log antes de usar innerHTML.
+    // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
+    // sejam tratados como TEXTO, e não como HTML executável,
+    // evitando interpretação indevida do log e riscos de XSS.
+    // Após o escape, apenas os <span> inseridos pelo highlight
+    // são HTML válido, mantendo controle total do markup.
     escapeHtml(s) {
         return s
             .replace(/&/g, "&amp;")

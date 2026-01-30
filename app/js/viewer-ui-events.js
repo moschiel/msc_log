@@ -1,12 +1,12 @@
 window.addEventListener("load", () => {
-    // carrega options no messageSelector
+    // carrega options no selListMessage
     for (const [id, info] of msgsList) {
         if (info.timelineSupport) {
             const opt = document.createElement("option");
             const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
             opt.value = id;
             opt.textContent = `${idHex} - ${info.description}`;
-            ui.messageSelector.appendChild(opt);
+            ui.selListMessage.appendChild(opt);
         }
     }
 
@@ -23,12 +23,11 @@ ui.btnAutoScroll.addEventListener("click", () => {
     util.toogleButton(ui.btnAutoScroll);
 });
 
-
 ui.btnHighlightPkg.addEventListener("click", () => {
     ui.btnHighlightPkg.disable = true;
     ui.btnTailAutoRefresh.disable = true;
 
-    clearHighlightedPkgCounters();
+    clearPkgCounters();
     clearLogBox();
 
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
@@ -39,16 +38,9 @@ ui.btnHighlightPkg.addEventListener("click", () => {
 
         // texto seguro para ser analisado os pacotes
         if (safeText && safeText.length > 0) {
-            // IMPORTANTE: Escapa HTML primeiro
-            // Escapa o conteúdo bruto do log antes de usar innerHTML.
-            // Isso garante que qualquer "<", ">", "&", etc vindos do arquivo
-            // sejam tratados como TEXTO, e não como HTML executável,
-            // evitando interpretação indevida do log e riscos de XSS.
-            // Após o escape, apenas os <span> inseridos pelo highlight
-            // são HTML válido, mantendo controle total do markup.
             let innerHTML = util.escapeHtml(safeText);
             // Aplica highlight dos pacotes com CC33
-            innerHTML = fastHighlightPackages(innerHTML);
+            innerHTML = detectCC33Frames(innerHTML, {highlight: true});
             writeLogBox("set", "html", innerHTML);
         }
 
@@ -67,26 +59,31 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     ui.btnTailAutoRefresh.disable = false;
 });
 
+ui.selListMessage.addEventListener("change", () => {
+    const id = Number(ui.selListMessage.value);
+    listMessage(id);
+});
+
 ui.btnPkgConfig.addEventListener("click", () => {
 
-    const ignoreAck = readPkgHighlightConfig("ignoreAck") === "1";
-    const ignoreKeepAlive = readPkgHighlightConfig("ignoreKeepAlive") === "1";
+    const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
+    const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
 
     Modal.open({
         title: "Configurações",
         bodyHtml: `
 <div>
     <div style="padding-bottom: 16px;">
-        Analisador de Pacotes
+        Análise de Pacotes
     </div>
     <label>
         <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
-        Ignorar Pacotes de ACK (ID 0xFFFF)
+        Ignorar ACK (message ID 0xFFFF)
     </label>
     <br>
     <label>
         <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
-        Ignorar Pacotes de KEEP-ALIVE (ID 0x0000)
+        Ignorar KEEP-ALIVE (message ID 0x0000)
     </label>
 <div>`
     });
@@ -96,15 +93,13 @@ ui.btnPkgConfig.addEventListener("click", () => {
     const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
 
     cbIgnoreAck.onchange = () => {
-        savePkgHighlightConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
+        savePkgAnalyzeConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
     };
 
     cbIgnoreKeepAlive.onchange = () => {
-        savePkgHighlightConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
+        savePkgAnalyzeConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
     };
 });
-
-
 
 let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {

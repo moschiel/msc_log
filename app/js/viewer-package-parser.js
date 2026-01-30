@@ -95,36 +95,117 @@ const telemetryEventsList = new Map([
 ]);
 
 
-const hasSupportToList =  [];
+const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 
-function getMsgName(id) {
-    // garante 16 bits e formato X4
-    const hex = id.toString(16).toUpperCase().padStart(4, "0");
-    let ret = `0x${hex} - `;
+let pkgCounter = 0;
+let offlinePkgCounter = 0;
+let errPkgCounter = 0;
 
-    if (msgsList.has(id)) {
-        ret += msgsList.get(id).description;
+function clearPkgCounters() {
+    pkgCounter = 0;
+    offlinePkgCounter = 0;
+    errPkgCounter = 0;
+}
+
+function detectCC33Frames(text, opt = { highlight: false }) {
+    const lines = text.split(/\r?\n/);
+    const headerLen = LOG_HEADER_EXAMPLE.length;
+
+    let isCollectingFrame = false;
+    let lineIndexes = [];         // guarda os índices das linhas que pertencem ao pacote
+
+    function flushPackage() {
+        if (lineIndexes.length === 0) return;
+
+        pkgCounter++;
+        const total = lineIndexes.length;
+        
+        try {
+            let frameStr = "";
+            for (let i = 0; i < total; i++) {
+                frameStr += lines[lineIndexes[i]].slice(headerLen);
+            }
+
+            const {parseOk, connState, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
+
+            for (const msg of messages) {
+                if((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
+                 ||(msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
+                    lineIndexes = []; // reset linhas
+                    pkgCounter--; // remove esse pacote da contagem
+                    return; // pula pacote
+                }
+            }
+
+            if(parseOk && connState === "Offline")
+                offlinePkgCounter++;
+
+            if (opt.highlight)
+                highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes);
+
+        } catch (e) {
+            console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
+            errPkgCounter++;
+            if (opt.highlight)
+                highlightPackage(pkgCounter, false, "", lines, lineIndexes);
+        } 
+
+        // reset
+        lineIndexes = [];
     }
 
-    return ret;
-}
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+        const line = lines[lineNumber];
 
-function showParsedPackageOnTable(headers, rows) {
-    util.createTable(ui.packageTable, headers, rows);
-    ui.mainSplitter._setPaneVisible?.(2, true); // painel dp pacote parseado visivel
-}
+        if (line.length <= headerLen) {
+            // se estava coletando e “quebrou”, fecha pacote
+            if (isCollectingFrame) {
+                isCollectingFrame = false;
+                flushPackage();
+            }
+            continue;
+        }
 
-function showParsedMessageOnTable(implemented, msgID, headers, rows) {
-    if(implemented === false) {
-        ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
-        ui.messageTable.innerHTML = "";
+        const substrFrame = line.slice(headerLen);
+
+        if (!isCollectingFrame) {
+            if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
+                //Encontrou inicio do frame, inicia a coleta das linhas seguintes
+                isCollectingFrame = true;
+                lineIndexes = [];
+            }
+        } else {
+            // está coletando: se não for hex, termina pacote
+            if (!util.isHexOnly(substrFrame)) {
+                // Terminou de coletar linhas desse pacote
+                isCollectingFrame = false;
+                flushPackage();
+                continue;
+            }
+        }
+
+        if (isCollectingFrame) {
+            lineIndexes.push(lineNumber); // Coleta mais uma linha do pacote atual
+        }
+    }
+
+    // se o texto acabou no meio de um pacote, fecha ele também
+    if (isCollectingFrame) {
+        // comentado, pois se o texto terminou no meio de um pacote, 
+        // nao da pra dizer se esta ok ou com erro
+        //flushPackage();  
+    }
+
+    console.log(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${offlinePkgCounter}\r\nPacotes com erro: ${errPkgCounter}`);
+    
+    if(opt.highlight) {
+        // se foi solicitado para fazer highlight
+        // retorna o texto html modificado para os pacotes CC33 ficarem destacados
+        return lines.join("\n");
     } else {
-        ui.labelMessageDescription.textContent = getMsgName(msgID);
-        util.createTable(ui.messageTable, headers, rows);
+        // faz nada por enquanto
     }
-    ui.tableSplitter._setPaneVisible(2, true); // painel de mensagem parseado visivel
 }
-
 
 /**
  * @param {Uint8Array} u8buf
@@ -674,4 +755,51 @@ function parseMessage(msgID, data, showOnTable = true) {
     }
 
     return true;
+}
+
+function savePkgAnalyzeConfig(config, value) {
+    const key = `${LOG_FILE_NAME}::pkg-analyze::${config}`;
+    localStorage.setItem(key, value);
+    console.log("save", key);
+}
+
+function readPkgAnalyzeConfig(config) {
+    const key = `${LOG_FILE_NAME}::pkg-analyze::${config}`;
+    const v = localStorage.getItem(key);
+
+    if(v === null) {
+        // retorna valores default de acordo com a config
+        if(config === "ignoreAck") return "1";
+        if(config === "ignoreKeepAlive") return "1";
+    }
+
+    return v;
+}
+
+function showParsedPackageOnTable(headers, rows) {
+    util.createTable(ui.packageTable, headers, rows);
+    ui.mainSplitter._setPaneVisible?.(2, true); // painel dp pacote parseado visivel
+}
+
+function showParsedMessageOnTable(implemented, msgID, headers, rows) {
+    if(implemented) {
+        ui.labelMessageDescription.textContent = getMsgName(msgID);
+        util.createTable(ui.messageTable, headers, rows);
+    } else {
+        ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
+        ui.messageTable.innerHTML = "";
+    }
+    ui.tableSplitter._setPaneVisible(2, true); // painel de mensagem parseado visivel
+}
+
+function getMsgName(id) {
+    // garante 16 bits e formato X4
+    const hex = id.toString(16).toUpperCase().padStart(4, "0");
+    let ret = `0x${hex} - `;
+
+    if (msgsList.has(id)) {
+        ret += msgsList.get(id).description;
+    }
+
+    return ret;
 }

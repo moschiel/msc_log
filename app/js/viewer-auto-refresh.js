@@ -3,7 +3,7 @@ let lastFileSize = 0;
 
 function clearAllLogData() {
   lastFileSize = 0;
-  clearHighlightedPkgCounters();
+  clearPkgCounters();
   clearRawLog();
   clearLogBox();
 }
@@ -63,7 +63,8 @@ async function tailRefreshNow() {
       // texto seguro para ser analisado os pacotes
       if (safeText && safeText.length > 0) {
         let innerHTML = util.escapeHtml(safeText);
-        innerHTML = fastHighlightPackages(innerHTML);
+        // Aplica highlight dos pacotes com CC33
+        innerHTML = detectCC33Frames(innerHTML, {highlight: true});
         writeLogBox("append", "html", innerHTML);
       }
 
