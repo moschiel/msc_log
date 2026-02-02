@@ -92,7 +92,7 @@ let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
     if (e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexFromPackageClassGroup(e.target.classList[0]);
-        const { parseOk, headers, rows, messages } = parseCC33Frame(util.hexToBuffer(frameStr), "collect");
+        const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
         if (parseOk) {
             // Cria tabela do pacote
             showParsedPackageOnTable(headers, rows);

@@ -107,7 +107,7 @@ function clearPkgCounters() {
     errPkgCounter = 0;
 }
 
-function detectCC33Frames(text, opt = { highlight: false }) {
+function detectCC33Packages(text, opt = { highlight: false, listMsgId: null }) {
     const lines = text.split(/\r?\n/);
     const headerLen = LOG_HEADER_EXAMPLE.length;
 
@@ -126,7 +126,7 @@ function detectCC33Frames(text, opt = { highlight: false }) {
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const {parseOk, connState, messages} = parseCC33Frame(util.hexToBuffer(frameStr), "validate");
+            const {parseOk, connState, messages} = parseCC33Package(util.hexToBuffer(frameStr), "validate");
 
             for (const msg of messages) {
                 if((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
@@ -135,6 +135,12 @@ function detectCC33Frames(text, opt = { highlight: false }) {
                     pkgCounter--; // remove esse pacote da contagem
                     return; // pula pacote
                 }
+
+                if (opt.listMsgId === msg.id)
+                {
+                    //parseMessage(opt.listMsgId, msg, true);
+                }
+            
             }
 
             if(parseOk && connState === "Offline")
@@ -142,6 +148,7 @@ function detectCC33Frames(text, opt = { highlight: false }) {
 
             if (opt.highlight)
                 highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes);
+                
 
         } catch (e) {
             console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
@@ -211,10 +218,10 @@ function detectCC33Frames(text, opt = { highlight: false }) {
  * @param {Uint8Array} u8buf
  * @param {string} processMode?: "validate" | "collect",
  */
-function parseCC33Frame(u8buf, processMode) {
+function parseCC33Package(u8buf, processMode) {
     const br = createBinaryReader(u8buf, {
         processMode,
-        tableMode: "nsv"
+        dataMode: "nsv"
     });
 
     const start = br.read_u16("frame incial", false);
@@ -279,7 +286,7 @@ function parseCC33Frame(u8buf, processMode) {
     return {
         parseOk: true, 
         connState,
-        headers: br.headers, 
+        headers: ["Name", "Size", "Value"], 
         rows: br.rows,
         messages
     };  
@@ -287,7 +294,7 @@ function parseCC33Frame(u8buf, processMode) {
 
 /**
  * Mostra os campos (parse) de uma mensagem específica (msgId + payload data),
- * gerando uma tabela via util.createTable().
+ * gerando uma tabela via util.Table.Create().
  *
  * @param {number} msgID  uint16
  * @param {Uint8Array} data
@@ -295,7 +302,7 @@ function parseCC33Frame(u8buf, processMode) {
 function parseMessage(msgID, data, showOnTable = true) {
     const br = createBinaryReader(data, {
         processMode: showOnTable ? "collect" : "validate",
-        tableMode: "nsv"
+        dataMode: "nsv" /* name, size, value */
     });
 
     let implemented = true;
@@ -486,7 +493,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([strID, String(size), util.bufferToHex(blob)]);
             }
 
-            util.createTable(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
+            util.Table.Create(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
             return true;
         }
 
@@ -497,7 +504,7 @@ function parseMessage(msgID, data, showOnTable = true) {
                 rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
             }
 
-            util.createTable(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
+            util.Table.Create(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
             return true;
         }
 
@@ -514,13 +521,13 @@ function parseMessage(msgID, data, showOnTable = true) {
                 }
             }
 
-            util.createTable(ui.packageTable, ["ID"], rows);
+            util.Table.Create(ui.packageTable, ["ID"], rows);
             return true;
         }
 
         case 0x4004: {
             rows.push([getAsciiStringAll()]);
-            util.createTable(ui.packageTable, ["File Name"], rows);
+            util.Table.Create(ui.packageTable, ["File Name"], rows);
             return true;
         }
 */
@@ -751,7 +758,12 @@ function parseMessage(msgID, data, showOnTable = true) {
     }
 
     if(showOnTable) {
-        showParsedMessageOnTable(implemented, msgID, br.headers, br.rows);
+        showParsedMessageOnTable(
+            implemented, 
+            msgID, 
+            ["Name", "Size", "Value"], 
+            br.rows
+        );
     }
 
     return true;
@@ -777,14 +789,14 @@ function readPkgAnalyzeConfig(config) {
 }
 
 function showParsedPackageOnTable(headers, rows) {
-    util.createTable(ui.packageTable, headers, rows);
+    util.Table.Create(ui.packageTable, headers, rows);
     ui.mainSplitter._setPaneVisible?.(2, true); // painel dp pacote parseado visivel
 }
 
 function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     if(implemented) {
         ui.labelMessageDescription.textContent = getMsgName(msgID);
-        util.createTable(ui.messageTable, headers, rows);
+        util.Table.Create(ui.messageTable, headers, rows);
     } else {
         ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
         ui.messageTable.innerHTML = "";

@@ -97,7 +97,7 @@ function writeLogWithHighlightPackage(mode, textContent) {
     if (safeText && safeText.length > 0) {
         let innerHTML = util.escapeHtml(safeText);
         // Aplica highlight dos pacotes com CC33
-        innerHTML = detectCC33Frames(innerHTML, { highlight: true });
+        innerHTML = detectCC33Packages(innerHTML, { highlight: true });
         writeLogBox(mode, "html", innerHTML);
     }
 

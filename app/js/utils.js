@@ -84,34 +84,54 @@ const util = {
     },
 
     // ======== Table Helper ========
-    createTable(table, headers, rows) {
-        table.innerHTML = "";
+    Table: {
+        Create(table, headers, rows) {
+            table.innerHTML = "";
 
-        const thead = document.createElement("thead");
-        const trHead = document.createElement("tr");
+            const thead = document.createElement("thead");
+            const trHead = document.createElement("tr");
 
-        headers.forEach(h => {
-            const th = document.createElement("th");
-            th.textContent = h;
-            trHead.appendChild(th);
-        });
+            headers.forEach(h => {
+                const th = document.createElement("th");
+                th.textContent = h;
+                trHead.appendChild(th);
+            });
 
-        thead.appendChild(trHead);
-        table.appendChild(thead);
+            thead.appendChild(trHead);
+            table.appendChild(thead);
 
-        const tbody = document.createElement("tbody");
+            const tbody = document.createElement("tbody");
 
-        rows.forEach(row => {
+            rows.forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+        },
+        AddRow(table, row) {
+            const tbody = table.querySelector("tbody");
+
+            if (!tbody) {
+                console.warn("Tabela não possui <tbody>");
+                return;
+            }
+
             const tr = document.createElement("tr");
+
             row.forEach(cell => {
                 const td = document.createElement("td");
                 td.textContent = cell;
                 tr.appendChild(td);
             });
-            tbody.appendChild(tr);
-        });
 
-        table.appendChild(tbody);
+            tbody.appendChild(tr);
+        }
     },
 
     // ======== Time ========

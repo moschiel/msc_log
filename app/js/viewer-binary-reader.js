@@ -1,12 +1,26 @@
 // binaryReader.js
-
+ 
 /**
- * Cria um leitor sequencial (DataView) com helpers de parse + helpers de tabela.
- *
+ * Cria um leitor sequencial (DataView) com helpers de parse.
+ * Retona um array multidimensional composto de "Nome", "Size", e "Valor" dos parametros parseados.
+ * se a orientacao for vertical, retorna assim:
+[
+    [Nome 1, Size 1, Valor 1]
+    [Nome 2, Size 2, Valor 2]
+    [Nome n, Size n, Valor n]
+]
+ * se for horizontal, retorna assim:
+[
+    [Nome 1,  Nome 2,  Nome n  ]
+    [Size 1,  Size 2,  Size n  ]
+    [Valor 1, Valor 2, Valor n ]
+]
+*
  * @param {Uint8Array} u8buf
  * @param {{
  *   processMode?: "validate" | "collect",
- *   tableMode?: "nv" | "nsv", // nv=Name/Value, nsv=Parameter/Size/Value
+ *   dataMode?: "nv" | "nsv", // nv=Name/Value, nsv=Name/Size/Value
+ *   dataOrientation?: "v" | "h" // v=Vertical / h=Horizontal
  * }} [opts]
  */
 function createBinaryReader(u8buf, opts = {}) {
@@ -14,17 +28,11 @@ function createBinaryReader(u8buf, opts = {}) {
 
     let offset = 0;
     const collectData = opts.processMode === "collect";
-    const tableMode = opts.tableMode ?? "nv";
+    const dataMode = opts.dataMode ?? "nv";
+    const dataOrientation = opts.Orientation ?? "v";
 
     /** @type {Array<Array<any>>} */
     const rows = [];
-
-    const headers =
-        collectData
-            ? (tableMode === "nsv"
-                ? ["Name", "Size", "Value"]
-                : ["Name", "Value"])
-            : [];
 
     // ======== check mínimo (com name) ========
     function need(name, n) {
@@ -102,7 +110,7 @@ function createBinaryReader(u8buf, opts = {}) {
 
         if (!collectData) return;
 
-        if (tableMode === "nsv") {
+        if (dataMode === "nsv") {
             rows.push([name, size, value]);
         } else {
             // "nv": ignora size
@@ -209,7 +217,7 @@ function createBinaryReader(u8buf, opts = {}) {
         dv,
         u8buf,
         rows,
-        headers,
+        //headers,
 
         // offset helpers
         getOffset: () => offset,
