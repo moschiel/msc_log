@@ -221,7 +221,8 @@ function detectCC33Packages(text, opt = { highlight: false, listMsgId: null }) {
 function parseCC33Package(u8buf, processMode) {
     const br = createBinaryReader(u8buf, {
         processMode,
-        dataMode: "nsv"
+        dataMode: "nsv", /* name, size, value */
+        dataOrientation: "v"
     });
 
     const start = br.read_u16("frame incial", false);
@@ -302,7 +303,8 @@ function parseCC33Package(u8buf, processMode) {
 function parseMessage(msgID, data, showOnTable = true) {
     const br = createBinaryReader(data, {
         processMode: showOnTable ? "collect" : "validate",
-        dataMode: "nsv" /* name, size, value */
+        dataMode: "nsv", /* name, size, value */
+        dataOrientation: "v"
     });
 
     let implemented = true;

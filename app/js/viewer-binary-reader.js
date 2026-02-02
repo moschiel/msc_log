@@ -29,10 +29,14 @@ function createBinaryReader(u8buf, opts = {}) {
     let offset = 0;
     const collectData = opts.processMode === "collect";
     const dataMode = opts.dataMode ?? "nv";
-    const dataOrientation = opts.Orientation ?? "v";
+    const dataOrientation = opts.dataOrientation ?? "v";
 
     /** @type {Array<Array<any>>} */
-    const rows = [];
+    // if dataOrientation === "v"
+    const rows = dataOrientation === "v"
+        ? []
+        : dataMode === "nv"
+            ? [[], []] : [[], [], []];
 
     // ======== check mínimo (com name) ========
     function need(name, n) {
@@ -110,11 +114,23 @@ function createBinaryReader(u8buf, opts = {}) {
 
         if (!collectData) return;
 
-        if (dataMode === "nsv") {
-            rows.push([name, size, value]);
+        if (dataOrientation === "v") {
+            if (dataMode === "nsv") {
+                rows.push([name, size, value]);
+            } else {
+                // "nv": ignora size
+                rows.push([name, value]);
+            }
         } else {
-            // "nv": ignora size
-            rows.push([name, value]);
+            if (dataMode === "nsv") {
+                rows[0].push(name);
+                rows[1].push(size);
+                rows[2].push(value);
+            } else {
+                // "nv": ignora size
+                rows[0].push(name);
+                rows[1].push(value);
+            }
         }
     }
 
