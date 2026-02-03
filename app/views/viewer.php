@@ -22,6 +22,7 @@ function render_viewer($selectedFile) {
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
 </head>
 <body>
     <div class="main">

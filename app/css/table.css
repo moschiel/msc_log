@@ -15,7 +15,7 @@
   border-radius: 10px;
   border-collapse: separate;  /* sticky costuma ser mais confiável assim */
   border-spacing: 0;
-  width: 100%;
+  /* width: 100%; */
 }
 
 .table-clean thead th {
@@ -28,18 +28,32 @@
   white-space: nowrap;
 }
 
+/* linhas pares */
+.table-clean tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+/* linhas ímpares */
+.table-clean tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
 /* Corpo */
 .table-clean td {
   border-bottom: 1px solid #e5e7eb;
   padding: 10px 14px;
   vertical-align: top;
   line-height: 1.35;
+  /* Texto longo não estoura layout */
+  word-break: break-word;
 }
 
+
+
 /* Hover */
-/*.table-clean tbody tr:hover {
+.table-clean tbody tr:hover {
   background: #eef6ff;
-}*/
+}
 
 /* Colunas numéricas alinhadas à direita (use class="num" no td/th) */
 .table-clean .num {
@@ -47,10 +61,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Texto longo não estoura layout */
-.table-clean td {
-  word-break: break-word;
-}
 
 /* ===== OPCIONAL: HEADER FIXO (coloque a tabela dentro .table-scroll) ===== */
 .table-sticky thead th {
@@ -58,6 +68,20 @@
   top: 0;
   z-index: 2;
 }
+
+/* ===== OPCIONAL: CÉLULA "BADGE" (use class="badge ok|warn|err") ===== */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.badge.ok   { background: #ecfdf3; color: #047857; border: 1px solid #a7f3d0; }
+.badge.warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+.badge.err  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
 /* Windows Dark mode */
 @media (prefers-color-scheme: dark) {
@@ -78,21 +102,20 @@
     border-bottom: 1px solid #2f2f2f;
   }
 
+  .table-clean tbody tr:nth-child(odd) {
+    background: #1f1f1f;
+  }
+
+  .table-clean tbody tr:nth-child(even) {
+    background: #252525;
+  }
+  
+  .table-clean tbody tr:hover td {
+    background: #2d2d2d; /* cinza escuro com bom contraste */
+  }
+
   .table-clean td {
     border-bottom: 1px solid #2f2f2f;
   }
 }
 
-/* ===== OPCIONAL: CÉLULA "BADGE" (use class="badge ok|warn|err") ===== */
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-.badge.ok   { background: #ecfdf3; color: #047857; border: 1px solid #a7f3d0; }
-.badge.warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-.badge.err  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }

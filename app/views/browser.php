@@ -48,7 +48,7 @@ function render_browser($items, $msg) {
         </a>
     </p>
     <p><?= htmlspecialchars($sortLabel) ?></p>
-    <div class="table-wrap">
+    <div class="table-scroll">
         <table class="table-clean table-sticky">
             <thead>
                 <tr>
@@ -99,9 +99,8 @@ function render_browser($items, $msg) {
                         </form>
                     </td>
                 </tr>
+                <?php endforeach; ?>
             </tbody>
-            <?php endforeach; ?>
-
         </table>
     </div>
     <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
