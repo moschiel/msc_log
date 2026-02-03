@@ -66,6 +66,19 @@
   height: calc(100% - 40px);
   overflow: auto;
   user-select: text; /* aqui pode selecionar texto */
+  box-sizing: border-box;
+}
+
+/* atributo de classe que o usuario deve passar se nao quiser auto-scroll na janela */
+.floating-window.floating-no-scroll .content {
+  overflow: hidden;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  /* importante pra permitir o filho encolher e scrollar */
+  min-height: 0;
 }
 
 /* ===== RESIZE HANDLES ===== */
