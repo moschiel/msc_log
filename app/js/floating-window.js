@@ -7,6 +7,33 @@
         return Math.max(min, Math.min(max, v));
     }
 
+    function clampFloatingToViewport(win) {
+        const rect = win.getBoundingClientRect();
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        let left = rect.left;
+        let top = rect.top;
+
+        // garante que pelo menos um pedaço fique visível
+        const MIN_VISIBLE = 40;
+
+        if (left + MIN_VISIBLE > vw) {
+            left = vw - MIN_VISIBLE;
+        }
+
+        if (top + MIN_VISIBLE > vh) {
+            top = vh - MIN_VISIBLE;
+        }
+
+        if (left < 0) left = 0;
+        if (top < 0) top = 0;
+
+        win.style.left = left + "px";
+        win.style.top = top + "px";
+    }
+
 
     // Altera a posição incial pra janela nao aparecer exatamente uma em cima da outra
     function applyInitialFloatingPosition(win) {
@@ -31,7 +58,7 @@
         if (!win || !win.id) return;
 
         // só salvo o size e local se estiver expandido
-        if(win.classList.contains("minimized")) return;
+        if (win.classList.contains("minimized")) return;
 
         const rect = win.getBoundingClientRect();
 
@@ -69,6 +96,10 @@
                 const btnMin = win.querySelector(".btnMinimize");
                 if (btnMin) { btnMin.textContent = "▢"; btnMin.title = "Restaurar"; }
             }
+
+            //restauramos, mas se a posicao restaurada está fora do limite do viewPort, forçamos ficar no viewport
+            //pode acontecer se o usuario estava em uma tela grande, e mudou para uma menor, ai evita da janela "sumir"
+            clampFloatingToViewport(win);
 
             return true;
         } catch {
