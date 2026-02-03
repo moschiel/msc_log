@@ -17,15 +17,120 @@
         const OFFSET = 30;
 
         win.style.left = (BASE_X + floatingOpenCount * OFFSET) + "px";
-        win.style.top  = (BASE_Y + floatingOpenCount * OFFSET) + "px";
+        win.style.top = (BASE_Y + floatingOpenCount * OFFSET) + "px";
 
         floatingOpenCount++;
+    }
+
+
+    function storageKey(win) {
+        return "floating-window:" + win.id;
+    }
+
+    function saveState(win) {
+        if (!win || !win.id) return;
+
+        // só salvo o size e local se estiver expandido
+        if(win.classList.contains("minimized")) return;
+
+        const rect = win.getBoundingClientRect();
+
+        const state = {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+            minimized: win.classList.contains("minimized")
+        };
+
+        try {
+            localStorage.setItem(storageKey(win), JSON.stringify(state));
+        } catch { }
+    }
+
+    function restoreState(win) {
+        if (!win || !win.id) return false;
+
+        let raw = null;
+        try { raw = localStorage.getItem(storageKey(win)); } catch { }
+        if (!raw) return false;
+
+        try {
+            const s = JSON.parse(raw);
+
+            if (typeof s.left === "number") win.style.left = s.left + "px";
+            if (typeof s.top === "number") win.style.top = s.top + "px";
+            if (typeof s.width === "number") win.style.width = s.width + "px";
+            if (typeof s.height === "number") win.style.height = s.height + "px";
+
+            // restaura estado minimizado
+            if (s.minimized) {
+                win.classList.add("minimized");
+                const btnMin = win.querySelector(".btnMinimize");
+                if (btnMin) { btnMin.textContent = "▢"; btnMin.title = "Restaurar"; }
+            }
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function upgradeFloatingPlaceholders() {
+        document.querySelectorAll(".floating-window").forEach((host) => {
+            // evita converter duas vezes
+            if (host.classList.contains("floating-innerHTML-updated"))
+                return;
+
+            host.classList.add("floating-innerHTML-updated");
+
+            const title = host.getAttribute("data-title") || host.id || "Window";
+
+            // pega o conteúdo atual
+            const frag = document.createDocumentFragment();
+            while (host.firstChild) frag.appendChild(host.firstChild);
+
+            // transforma o host em .floating-window
+            host.classList.remove("floating-window");
+            host.classList.add("floating-window");
+
+            // monta a estrutura padrão dentro
+            host.innerHTML = `
+      <div class="titlebar">
+        <div class="title"></div>
+        <button type="button" class="btnMinimize" title="Minimizar">—</button>
+        <button type="button" class="btnClose" title="Fechar">✕</button>
+      </div>
+
+      <div class="content"></div>
+
+      <div class="handle h-n" data-edge="n"></div>
+      <div class="handle h-s" data-edge="s"></div>
+      <div class="handle h-e" data-edge="e"></div>
+      <div class="handle h-w" data-edge="w"></div>
+      <div class="handle h-ne" data-edge="ne"></div>
+      <div class="handle h-nw" data-edge="nw"></div>
+      <div class="handle h-se" data-edge="se"></div>
+      <div class="handle h-sw" data-edge="sw"></div>
+    `;
+
+            // injeta o título
+            host.querySelector(".title").textContent = title;
+
+            // injeta o conteúdo original dentro do .content
+            host.querySelector(".content").appendChild(frag);
+        });
     }
 
     function initFloatingWindow(win) {
         if (!win) return;
 
-        applyInitialFloatingPosition(win);
+        const restored = restoreState(win);
+
+        // só aplica posição inicial se NÃO tinha estado salvo
+        if (!restored) {
+            applyInitialFloatingPosition(win);
+        } applyInitialFloatingPosition(win);
 
         const titlebar = win.querySelector(".titlebar");
         const btnMin = win.querySelector(".btnMinimize");
@@ -82,6 +187,7 @@
             titlebar.addEventListener("pointerup", (e) => {
                 dragging = false;
                 try { titlebar.releasePointerCapture(e.pointerId); } catch { }
+                saveState(win);
             });
         }
 
@@ -126,7 +232,7 @@
             btnClose.addEventListener("pointerdown", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 util.setVisible(win, false);
             });
         }
@@ -229,53 +335,8 @@
             h.addEventListener("pointerup", (e) => {
                 resizing = false;
                 try { h.releasePointerCapture(e.pointerId); } catch { }
+                saveState(win);
             });
-        });
-    }
-
-    function upgradeFloatingPlaceholders() {
-        document.querySelectorAll(".floating-window").forEach((host) => {
-            // evita converter duas vezes
-            if (host.classList.contains("floating-innerHTML-updated")) 
-                return;
-
-            host.classList.add("floating-innerHTML-updated");
-
-            const title = host.getAttribute("data-title") || host.id || "Window";
-
-            // pega o conteúdo atual
-            const frag = document.createDocumentFragment();
-            while (host.firstChild) frag.appendChild(host.firstChild);
-
-            // transforma o host em .floating-window
-            host.classList.remove("floating-window");
-            host.classList.add("floating-window");
-
-            // monta a estrutura padrão dentro
-            host.innerHTML = `
-      <div class="titlebar">
-        <div class="title"></div>
-        <button type="button" class="btnMinimize" title="Minimizar">—</button>
-        <button type="button" class="btnClose" title="Fechar">✕</button>
-      </div>
-
-      <div class="content"></div>
-
-      <div class="handle h-n" data-edge="n"></div>
-      <div class="handle h-s" data-edge="s"></div>
-      <div class="handle h-e" data-edge="e"></div>
-      <div class="handle h-w" data-edge="w"></div>
-      <div class="handle h-ne" data-edge="ne"></div>
-      <div class="handle h-nw" data-edge="nw"></div>
-      <div class="handle h-se" data-edge="se"></div>
-      <div class="handle h-sw" data-edge="sw"></div>
-    `;
-
-            // injeta o título
-            host.querySelector(".title").textContent = title;
-
-            // injeta o conteúdo original dentro do .content
-            host.querySelector(".content").appendChild(frag);
         });
     }
 
