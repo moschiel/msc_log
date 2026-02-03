@@ -792,7 +792,8 @@ function readPkgAnalyzeConfig(config) {
 
 function showParsedPackageOnTable(headers, rows) {
     util.Table.Create(ui.packageTable, headers, rows);
-    util.setVisible(ui.windowParsedPackage, true);
+    // util.setVisible(ui.windowParsedPackage, true);
+    openFloatingWindow(ui.windowParsedPackage);
 }
 
 function showParsedMessageOnTable(implemented, msgID, headers, rows) {
@@ -803,7 +804,8 @@ function showParsedMessageOnTable(implemented, msgID, headers, rows) {
         ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
         ui.messageTable.innerHTML = "";
     }
-    util.setVisible(ui.windowParsedMessage, true);
+    // util.setVisible(ui.windowParsedMessage, true);
+    openFloatingWindow(ui.windowParsedMessage)
 }
 
 function getMsgName(id) {

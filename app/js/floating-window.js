@@ -1,13 +1,31 @@
 // FloatingWindow: drag + resize dentro da viewport (sem libs)
 (function () {
-    let globalZ = 9999;
+    let globalFloatWindowZ = 9999;
+    let floatingOpenCount = 0; //contador de janelas abertas
 
     function clamp(v, min, max) {
         return Math.max(min, Math.min(max, v));
     }
 
+
+    // Altera a posição incial pra janela nao aparecer exatamente uma em cima da outra
+    function applyInitialFloatingPosition(win) {
+        if (win.style.left || win.style.top) return;
+
+        const BASE_X = 80;
+        const BASE_Y = 80;
+        const OFFSET = 30;
+
+        win.style.left = (BASE_X + floatingOpenCount * OFFSET) + "px";
+        win.style.top  = (BASE_Y + floatingOpenCount * OFFSET) + "px";
+
+        floatingOpenCount++;
+    }
+
     function initFloatingWindow(win) {
         if (!win) return;
+
+        applyInitialFloatingPosition(win);
 
         const titlebar = win.querySelector(".titlebar");
         const btnMin = win.querySelector(".btnMinimize");
@@ -15,8 +33,8 @@
 
         // traz pra frente ao clicar
         win.addEventListener("pointerdown", () => {
-            globalZ += 1;
-            win.style.zIndex = String(globalZ);
+            globalFloatWindowZ += 1;
+            win.style.zIndex = String(globalFloatWindowZ);
         });
 
         // ===== DRAG (mover) =====
@@ -108,7 +126,7 @@
             btnClose.addEventListener("pointerdown", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-
+                
                 util.setVisible(win, false);
             });
         }
@@ -218,7 +236,9 @@
     function upgradeFloatingPlaceholders() {
         document.querySelectorAll(".floating-window").forEach((host) => {
             // evita converter duas vezes
-            if (host.classList.contains("floating-innerHTML-updated")) return;
+            if (host.classList.contains("floating-innerHTML-updated")) 
+                return;
+
             host.classList.add("floating-innerHTML-updated");
 
             const title = host.getAttribute("data-title") || host.id || "Window";
@@ -259,6 +279,17 @@
         });
     }
 
+    // chamar util.setVisible ja seria suficiente, 
+    // mas temos que aumentar o zIndex pra nova janela nao aparecer escondida
+    function openFloatingWindow(win) {
+        globalFloatWindowZ += 1;
+        win.style.zIndex = String(globalFloatWindowZ);
+
+        util.setVisible(win, true);
+    }
+
+    //Expoe algums funcionalidades para serem usadas por outros modulos
+    window.openFloatingWindow = openFloatingWindow;
 
     // Inicializa automaticamente todos com classe .floating-window
     document.addEventListener("DOMContentLoaded", () => {
@@ -267,7 +298,4 @@
         // inicializa todas as janelas (agora já convertidas)
         document.querySelectorAll(".floating-window").forEach(initFloatingWindow);
     });
-
-    // Se você quiser inicializar manualmente:
-    // window.initFloatingWindow = initFloatingWindow;
 })();
