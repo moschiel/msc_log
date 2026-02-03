@@ -150,6 +150,7 @@ Permite clicar nos pacotes p/ ver detalhes.
      <div class="floating">
         <div class="titlebar">
             <div class="title">Log Viewer</div>
+            <button class="btnMinimize" title="Minimizar">—</button>
             <button class="btnClose">✕</button>
         </div>
         <div class="content">

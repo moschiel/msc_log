@@ -20,6 +20,7 @@
   user-select: none; /* evita seleção enquanto move */
 }
 
+
 /* ===== TITLE BAR ===== */
 .floating .titlebar {
   height: 40px;
@@ -43,6 +44,7 @@
   flex: 1;
 }
 
+.floating .titlebar .btnMinimize,
 .floating .titlebar .btnClose {
   cursor: pointer;
   border: 0;
@@ -53,6 +55,7 @@
   border-radius: 8px;
 }
 
+.floating .titlebar .btnClose:hover,
 .floating .titlebar .btnClose:hover {
   background: rgba(0,0,0,.07);
 }
@@ -83,6 +86,34 @@
 .floating .h-se { right: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
 .floating .h-sw { left: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
 
+
+/* ===== JANELA MINIMIZADA ===== */
+.floating.minimized {
+  height: 40px !important; /* mesma altura da titlebar */
+  min-height: 0 !important;
+  overflow: hidden; /*título corta com "..." e botões sempre aparecem*/ 
+}
+
+.floating.minimized .titlebar .title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.floating.minimized .content {
+  display: none;
+}
+
+/* desativa resize vertical quando minimizada */
+.floating.minimized .h-n,
+.floating.minimized .h-s,
+.floating.minimized .h-ne,
+.floating.minimized .h-nw,
+.floating.minimized .h-se,
+.floating.minimized .h-sw {
+  display: none;
+}
+
 @media (prefers-color-scheme: dark) {
 
   /* ===== JANELA ===== */
@@ -103,10 +134,12 @@
     color: #f3f4f6;
   }
 
+  .floating .titlebar .btnMinimize,
   .floating .titlebar .btnClose {
     color: #e5e7eb;
   }
 
+  .floating .titlebar .btnMinimize:hover,
   .floating .titlebar .btnClose:hover {
     background: rgba(255,255,255,.08);
   }
