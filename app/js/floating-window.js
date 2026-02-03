@@ -108,7 +108,8 @@
             btnClose.addEventListener("pointerdown", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                win.style.display = "none";
+
+                util.setVisible(win, false);
             });
         }
 
@@ -214,14 +215,57 @@
         });
     }
 
-    // Inicializa automaticamente:
-    // - um elemento #win1 (se existir)
-    // - ou todos com classe .floating
-    document.addEventListener("DOMContentLoaded", () => {
-        const byId = document.getElementById("win1");
-        if (byId) initFloatingWindow(byId);
+    function upgradeFloatingPlaceholders() {
+        document.querySelectorAll(".floating-window").forEach((host) => {
+            // evita converter duas vezes
+            if (host.classList.contains("floating-innerHTML-updated")) return;
+            host.classList.add("floating-innerHTML-updated");
 
-        document.querySelectorAll(".floating").forEach(initFloatingWindow);
+            const title = host.getAttribute("data-title") || host.id || "Window";
+
+            // pega o conteúdo atual
+            const frag = document.createDocumentFragment();
+            while (host.firstChild) frag.appendChild(host.firstChild);
+
+            // transforma o host em .floating-window
+            host.classList.remove("floating-window");
+            host.classList.add("floating-window");
+
+            // monta a estrutura padrão dentro
+            host.innerHTML = `
+      <div class="titlebar">
+        <div class="title"></div>
+        <button type="button" class="btnMinimize" title="Minimizar">—</button>
+        <button type="button" class="btnClose" title="Fechar">✕</button>
+      </div>
+
+      <div class="content"></div>
+
+      <div class="handle h-n" data-edge="n"></div>
+      <div class="handle h-s" data-edge="s"></div>
+      <div class="handle h-e" data-edge="e"></div>
+      <div class="handle h-w" data-edge="w"></div>
+      <div class="handle h-ne" data-edge="ne"></div>
+      <div class="handle h-nw" data-edge="nw"></div>
+      <div class="handle h-se" data-edge="se"></div>
+      <div class="handle h-sw" data-edge="sw"></div>
+    `;
+
+            // injeta o título
+            host.querySelector(".title").textContent = title;
+
+            // injeta o conteúdo original dentro do .content
+            host.querySelector(".content").appendChild(frag);
+        });
+    }
+
+
+    // Inicializa automaticamente todos com classe .floating-window
+    document.addEventListener("DOMContentLoaded", () => {
+        upgradeFloatingPlaceholders();
+
+        // inicializa todas as janelas (agora já convertidas)
+        document.querySelectorAll(".floating-window").forEach(initFloatingWindow);
     });
 
     // Se você quiser inicializar manualmente:

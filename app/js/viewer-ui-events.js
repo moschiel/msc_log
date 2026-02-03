@@ -107,7 +107,8 @@ ui.logBox.addEventListener("click", e => {
                 }
             }
             // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-            ui.tableSplitter._setPaneVisible(2, false);
+            ui.labelMessageDescription.innerHTML = "";
+            ui.messageTable.innerHTML = "";
         }
     }
 });

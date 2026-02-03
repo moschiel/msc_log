@@ -9,7 +9,9 @@ const ui = {
     logContent: document.getElementById("logContent"),
     logPendingPacketContent: document.getElementById("logPendingPacketContent"),
     tableSplitter: document.getElementById("tableSplitter"),
+    windowParsedPackage: document.getElementById("windowParsedPackage"),
     packageTable: document.getElementById("packageTable"),
+    windowParsedMessage: document.getElementById("windowParsedMessage"),
     labelMessageDescription: document.getElementById("labelMessageDescription"),
     messageTable: document.getElementById("messageTable"),
 };

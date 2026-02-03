@@ -93,37 +93,33 @@ Permite clicar nos pacotes p/ ver detalhes.
 
             <div class="pane second hidden">
                 <div class="pane-close-btn" title="Fechar Painel">x</div>
-
-                <div id="tableSplitter" class="splitter is-vertical">
-                    <div class="pane first">
-                        <div class="single-table-container">
-                            <div>Pacote CC33</div>
-                            <div class="table-wrap">
-                                <table id="packageTable" class="table-clean table-sticky">
-                                    <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
-                                    <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="splitDivider" role="separator" tabindex="0" title="Arrastar ou Duplo Clique">
-                        <div class="splitDivider-grip"></div>
-                    </div>
-
-                    <div class="pane second hidden">
-                        <div class="single-table-container">
-                            <div id="labelMessageDescription">ID da Mensagem AQUI</div>
-                            <div class="table-wrap">
-                                <table id="messageTable" class="table-clean table-sticky">
-                                    <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
-                                    <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>        
                 </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Floating Window Parsed Package -->
+    <div id="windowParsedPackage" class="floating-window hidden" data-title="Parsed Package CC33">
+        <div class="single-table-container">
+            <!-- <div>Pacote CC33</div> -->
+            <div class="table-wrap">
+                <table id="packageTable" class="table-clean table-sticky">
+                    <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
+                    <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Window Parsed Message -->
+    <div id="windowParsedMessage" class="floating-window hidden" data-title="Parsed Message">
+        <div class="single-table-container">
+            <div id="labelMessageDescription">ID da Mensagem AQUI</div>
+            <div class="table-wrap">
+                <table id="messageTable" class="table-clean table-sticky">
+                    <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
+                    <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -144,36 +140,6 @@ Permite clicar nos pacotes p/ ver detalhes.
                 <button class="normal-btn" data-modal-close type="button">Fechar</button>
             </div>
         </div>
-    </div>
-
-    <!-- Floating Window -->
-     <div class="floating">
-        <div class="titlebar">
-            <div class="title">Log Viewer</div>
-            <button class="btnMinimize" title="Minimizar">—</button>
-            <button class="btnClose">✕</button>
-        </div>
-        <div class="content">
-            <div class="single-table-container">
-                <div>Pacote CC33</div>
-                <div class="table-wrap">
-                    <table id="packageTable" class="table-clean table-sticky">
-                        <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
-                        <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- handles -->
-        <div class="handle h-n" data-edge="n"></div>
-        <div class="handle h-s" data-edge="s"></div>
-        <div class="handle h-e" data-edge="e"></div>
-        <div class="handle h-w" data-edge="w"></div>
-        <div class="handle h-ne" data-edge="ne"></div>
-        <div class="handle h-nw" data-edge="nw"></div>
-        <div class="handle h-se" data-edge="se"></div>
-        <div class="handle h-sw" data-edge="sw"></div>
     </div>
 
     <script>

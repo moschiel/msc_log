@@ -1,5 +1,5 @@
 /* ===== JANELA FLUTUANTE ===== */
-.floating {
+.floating-window {
   position: fixed;
   left: 80px;
   top: 80px;
@@ -22,7 +22,7 @@
 
 
 /* ===== TITLE BAR ===== */
-.floating .titlebar {
+.floating-window .titlebar {
   height: 40px;
   display: flex;
   align-items: center;
@@ -34,18 +34,18 @@
   cursor: grab;
 }
 
-.floating .titlebar:active {
+.floating-window .titlebar:active {
   cursor: grabbing;
 }
 
-.floating .titlebar .title {
+.floating-window .titlebar .title {
   font-weight: 600;
   font-size: 14px;
   flex: 1;
 }
 
-.floating .titlebar .btnMinimize,
-.floating .titlebar .btnClose {
+.floating-window .titlebar .btnMinimize,
+.floating-window .titlebar .btnClose {
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -55,13 +55,13 @@
   border-radius: 8px;
 }
 
-.floating .titlebar .btnClose:hover,
-.floating .titlebar .btnClose:hover {
+.floating-window .titlebar .btnClose:hover,
+.floating-window .titlebar .btnClose:hover {
   background: rgba(0,0,0,.07);
 }
 
 /* ===== CONTEÚDO ===== */
-.floating .content {
+.floating-window .content {
   padding: 12px;
   height: calc(100% - 40px);
   overflow: auto;
@@ -69,55 +69,55 @@
 }
 
 /* ===== RESIZE HANDLES ===== */
-.floating .handle {
+.floating-window .handle {
   position: absolute;
   background: transparent;
 }
 
 /* bordas */
-.floating .h-n { top: -4px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
-.floating .h-s { bottom: -4px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
-.floating .h-e { right: -4px; top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }
-.floating .h-w { left: -4px; top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }
+.floating-window .h-n { top: -4px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
+.floating-window .h-s { bottom: -4px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
+.floating-window .h-e { right: -4px; top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }
+.floating-window .h-w { left: -4px; top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }
 
 /* cantos */
-.floating .h-ne { right: -4px; top: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
-.floating .h-nw { left: -4px; top: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
-.floating .h-se { right: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
-.floating .h-sw { left: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
+.floating-window .h-ne { right: -4px; top: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
+.floating-window .h-nw { left: -4px; top: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
+.floating-window .h-se { right: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
+.floating-window .h-sw { left: -4px; bottom: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
 
 
 /* ===== JANELA MINIMIZADA ===== */
-.floating.minimized {
+.floating-window.minimized {
   height: 40px !important; /* mesma altura da titlebar */
   min-height: 0 !important;
   overflow: hidden; /*título corta com "..." e botões sempre aparecem*/ 
 }
 
-.floating.minimized .titlebar .title {
+.floating-window.minimized .titlebar .title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.floating.minimized .content {
+.floating-window.minimized .content {
   display: none;
 }
 
 /* desativa resize vertical quando minimizada */
-.floating.minimized .h-n,
-.floating.minimized .h-s,
-.floating.minimized .h-ne,
-.floating.minimized .h-nw,
-.floating.minimized .h-se,
-.floating.minimized .h-sw {
+.floating-window.minimized .h-n,
+.floating-window.minimized .h-s,
+.floating-window.minimized .h-ne,
+.floating-window.minimized .h-nw,
+.floating-window.minimized .h-se,
+.floating-window.minimized .h-sw {
   display: none;
 }
 
 @media (prefers-color-scheme: dark) {
 
   /* ===== JANELA ===== */
-  .floating {
+  .floating-window {
     background: #1e1e1e;
     border: 1px solid #333;
     box-shadow: 0 12px 32px rgba(0,0,0,.65);
@@ -125,66 +125,66 @@
   }
 
   /* ===== TITLE BAR ===== */
-  .floating .titlebar {
+  .floating-window .titlebar {
     background: #2a2a2a;
     border-bottom: 1px solid #333;
   }
 
-  .floating .titlebar .title {
+  .floating-window .titlebar .title {
     color: #f3f4f6;
   }
 
-  .floating .titlebar .btnMinimize,
-  .floating .titlebar .btnClose {
+  .floating-window .titlebar .btnMinimize,
+  .floating-window .titlebar .btnClose {
     color: #e5e7eb;
   }
 
-  .floating .titlebar .btnMinimize:hover,
-  .floating .titlebar .btnClose:hover {
+  .floating-window .titlebar .btnMinimize:hover,
+  .floating-window .titlebar .btnClose:hover {
     background: rgba(255,255,255,.08);
   }
 
   /* ===== CONTEÚDO ===== */
-  .floating .content {
+  .floating-window .content {
     background: #1e1e1e;
     color: #e5e7eb;
   }
 
   /* links dentro do conteúdo */
-  .floating .content a {
+  .floating-window .content a {
     color: #60a5fa;
   }
 
-  .floating .content a:hover {
+  .floating-window .content a:hover {
     text-decoration: underline;
   }
 
   /* ===== SCROLLBAR (Webkit) ===== */
-  .floating .content::-webkit-scrollbar {
+  .floating-window .content::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
 
-  .floating .content::-webkit-scrollbar-track {
+  .floating-window .content::-webkit-scrollbar-track {
     background: #1a1a1a;
   }
 
-  .floating .content::-webkit-scrollbar-thumb {
+  .floating-window .content::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 6px;
   }
 
-  .floating .content::-webkit-scrollbar-thumb:hover {
+  .floating-window .content::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
 
   /* Firefox */
-  .floating .content {
+  .floating-window .content {
     scrollbar-color: #444 #1a1a1a;
   }
 
   /* ===== RESIZE HANDLES (invisíveis, mas ativos) ===== */
-  .floating .handle {
+  .floating-window .handle {
     background: transparent;
   }
 }
