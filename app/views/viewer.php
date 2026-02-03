@@ -17,6 +17,7 @@ function render_viewer($selectedFile) {
     <link rel="stylesheet" href="./app/css/table.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/modal.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/split-pane.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/floating-window.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
@@ -144,12 +145,35 @@ Permite clicar nos pacotes p/ ver detalhes.
             </div>
         </div>
     </div>
+
+    <!-- Floating Window -->
+     <div class="floating">
+        <div class="titlebar">
+            <div class="title">Log Viewer</div>
+            <button class="btnClose">✕</button>
+        </div>
+        <div class="content">
+            <pre>LOG AQUI...</pre>
+        </div>
+
+        <!-- handles -->
+        <div class="handle h-n" data-edge="n"></div>
+        <div class="handle h-s" data-edge="s"></div>
+        <div class="handle h-e" data-edge="e"></div>
+        <div class="handle h-w" data-edge="w"></div>
+        <div class="handle h-ne" data-edge="ne"></div>
+        <div class="handle h-nw" data-edge="nw"></div>
+        <div class="handle h-se" data-edge="se"></div>
+        <div class="handle h-sw" data-edge="sw"></div>
+    </div>
+
     <script>
         const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 
     </script>    
     <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/modal.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/split-pane.js?v=<?= APP_VERSION ?>"></script>
+    <script src="./app/js/floating-window.js?v=<?= APP_VERSION ?>" defer></script>
     <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
     <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>

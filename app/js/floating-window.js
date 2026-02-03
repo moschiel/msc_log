@@ -1,0 +1,191 @@
+// FloatingWindow: drag + resize dentro da viewport (sem libs)
+(function () {
+  let globalZ = 9999;
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function initFloatingWindow(win) {
+    if (!win) return;
+
+    const titlebar = win.querySelector(".titlebar");
+    const btnClose = win.querySelector(".btnClose");
+
+    // traz pra frente ao clicar
+    win.addEventListener("pointerdown", () => {
+      globalZ += 1;
+      win.style.zIndex = String(globalZ);
+    });
+
+    // fechar (opcional)
+    if (btnClose) {
+      btnClose.addEventListener("click", (e) => {
+        e.stopPropagation();
+        win.style.display = "none";
+      });
+    }
+
+    // ===== DRAG (mover) =====
+    let dragging = false;
+    let dragStartX = 0, dragStartY = 0;
+    let startLeft = 0, startTop = 0;
+
+    if (titlebar) {
+      titlebar.addEventListener("pointerdown", (e) => {
+        // não arrasta se clicar no botão fechar
+        if (btnClose && e.target === btnClose) return;
+
+        dragging = true;
+        titlebar.setPointerCapture(e.pointerId);
+
+        const rect = win.getBoundingClientRect();
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        e.preventDefault();
+      });
+
+      titlebar.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+
+        const rect = win.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+
+        const maxLeft = window.innerWidth - w;
+        const maxTop  = window.innerHeight - h;
+
+        const newLeft = clamp(startLeft + dx, 0, maxLeft);
+        const newTop  = clamp(startTop + dy, 0, maxTop);
+
+        win.style.left = newLeft + "px";
+        win.style.top  = newTop + "px";
+      });
+
+      titlebar.addEventListener("pointerup", (e) => {
+        dragging = false;
+        try { titlebar.releasePointerCapture(e.pointerId); } catch {}
+      });
+    }
+
+    // ===== RESIZE =====
+    let resizing = false;
+    let edge = "";
+
+    let rsX = 0, rsY = 0;
+    let rLeft = 0, rTop = 0, rW = 0, rH = 0;
+
+    const minW = parseInt(getComputedStyle(win).minWidth || "240", 10) || 240;
+    const minH = parseInt(getComputedStyle(win).minHeight || "160", 10) || 160;
+
+    const handles = win.querySelectorAll(".handle[data-edge]");
+    handles.forEach((h) => {
+      h.addEventListener("pointerdown", (e) => {
+        resizing = true;
+        edge = e.currentTarget.dataset.edge || "";
+        h.setPointerCapture(e.pointerId);
+
+        const rect = win.getBoundingClientRect();
+        rsX = e.clientX;
+        rsY = e.clientY;
+        rLeft = rect.left;
+        rTop = rect.top;
+        rW = rect.width;
+        rH = rect.height;
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      h.addEventListener("pointermove", (e) => {
+        if (!resizing) return;
+
+        const dx = e.clientX - rsX;
+        const dy = e.clientY - rsY;
+
+        let newLeft = rLeft;
+        let newTop  = rTop;
+        let newW    = rW;
+        let newH    = rH;
+
+        const hasN = edge.indexOf("n") !== -1;
+        const hasS = edge.indexOf("s") !== -1;
+        const hasE = edge.indexOf("e") !== -1;
+        const hasW = edge.indexOf("w") !== -1;
+
+        if (hasE) newW = rW + dx;
+        if (hasS) newH = rH + dy;
+
+        if (hasW) {
+          newW = rW - dx;
+          newLeft = rLeft + dx;
+        }
+
+        if (hasN) {
+          newH = rH - dy;
+          newTop = rTop + dy;
+        }
+
+        // mínimos
+        if (newW < minW) {
+          if (hasW) newLeft -= (minW - newW);
+          newW = minW;
+        }
+
+        if (newH < minH) {
+          if (hasN) newTop -= (minH - newH);
+          newH = minH;
+        }
+
+        // clamp: não deixa sair pra esquerda/cima
+        if (newLeft < 0) {
+          newW += newLeft;  // reduz largura
+          newLeft = 0;
+          if (newW < minW) newW = minW;
+        }
+
+        if (newTop < 0) {
+          newH += newTop;
+          newTop = 0;
+          if (newH < minH) newH = minH;
+        }
+
+        // clamp: não deixa passar direita/baixo
+        const maxW = window.innerWidth - newLeft;
+        const maxH = window.innerHeight - newTop;
+
+        newW = Math.min(newW, maxW);
+        newH = Math.min(newH, maxH);
+
+        win.style.left = newLeft + "px";
+        win.style.top = newTop + "px";
+        win.style.width = newW + "px";
+        win.style.height = newH + "px";
+      });
+
+      h.addEventListener("pointerup", (e) => {
+        resizing = false;
+        try { h.releasePointerCapture(e.pointerId); } catch {}
+      });
+    });
+  }
+
+  // Inicializa automaticamente:
+  // - um elemento #win1 (se existir)
+  // - ou todos com classe .floating
+  document.addEventListener("DOMContentLoaded", () => {
+    const byId = document.getElementById("win1");
+    if (byId) initFloatingWindow(byId);
+
+    document.querySelectorAll(".floating").forEach(initFloatingWindow);
+  });
+
+  // Se você quiser inicializar manualmente:
+  // window.initFloatingWindow = initFloatingWindow;
+})();
