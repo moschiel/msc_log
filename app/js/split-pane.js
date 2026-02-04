@@ -4,33 +4,167 @@ function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
-const LS_SPLITTER_IS_VERTICAL = "splliter_is_vertical::";
+const LS_SPLITTER_IS_VERTICAL = "splitter_is_vertical::";
+
+function _lsKeyFor(splitterEl) {
+  // usa id pra chave; se não tiver, não salva (evita key lixo)
+  if (!splitterEl || !splitterEl.id) return null;
+  return LS_SPLITTER_IS_VERTICAL + splitterEl.id;
+}
 
 function saveSplitterSettings(splitterEl, isVertical) {
-    localStorage.setItem(LS_SPLITTER_IS_VERTICAL + splitterEl.id, isVertical);
+  const keyNew = _lsKeyFor(splitterEl);
+  if (!keyNew) return;
+
+  localStorage.setItem(keyNew, String(!!isVertical));
 }
 
 function loadSplitterSettings(splitterEl) {
-    const isVertical = localStorage.getItem(LS_SPLITTER_IS_VERTICAL + splitterEl.id);
-    if (isVertical === "true") {
-      splitterEl.classList.add("is-vertical");
-      splitterEl.classList.remove("is-horizontal");
-    } else {
-      splitterEl.classList.remove("is-vertical");
-      splitterEl.classList.add("is-horizontal");
+  if (!splitterEl || !splitterEl.id) return;
+
+  const keyNew = LS_SPLITTER_IS_VERTICAL + splitterEl.id;
+  let val = localStorage.getItem(keyNew);
+
+  // Se não tem nada salvo, NÃO força orientação.
+  // Mantém o que veio do HTML (is-vertical/is-horizontal).
+  if (val == null) return;
+
+  if (val === "true") {
+    splitterEl.classList.add("is-vertical");
+    splitterEl.classList.remove("is-horizontal");
+  } else if (val === "false") {
+    splitterEl.classList.remove("is-vertical");
+    splitterEl.classList.add("is-horizontal");
+  }
+}
+
+/*
+ * UPGRADE DE PLACEHOLDER:
+ * Permite:
+ * <div class="splitter ...">
+ *   <div>first content</div>
+ *   <div>second content</div>
+ * </div>
+ *
+ * E converte internamente para:
+ * <div class="splitter ...">
+ *   <div class="pane first">...</div>
+ *   <div class="splitDivider"> <div class="splitDivider-grip"></div> </div>
+ *   <div class="pane second">...</div>
+ * </div>
+ *
+ * Regras:
+ * - Só faz upgrade se não encontrar .pane.first/.pane.second/.splitDivider
+ * - Usa os 2 primeiros ELEMENT children como panes
+ * - Se o 2º elemento tiver class "hidden", mantém (vai virar single-pane)
+ * - Botão X:
+ *    - Por padrão, cria X apenas no pane 2
+ *    - Se quiser no pane 1 também: data-close="both" OU data-close-first="1"
+ *    - Se quiser desabilitar: data-close="none"
+ */
+function upgradeSplitterPlaceholders(root = document) {
+  root.querySelectorAll(".splitter").forEach((host) => {
+    // evita converter duas vezes
+    if (host.classList.contains("splitter-innerHTML-updated")) return;
+
+    // se já está no formato antigo (com panes/divider), não mexe
+    const hasOldStructure =
+      host.querySelector(":scope > .pane.first") &&
+      host.querySelector(":scope > .pane.second") &&
+      host.querySelector(":scope > .splitDivider");
+
+    if (hasOldStructure) {
+      host.classList.add("splitter-innerHTML-updated");
+      return;
     }
+
+    // pega apenas ELEMENT children (ignora text nodes)
+    const kids = Array.from(host.children).filter((n) => n.nodeType === 1);
+
+    // precisa de pelo menos 2 elementos para virar splitter
+    if (kids.length < 2) return;
+
+    // pega os 2 primeiros; se tiver mais, mantém junto no segundo (pra não sumir nada)
+    const firstContent = kids[0];
+    const secondContent = kids[1];
+
+    // move "sobras" (se existirem) pro segundoContent (ou você pode decidir ignorar/erro)
+    for (let i = 2; i < kids.length; i++) {
+      secondContent.appendChild(kids[i]);
+    }
+
+    // captura flags antes de mexer
+    const secondWasHidden = secondContent.classList.contains("hidden");
+    const closeMode = (host.getAttribute("data-close") || "").toLowerCase();
+    const closeFirst = closeMode === "first" || closeMode === "both";
+    const closeSecond = closeMode === "second" || closeMode === "both";
+
+    // tira o conteúdo atual do host
+    const fragFirst = document.createDocumentFragment();
+    const fragSecond = document.createDocumentFragment();
+
+    // move o próprio wrapper inteiro do usuário (firstContent/secondContent) para dentro dos panes
+    fragFirst.appendChild(firstContent);
+    fragSecond.appendChild(secondContent);
+
+    // monta a estrutura
+    host.innerHTML = "";
+
+    const pane1 = document.createElement("div");
+    pane1.className = "pane first";
+    pane1.appendChild(fragFirst);
+
+    const divider = document.createElement("div");
+    divider.className = "splitDivider";
+    divider.setAttribute("role", "separator");
+    divider.setAttribute("tabindex", "0");
+    divider.setAttribute("title", "Arrastar ou Duplo Clique");
+
+    const grip = document.createElement("div");
+    grip.className = "splitDivider-grip";
+    divider.appendChild(grip);
+
+    const pane2 = document.createElement("div");
+    pane2.className = "pane second";
+    if (secondWasHidden) pane2.classList.add("hidden");
+    pane2.appendChild(fragSecond);
+
+    // injeta botões X conforme modo
+    if (closeFirst) {
+      const btn1 = document.createElement("div");
+      btn1.className = "pane-close-btn";
+      btn1.setAttribute("title", "Fechar Painel");
+      btn1.textContent = "x";
+      // coloca no topo do pane
+      pane1.insertBefore(btn1, pane1.firstChild);
+    }
+
+    if (closeSecond) {
+      const btn2 = document.createElement("div");
+      btn2.className = "pane-close-btn";
+      btn2.setAttribute("title", "Fechar Painel");
+      btn2.textContent = "x";
+      pane2.insertBefore(btn2, pane2.firstChild);
+    }
+
+    host.appendChild(pane1);
+    host.appendChild(divider);
+    host.appendChild(pane2);
+
+    host.classList.add("splitter-innerHTML-updated");
+  });
 }
 
 function initSplitter(splitterEl) {
-  const first = splitterEl.querySelector(".pane.first");
-  const second = splitterEl.querySelector(".pane.second");
-  const divider = splitterEl.querySelector(".splitDivider");
-  const closeFirstBtn = first.querySelector(".pane-close-btn");
-  const closeSecondBtn = second.querySelector(".pane-close-btn");
+  const first = splitterEl.querySelector(":scope > .pane.first");
+  const second = splitterEl.querySelector(":scope > .pane.second");
+  const divider = splitterEl.querySelector(":scope > .splitDivider");
+  const closeFirstBtn = first ? first.querySelector(":scope > .pane-close-btn") : null;
+  const closeSecondBtn = second ? second.querySelector(":scope > .pane-close-btn") : null;
 
   // guarda estado do dragging (agarrando ou nao)
   let dragging = false;
-  
+
   // guarda ratios separados por orientação
   let ratioV = 0.5;
   let ratioH = 0.5;
@@ -38,7 +172,6 @@ function initSplitter(splitterEl) {
   if (!first || !second || !divider) return;
 
   const isVertical = () => splitterEl.classList.contains("is-vertical");
-
 
   function getTotalSize() {
     const rect = splitterEl.getBoundingClientRect();
@@ -67,7 +200,6 @@ function initSplitter(splitterEl) {
     second.style.flex = `1 1 auto`;
   }
 
-  
   function getCurrentRatio() {
     const total = getTotalSize();
     if (!total) return 0.5;
@@ -86,6 +218,7 @@ function initSplitter(splitterEl) {
   }
 
   function syncVisibility() {
+    // util.* é seu helper existente
     const secondHidden = !util.isVisible(second);
 
     if (secondHidden) {
@@ -96,13 +229,12 @@ function initSplitter(splitterEl) {
       splitterEl.classList.remove("single-pane");
       // deixou de mostra só primeiro pane, ao mostrar os dois, aplica ratio salvo da orientação atual
       applyStoredRatio();
-      // setSplitByFirstPx(getTotalSize() * 0.5);
     }
   }
 
   function setPaneVisible(pane, visible) {
     if (pane === 1) util.setVisible(first, visible);
-    else if(pane === 2) util.setVisible(second, visible);
+    else if (pane === 2) util.setVisible(second, visible);
 
     syncVisibility();
   }
@@ -170,9 +302,9 @@ function initSplitter(splitterEl) {
   });
 
   divider.addEventListener("dblclick", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleOrientation();
+    e.preventDefault();
+    e.stopPropagation();
+    toggleOrientation();
   });
 
   divider.addEventListener("pointerup", stopDrag);
@@ -190,17 +322,15 @@ function initSplitter(splitterEl) {
     });
   }
 
-  // Eventos ao Carregar / Resize da Janela
+  // Inicialização
   window.addEventListener("load", () => {
-    // define orientação inicial se você quiser garantir que sempre tenha uma
     loadSplitterSettings(splitterEl);
-    // layout coerente
     syncVisibility();
   });
 
   let resizingFromObserverMutex = false; //evita cair num loop infinito de resize
 
-  const ro = new ResizeObserver(entries => {
+  const ro = new ResizeObserver((entries) => {
     if (resizingFromObserverMutex) return;
 
     const entry = entries[0];
@@ -213,27 +343,20 @@ function initSplitter(splitterEl) {
 
     // reaplica o ratio salvo para o tamanho novo
     applyStoredRatio();
-
     resizingFromObserverMutex = false;
   });
 
   ro.observe(splitterEl);
 
-
-  // versao antiga de resize, antes só atualiza se a janela do navegador mudasse de tamanho, 
-  // agora se o elemento splitter mudar de tamanho por qualquer razao, atualiza o seu divider position
-  // window.addEventListener("resize", () => {
-  //   if (splitterEl.classList.contains("single-pane")) return;
-
-  //   // reaplica o ratio salvo do modo atual
-  //   applyStoredRatio();
-  // });
-
-  // funcoes de acesso externo vinculados ao elemento
+  // API externa
   splitterEl._syncVisibility = syncVisibility;
   splitterEl._setPaneVisible = setPaneVisible;
   splitterEl._toggleOrientation = toggleOrientation;
 }
 
-// Inicializa todos
+/* ========= BOOTSTRAP =========
+ * 1) upgrade placeholders (inclusive nested)
+ * 2) init em todos os splitters
+ */
+upgradeSplitterPlaceholders(document);
 document.querySelectorAll(".splitter").forEach(initSplitter);

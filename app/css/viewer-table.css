@@ -1,3 +1,8 @@
+/* sobrescreve estilos do table.css para necessidades dessa view */
+.table-scroll {
+    width: 100% !important;
+}
+
 table {
     width: 100%;
 }
