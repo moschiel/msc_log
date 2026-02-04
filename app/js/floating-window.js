@@ -7,7 +7,11 @@
         return Math.max(min, Math.min(max, v));
     }
 
+    // Se a posicao está fora do limite do viewPort, forçamos ficar no viewport
+    // pode acontecer se o usuario estava em uma tela grande, e mudou para uma menor, ai evita da janela "sumir"
     function clampFloatingToViewport(win) {
+        if (util.isVisible(win) === false) return;
+
         const rect = win.getBoundingClientRect();
 
         const vw = window.innerWidth;
@@ -97,10 +101,6 @@
                 if (btnMin) { btnMin.textContent = "▢"; btnMin.title = "Restaurar"; }
             }
 
-            //restauramos, mas se a posicao restaurada está fora do limite do viewPort, forçamos ficar no viewport
-            //pode acontecer se o usuario estava em uma tela grande, e mudou para uma menor, ai evita da janela "sumir"
-            clampFloatingToViewport(win);
-
             return true;
         } catch {
             return false;
@@ -161,7 +161,7 @@
         // só aplica posição inicial se NÃO tinha estado salvo
         if (!restored) {
             applyInitialFloatingPosition(win);
-        } applyInitialFloatingPosition(win);
+        }
 
         const titlebar = win.querySelector(".titlebar");
         const btnMin = win.querySelector(".btnMinimize");
@@ -378,6 +378,8 @@
         win.style.zIndex = String(globalFloatWindowZ);
 
         util.setVisible(win, true);
+
+        clampFloatingToViewport(win);
     }
 
     //Expoe algums funcionalidades para serem usadas por outros modulos
@@ -389,5 +391,13 @@
 
         // inicializa todas as janelas (agora já convertidas)
         document.querySelectorAll(".floating-window").forEach(initFloatingWindow);
+
+        // garante que se navegador diminuir de tamanho, nao suma completamente o floating-window
+        window.addEventListener("resize", () => {
+            document.querySelectorAll(".floating-window:not(.hidden)").forEach((win) => {
+                clampFloatingToViewport(win);
+            });
+        });
+
     });
 })();
