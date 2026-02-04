@@ -300,14 +300,14 @@ function parseCC33Package(u8buf, processMode) {
  * @param {number} msgID  uint16
  * @param {Uint8Array} data
  */
-function parseMessage(msgID, data, showOnTable = true) {
+function parseMessage(msgID, data, processMode) {
     const br = createBinaryReader(data, {
-        processMode: showOnTable ? "collect" : "validate",
+        processMode,
         dataMode: "nsv", /* name, size, value */
         dataOrientation: "v"
     });
 
-    let implemented = true;
+    let isImplemented = true;
     
     // -------- switch principal --------
     switch (msgID) {
@@ -755,20 +755,15 @@ function parseMessage(msgID, data, showOnTable = true) {
         }
 */
         default: {
-            implemented = false;
+            isImplemented = false;
         }
     }
 
-    if(showOnTable) {
-        showParsedMessageOnTable(
-            implemented, 
-            msgID, 
-            ["Name", "Size", "Value"], 
-            br.rows
-        );
+    return {
+        isImplemented,
+        msgID,
+        rows: br.rows        
     }
-
-    return true;
 }
 
 function savePkgAnalyzeConfig(config, value) {

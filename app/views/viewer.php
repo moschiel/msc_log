@@ -71,7 +71,6 @@ Permite clicar nos pacotes p/ ver detalhes.
                 <span class="toogle-btn-icon">▦</span>
             </button>
 
-            
             <div class="">
                 <label for="selListMessage">Listar:</label>
                 <select name="selListMessage" id="selListMessage">
@@ -82,7 +81,7 @@ Permite clicar nos pacotes p/ ver detalhes.
             <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
         </div>
 
-        <div id="mainSplitter" class="splitter splitter-root is-vertical" data-close="second">
+        <div id="mainSplitter" class="splitter splitter-root is-vertical" add-btn-close="second">
             <div id="logBox" class="log-box">
                 <span id="logContent">Carregando...</span><span id="logPendingPacketContent"></span>
             </div>

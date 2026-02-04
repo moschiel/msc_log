@@ -59,8 +59,8 @@ function loadSplitterSettings(splitterEl) {
  * - Se o 2º elemento tiver class "hidden", mantém (vai virar single-pane)
  * - Botão X:
  *    - Por padrão, cria X apenas no pane 2
- *    - Se quiser no pane 1 também: data-close="both" OU data-close-first="1"
- *    - Se quiser desabilitar: data-close="none"
+ *    - Se quiser no pane 1 também: add-btn-close="both" OU add-btn-close-first="1"
+ *    - Se quiser desabilitar: add-btn-close="none"
  */
 function upgradeSplitterPlaceholders(root = document) {
   root.querySelectorAll(".splitter").forEach((host) => {
@@ -95,7 +95,7 @@ function upgradeSplitterPlaceholders(root = document) {
 
     // captura flags antes de mexer
     const secondWasHidden = secondContent.classList.contains("hidden");
-    const closeMode = (host.getAttribute("data-close") || "").toLowerCase();
+    const closeMode = (host.getAttribute("add-btn-close") || "").toLowerCase();
     const closeFirst = closeMode === "first" || closeMode === "both";
     const closeSecond = closeMode === "second" || closeMode === "both";
 

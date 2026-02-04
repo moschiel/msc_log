@@ -101,7 +101,13 @@ ui.logBox.addEventListener("click", e => {
             if (messages.length > 0) {
                 for (const msg of messages) {
                     if (msg.id === lastMessageIdClicked) {
-                        parseMessage(msg.id, msg.data, true);
+                        const {isImplemented, msgID, rows} = parseMessage(msg.id, msg.data, "collect");
+                        showParsedMessageOnTable(
+                            isImplemented, 
+                            msgID, 
+                            ["Name", "Size", "Value"], 
+                            rows
+                        );
                         return;
                     }
                 }
@@ -148,7 +154,13 @@ ui.packageTable.addEventListener("click", (ev) => {
 
         // 3) imprimir no log o valor da primeira coluna
         // console.log("LOG col1:", col1Text.substr(0, 6));
-        parseMessage(messageID, col3Bytes, true);
+        const {isImplemented, msgID, rows} = parseMessage(messageID, col3Bytes, "collect");
+        showParsedMessageOnTable(
+            isImplemented, 
+            msgID, 
+            ["Name", "Size", "Value"], 
+            rows
+        );
     }
     catch (e) {
         console.error(e.message);

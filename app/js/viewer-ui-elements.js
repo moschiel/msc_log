@@ -8,7 +8,7 @@ const ui = {
     logBox: document.getElementById("logBox"),
     logContent: document.getElementById("logContent"),
     logPendingPacketContent: document.getElementById("logPendingPacketContent"),
-    tableSplitter: document.getElementById("tableSplitter"),
+    listMessageTable: document.getElementById("listMessageTable"),
     windowParsedPackage: document.getElementById("windowParsedPackage"),
     packageTable: document.getElementById("packageTable"),
     windowParsedMessage: document.getElementById("windowParsedMessage"),
