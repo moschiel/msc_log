@@ -50,7 +50,7 @@ function render_viewer($selectedFile) {
             <button 
                 id="btnAutoScroll"
                 type="button"
-                class="hint toogle-btn"
+                class="hint toogle-btn is-pressed"
                 data-hint="Auto-Scroll"
             >
                 <span class="toogle-btn-icon">⇣</span>
