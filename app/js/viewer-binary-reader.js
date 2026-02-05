@@ -36,7 +36,8 @@ function createBinaryReader(u8buf, opts = {}) {
     const rows = dataOrientation === "v"
         ? []
         : dataMode === "nv"
-            ? [[], []] : [[], [], []];
+            ? [[], []]  //nv
+            : [[], [], []]; //nsv
 
     // ======== check mínimo (com name) ========
     function need(name, n) {

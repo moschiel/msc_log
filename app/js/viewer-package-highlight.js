@@ -4,7 +4,7 @@ const PKG_HIGHLIGHT_VERSION = "V1";
 // Aplica estilos aos pacotes com CC33 
 // (sem operacao de replace() no texto inteiro pois ia ser lento demais, 
 // seta direto no vetor lines de acordo com os indexes passados)
-function highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes) {
+function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
@@ -18,7 +18,7 @@ function highlightPackage(pkgCounter, parseOk, connState, lines, lineIndexes) {
 
     // 'classPkgGroup' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
-    const classPkgGroup = `pkg-${pkgCounter}`;
+    const classPkgGroup = `pkg-${hlPkgCounter}`;
     const headerLen = LOG_HEADER_EXAMPLE.length;
     const total = lineIndexes.length;
 
@@ -97,8 +97,8 @@ function writeLogWithHighlightPackage(mode, textContent) {
     if (safeText && safeText.length > 0) {
         let innerHTML = util.escapeHtml(safeText);
         // Aplica highlight dos pacotes com CC33
-        innerHTML = detectCC33Packages(innerHTML, { highlight: true });
-        writeLogBox(mode, "html", innerHTML);
+        const { htmlWithPackagesHighlight } = detectCC33Packages(innerHTML, { highlight: true });
+        writeLogBox(mode, "html", htmlWithPackagesHighlight);
     }
 
     //texto com pacote CC33 incompleto no final (pendente de ser completado)

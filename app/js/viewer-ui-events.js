@@ -27,7 +27,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     ui.btnHighlightPkg.disable = true;
     ui.btnTailAutoRefresh.disable = true;
 
-    clearPkgCounters();
+    clearHighlightPkgCounters();
     clearLogBox();
 
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
@@ -101,10 +101,15 @@ ui.logBox.addEventListener("click", e => {
             if (messages.length > 0) {
                 for (const msg of messages) {
                     if (msg.id === lastMessageIdClicked) {
-                        const {isImplemented, msgID, rows} = parseMessage(msg.id, msg.data, "collect");
+                        const {isImplemented, rows} = parseMessage(
+                            msg.id, 
+                            msg.data, 
+                            "nsv", /* Collect parametes name, size, and value */
+                            "v" /* Parametes Vertical Orientation */
+                        );
                         showParsedMessageOnTable(
-                            isImplemented, 
-                            msgID, 
+                            isImplemented,
+                            msg.id,
                             ["Name", "Size", "Value"], 
                             rows
                         );
@@ -152,12 +157,16 @@ ui.packageTable.addEventListener("click", (ev) => {
             console.warn("Falha ao converter coluna 3 para Uint8Array:", e);
         }
 
-        // 3) imprimir no log o valor da primeira coluna
-        // console.log("LOG col1:", col1Text.substr(0, 6));
-        const {isImplemented, msgID, rows} = parseMessage(messageID, col3Bytes, "collect");
+        // 3) Parsear mensagem e mostrar na tabela
+        const {isImplemented, rows} = parseMessage(
+            messageID, 
+            col3Bytes, 
+            "nsv", // Collect parameters name, size and value
+            "v" // Data vertical orientation
+        );
         showParsedMessageOnTable(
             isImplemented, 
-            msgID, 
+            messageID, 
             ["Name", "Size", "Value"], 
             rows
         );

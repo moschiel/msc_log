@@ -94,10 +94,15 @@ function upgradeSplitterPlaceholders(root = document) {
     }
 
     // captura flags antes de mexer
+    const firstWasHidden = firstContent.classList.contains("hidden");
     const secondWasHidden = secondContent.classList.contains("hidden");
     const closeMode = (host.getAttribute("add-btn-close") || "").toLowerCase();
     const closeFirst = closeMode === "first" || closeMode === "both";
     const closeSecond = closeMode === "second" || closeMode === "both";
+
+    // remove hidden, se estavam hidden antes, a classe sera aplicada nos seus respectivos panes
+    firstContent.classList.remove("hidden");
+    secondContent.classList.remove("hidden");
 
     // tira o conteúdo atual do host
     const fragFirst = document.createDocumentFragment();
@@ -112,6 +117,7 @@ function upgradeSplitterPlaceholders(root = document) {
 
     const pane1 = document.createElement("div");
     pane1.className = "pane first";
+    if (firstWasHidden) pane1.classList.add("hidden");
     pane1.appendChild(fragFirst);
 
     const divider = document.createElement("div");

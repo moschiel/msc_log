@@ -2,7 +2,7 @@ let refreshTimer = null;
 let lastFileSize = 0;
 
 function clearAllLogData() {
-  clearPkgCounters();
+  clearHighlightPkgCounters();
   clearLogBox();
   clearRawLog();
   lastFileSize = 0;
