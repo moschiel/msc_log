@@ -1,27 +1,98 @@
 // binaryReader.js
- 
+
+/**
+ * @typedef {"validate" | "collect"} ProcessMode
+ * @typedef {"nv" | "nsv"} DataMode
+ * @typedef {"v" | "h"} DataOrientation
+ *
+ * @typedef {Object} BinaryReaderOpts
+ * @property {ProcessMode=} processMode
+ * @property {DataMode=} dataMode    - nv=Name/Value, nsv=Name/Size/Value
+ * @property {DataOrientation=} dataOrientation - v=Vertical, h=Horizontal
+ */
+
+/** @typedef {[string, any]} RowNV_Vertical */
+/** @typedef {[string, (number|string), any]} RowNSV_Vertical */
+
+/** @typedef {[string[], any[]]} RowsNV_Horizontal */
+/** @typedef {[string[], (number|string)[], any[]]} RowsNSV_Horizontal */
+
+/**
+ * rows pode ter 4 formatos:
+ * - nv + v: RowNV_Vertical[]
+ * - nsv + v: RowNSV_Vertical[]
+ * - nv + h: RowsNV_Horizontal
+ * - nsv + h: RowsNSV_Horizontal
+ * @typedef {RowNV_Vertical[] | RowNSV_Vertical[] | RowsNV_Horizontal | RowsNSV_Horizontal} RowsAny
+ */
+
+/**
+ * @callback BytesToHexFn
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+
+/**
+ * @typedef {Object} BinaryReader
+ * @property {DataView} dv
+ * @property {Uint8Array} u8buf
+ * @property {RowsAny} rows
+ *
+ * @property {function(): number} getOffset
+ * @property {function(number): void} setOffset
+ * @property {function(): number} getLength
+ *
+ * @property {function(string, number): void} need
+ * @property {function(string, number): void} skip
+ *
+ * @property {function(string): number} read_u8
+ * @property {function(string, boolean=): number} read_i16
+ * @property {function(string, boolean=): number} read_u16
+ * @property {function(string, boolean=): number} read_i32
+ * @property {function(string, boolean=): number} read_u32
+ * @property {function(string, boolean=): bigint} read_u64
+ * @property {function(string, number): Uint8Array} read_bytes
+ *
+ * @property {function(number): string} hex_u8
+ * @property {function(number): string} hex_u16
+ * @property {function(number): string} hex_u32
+ *
+ * @property {function(string, number|string, any): void} add_row
+ * @property {function(string, (function(number): any)=): number} add_row_u8
+ * @property {function(string, boolean=, (function(number): any)=): number} add_row_i16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_row_u16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_row_i32
+ * @property {function(string, boolean=, (function(number): any)=): number} add_row_u32
+ * @property {function(string, boolean=, (function(bigint): any)=): bigint} add_row_u64
+ *
+ * @property {function(string): number} add_row_hex_u8
+ * @property {function(string, boolean=): number} add_row_hex_u16
+ * @property {function(string, boolean=): number} add_row_hex_u32
+ *
+ * @property {function(string, number, BytesToHexFn=): Uint8Array} add_row_bytes_hex
+ * @property {function(string, number): any} add_row_bytes_BCD
+ * @property {function(string): string} add_row_u32_timestamp
+ * @property {function(string): string} add_row_i32_coord
+ */
+
 /**
  * Cria um leitor sequencial (DataView) com helpers de parse.
  * Retona um array multidimensional composto de "Nome", "Size", e "Valor" dos parametros parseados.
  * se a orientacao for vertical, retorna assim:
-[
-    [Nome 1, Size 1, Valor 1]
-    [Nome 2, Size 2, Valor 2]
-    [Nome n, Size n, Valor n]
-]
+ * [
+ *   [Nome 1, Size 1, Valor 1]
+ *   [Nome 2, Size 2, Valor 2]
+ *   [Nome n, Size n, Valor n]
+ * ]
  * se for horizontal, retorna assim:
-[
-    [Nome 1,  Nome 2,  Nome n  ]
-    [Size 1,  Size 2,  Size n  ]
-    [Valor 1, Valor 2, Valor n ]
-]
-*
+ *[
+ *   [Nome 1,  Nome 2,  Nome n  ]
+ *   [Size 1,  Size 2,  Size n  ]
+ *   [Valor 1, Valor 2, Valor n ]
+ *]
  * @param {Uint8Array} u8buf
- * @param {{
- *   processMode?: "validate" | "collect",
- *   dataMode?: "nv" | "nsv", // nv=Name/Value, nsv=Name/Size/Value
- *   dataOrientation?: "v" | "h" // v=Vertical / h=Horizontal
- * }} [opts]
+ * @param {BinaryReaderOpts} [opts]
+ * @returns {BinaryReader}
  */
 function createBinaryReader(u8buf, opts = {}) {
     const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);

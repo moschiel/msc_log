@@ -1,3 +1,5 @@
+
+
 // Mapa equivalente ao Dictionary<UInt16, string>
 const msgsList = new Map([
   [0x0000, { description: "Keep Alive", timelineSupport: false }],
@@ -93,6 +95,12 @@ const telemetryEventsList = new Map([
     [31,"DIFFERENTIAL_BLOCKED"]
 ]);
 
+/**
+ * Retorna a descrição de uma mensagem pelo seu ID.
+ *
+ * @param {Number} id - id da mensagem
+ * @returns {string} descrição da mensagem
+ */    
 function getMsgName(id) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
@@ -105,6 +113,14 @@ function getMsgName(id) {
     return ret;
 }
 
+/**
+ * Preenche a tabela #messageTable com os parâmetros da mensagem parseada
+ *
+ * @param {boolean} implemented - diz se foi implementado o parseamento dessa mensagem
+ * @param {Number} msgID - id da mensagem a ser mostrada na tabela
+ * @param {Array<string>} headers - dados dos headers da tabela
+ * @param {Array<Array>} rows - dados dos rows da tabela
+ */
 function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     if(implemented) {
         ui.labelMessageDescription.textContent = getMsgName(msgID);
@@ -117,6 +133,12 @@ function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     openFloatingWindow(ui.windowParsedMessage)
 }
 
+/**
+ * Pesquisa no Log todas as mensagens de um ID específico, 
+ * e lista o parseamento de todas as mensagens na tabela #listMessageTable
+ *
+ * @param {Number} msgID - id da mensagem a ser pesquisada no Log
+ */
 function listMessage(msgID) {
     console.log("Valor selecionado:", "0x" + msgID.toString(16));
     
@@ -131,7 +153,7 @@ function listMessage(msgID) {
     ui.mainSplitter._setPaneVisible(2, true);
 }
 
-/**
+/** Parsea uma mensagem
  * @param {number} msgID uint16
  * @param {Uint8Array} data uint8[]
  * @param {string} dataMode: "nv" | "nsv", // nv=Name/Value, nsv=Name/Size/Value
