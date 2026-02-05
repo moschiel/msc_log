@@ -85,8 +85,8 @@
 
 /* Windows Dark mode */
 @media (prefers-color-scheme: dark) {
-  .table-wrap {
-    scrollbar-color: #3a3a3a #1e1e1e;      /* thumb | track */
+  .table-scroll {
+    scrollbar-color: #3a3a3a #1e1e1e; /* thumb | track */
   }
 
   .table-clean {

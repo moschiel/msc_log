@@ -7,18 +7,26 @@ table {
     width: 100%;
 }
 
-
-table td:nth-child(1) {
+#packageTable td:nth-child(1),
+#messageTable td:nth-child(1) {
     /* largura minima da primeira coluna (nao fica menor que isso) */
     width: 140px;
 }
 
-table td:nth-child(2) {
+#packageTable td:nth-child(2),
+#messageTable td:nth-child(2) {
     /* largura minima da segunda coluna (nao fica menor que isso) */
     width: 70px;
 }
 
-table td {
+#packageTable td,
+#messageTable td {
   white-space: pre-wrap;   /* respeita \n e \r\n, fazendo pular linha */
   word-break: break-word;  /* evita estourar a célula */
+}
+
+#listMessageTable {
+    margin: 12px;
+    /* impede que o conteudo de uma celula quebre em multiplas linhas */
+    white-space: nowrap; 
 }
