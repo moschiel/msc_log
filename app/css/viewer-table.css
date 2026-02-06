@@ -7,20 +7,20 @@ table {
     width: 100%;
 }
 
-#packageTable td:nth-child(1),
-#messageTable td:nth-child(1) {
+#parsedPackageTable td:nth-child(1),
+#parsedMessageTable td:nth-child(1) {
     /* largura minima da primeira coluna (nao fica menor que isso) */
     width: 140px;
 }
 
-#packageTable td:nth-child(2),
-#messageTable td:nth-child(2) {
+#parsedPackageTable td:nth-child(2),
+#parsedMessageTable td:nth-child(2) {
     /* largura minima da segunda coluna (nao fica menor que isso) */
     width: 70px;
 }
 
-#packageTable td,
-#messageTable td {
+#parsedPackageTable td,
+#parsedMessageTable td {
   white-space: pre-wrap;   /* respeita \n e \r\n, fazendo pular linha */
   word-break: break-word;  /* evita estourar a célula */
 }

@@ -183,9 +183,16 @@ select:disabled {
 }
 
 
+.backColor {  
+  background: #f0f0f0;
+}
 
 /* ===== DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
+  .backColor {
+    background: #1e1e1e;
+  }
+
   body {
     color: #eee;
     background: #121212;

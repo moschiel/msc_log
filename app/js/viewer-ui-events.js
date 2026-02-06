@@ -151,10 +151,10 @@ ui.logBox.addEventListener("click", e => {
     }
 
     // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-    ui.messageTable.innerHTML = "O pacote atual não possui essa mensagem.";    
+    ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";    
 });
 
-ui.packageTable.addEventListener("click", (ev) => {
+ui.parsedPackageTable.addEventListener("click", (ev) => {
     try {
         if (!(ev.target instanceof HTMLElement)) return;
 

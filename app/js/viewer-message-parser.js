@@ -125,7 +125,7 @@ export function getMsgName(id) {
 }
 
 /**
- * Preenche a tabela #messageTable com os parâmetros da mensagem parseada
+ * Preenche a tabela #parsedMessageTable com os parâmetros da mensagem parseada
  *
  * @param {boolean} implemented diz se foi implementado o parseamento dessa mensagem
  * @param {Number} msgID id da mensagem a ser mostrada na tabela
@@ -133,13 +133,14 @@ export function getMsgName(id) {
  * @param {Array<Array>} rows dados dos rows da tabela
  */
 export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
+    ui.labelMessageDescription.textContent = getMsgName(msgID);
     if(implemented) {
-        util.Table.Create(ui.messageTable, headers, rows);
+        util.Table.Create(ui.parsedMessageTable, headers, rows);
     } else {
-        ui.messageTable.innerHTML = `Parseamento dessa mensagem não foi desenvolvido.`;
+        ui.parsedMessageTable.innerHTML = `Parseamento dessa mensagem não foi desenvolvido.`;
     }
-    
-    openFloatingWindow(ui.windowParsedMessage, {title: getMsgName(msgID)});
+
+    setSplitterPaneVisible(ui.parsedPackageSplitter, 2, true);
 }
 
 /**
@@ -385,7 +386,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 rows.push([strID, String(size), util.bufferToHex(blob)]);
             }
 
-            util.Table.Create(ui.packageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
+            util.Table.Create(ui.parsedPackageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
             return true;
         }
 
@@ -396,7 +397,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
             }
 
-            util.Table.Create(ui.packageTable, ["ID (index)", "Data (Hex)"], rows);
+            util.Table.Create(ui.parsedPackageTable, ["ID (index)", "Data (Hex)"], rows);
             return true;
         }
 
@@ -413,13 +414,13 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 }
             }
 
-            util.Table.Create(ui.packageTable, ["ID"], rows);
+            util.Table.Create(ui.parsedPackageTable, ["ID"], rows);
             return true;
         }
 
         case 0x4004: {
             rows.push([getAsciiStringAll()]);
-            util.Table.Create(ui.packageTable, ["File Name"], rows);
+            util.Table.Create(ui.parsedPackageTable, ["File Name"], rows);
             return true;
         }
 */

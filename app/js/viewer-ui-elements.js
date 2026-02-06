@@ -19,10 +19,11 @@
  * @property {HTMLDivElement} logPendingPacketContent
  *
  * @property {HTMLTableElement} listMessageTable
+ * @property {HTMLDivElement} parsedPackageSplitter
  * @property {HTMLDivElement} windowParsedPackage
- * @property {HTMLTableElement} packageTable
- * @property {HTMLDivElement} windowParsedMessage
- * @property {HTMLTableElement} messageTable
+ * @property {HTMLTableElement} parsedPackageTable
+ * @property {HTMLDivElement} labelMessageDescription
+ * @property {HTMLTableElement} parsedMessageTable
  */
 
 /** @type {ViewerUI} */
@@ -66,20 +67,24 @@ export const ui = {
   listMessageTable: /** @type {HTMLTableElement} */ (
     document.getElementById("listMessageTable")
   ),
+  
+  parsedPackageSplitter: /** @type {HTMLDivElement} */ (
+    document.getElementById("parsedPackageSplitter")
+  ),
 
   windowParsedPackage: /** @type {HTMLDivElement} */ (
     document.getElementById("windowParsedPackage")
   ),
 
-  packageTable: /** @type {HTMLTableElement} */ (
-    document.getElementById("packageTable")
+  parsedPackageTable: /** @type {HTMLTableElement} */ (
+    document.getElementById("parsedPackageTable")
   ),
 
-  windowParsedMessage: /** @type {HTMLDivElement} */ (
-    document.getElementById("windowParsedMessage")
+  labelMessageDescription: /** @type {HTMLDivElement} */ (
+    document.getElementById("labelMessageDescription")
   ),
 
-  messageTable: /** @type {HTMLTableElement} */ (
-    document.getElementById("messageTable")
+  parsedMessageTable: /** @type {HTMLTableElement} */ (
+    document.getElementById("parsedMessageTable")
   ),
 };

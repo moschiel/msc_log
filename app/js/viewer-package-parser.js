@@ -297,7 +297,7 @@ export function readPkgAnalyzeConfig(config) {
  * @param {Number|string|null} pkgIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
 export function showParsedPackageOnTable(headers, rows, pkgIndex=null) {
-    util.Table.Create(ui.packageTable, headers, rows);
+    util.Table.Create(ui.parsedPackageTable, headers, rows);
     openFloatingWindow(ui.windowParsedPackage, {
         title: pkgIndex !== null ? `Package #${pkgIndex}` : "Package #?"
     });
