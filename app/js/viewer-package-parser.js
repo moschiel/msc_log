@@ -258,39 +258,6 @@ export function parseCC33Package(u8buf, processMode) {
 }
 
 /**
- * Salva a configuração de análise de pacotes no localStorage.
- * @param {string} config
- * @param {string} value
- */
-export function savePkgAnalyzeConfig(config, value) {
-    // @ts-ignore
-    const currentLogFileName = LOG_FILE_NAME;
-    const key = `${currentLogFileName}::pkg-analyze::${config}`;
-    localStorage.setItem(key, value);
-    console.log("save", key);
-}
-
-/**
- * Lê a configuração de análise de pacotes salva no localStorage.
- * @param {string} config
- * @returns {string}
- */
-export function readPkgAnalyzeConfig(config) {
-    // @ts-ignore
-    const currentLogFileName = LOG_FILE_NAME;
-    const key = `${currentLogFileName}::pkg-analyze::${config}`;
-    const v = localStorage.getItem(key);
-
-    if(v === null) {
-        // retorna valores default de acordo com a config
-        if(config === "ignoreAck") return "1";
-        if(config === "ignoreKeepAlive") return "1";
-    }
-
-    return v;
-}
-
-/**
  * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
  * @param {Array<string>} headers 
  * @param {Array<Array>} rows 
@@ -430,4 +397,53 @@ export function tailSplitWithPendingCC33(pendingText, chunk) {
   const combined = (pendingText || "") + (chunk || "");
   const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
   return { safeText: before || "", pendingText: rest || "" };
+}
+
+const PKG_ANALYZE_KEY = "pkg-analyze-config";
+/**
+ * Retorna o objeto de configurações completo,
+ * já mesclado com defaults.
+ */
+function getPkgAnalyzeConfigObject() {
+    const raw = localStorage.getItem(PKG_ANALYZE_KEY);
+
+    let cfg = {};
+    if (raw) {
+        try {
+            cfg = JSON.parse(raw);
+        } catch (e) {
+            console.warn("pkg-analyze: JSON inválido, resetando configs");
+            cfg = {};
+        }
+    }
+
+    // defaults
+    return {
+        ignoreAck: "1",
+        ignoreKeepAlive: "1",
+        ...cfg
+    };
+}
+
+/**
+ * Salva uma configuração de análise de pacotes no localStorage (JSON).
+ * @param {string} config
+ * @param {string} value
+ */
+export function savePkgAnalyzeConfig(config, value) {
+    const cfg = getPkgAnalyzeConfigObject();
+    cfg[config] = value;
+
+    localStorage.setItem(PKG_ANALYZE_KEY, JSON.stringify(cfg));
+    console.log("save", PKG_ANALYZE_KEY, cfg);
+}
+
+/**
+ * Lê uma configuração de análise de pacotes do localStorage (JSON).
+ * @param {string} config
+ * @returns {string}
+ */
+export function readPkgAnalyzeConfig(config) {
+    const cfg = getPkgAnalyzeConfigObject();
+    return cfg[config];
 }

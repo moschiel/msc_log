@@ -2,46 +2,81 @@
 import { util } from "./utils.js";
 
 const MIN_PANE_PX = 80;
-const LS_SPLITTER_IS_VERTICAL = "splitter_is_vertical::";
-
 const splitterApi = new WeakMap(); // key: splitterEl, value: { setPaneVisible, syncVisibility, toggleOrientation, ... }
-
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
+const LS_SPLITTER_SETTINGS_KEY = "splitter_settings";
+/**
+ * Carrega o JSON inteiro (com fallback e parse safe).
+ * Retorna um objeto: { [splitterId]: { isVertical, ratioV, ratioH } }
+ */
+function _loadAllSplitterSettings() {
+  const raw = localStorage.getItem(LS_SPLITTER_SETTINGS_KEY);
+  if (!raw) return {};
 
-function _lsKeyFor(splitterEl) {
-  // usa id pra chave; se não tiver, não salva (evita key lixo)
-  if (!splitterEl || !splitterEl.id) return null;
-  return LS_SPLITTER_IS_VERTICAL + splitterEl.id;
-}
-
-function saveSplitterSettings(splitterEl, isVertical) {
-  const keyNew = _lsKeyFor(splitterEl);
-  if (!keyNew) return;
-  localStorage.setItem(keyNew, String(!!isVertical));
-}
-
-function loadSplitterSettings(splitterEl) {
-  if (!splitterEl || !splitterEl.id) return;
-
-  const keyNew = LS_SPLITTER_IS_VERTICAL + splitterEl.id;
-  const val = localStorage.getItem(keyNew);
-
-  // Se não tem nada salvo, NÃO força orientação.
-  // Mantém o que veio do HTML (is-vertical/is-horizontal).
-  if (val == null) return;
-
-  if (val === "true") {
-    splitterEl.classList.add("is-vertical");
-    splitterEl.classList.remove("is-horizontal");
-  } else if (val === "false") {
-    splitterEl.classList.remove("is-vertical");
-    splitterEl.classList.add("is-horizontal");
+  try {
+    const obj = JSON.parse(raw);
+    return (obj && typeof obj === "object") ? obj : {};
+  } catch (e) {
+    console.warn("splitter_settings: JSON inválido, resetando");
+    return {};
   }
 }
+
+/**
+ * Salva config do splitter (parcial). Qualquer campo pode ser omitido.
+ * @param {Element} splitterEl O elemento do splitter (deve ter id)
+ * @param {Object} config
+ * @param {boolean | null} [config.isVertical] Orientação do splitter
+ * @param {number | null} [config.ratioV] Ratio do splitter em modo vertical (0.0 a 1.0)
+ * @param {number | null} [config.ratioH] Ratio do splitter em modo horizontal (0.0 a 1.0)
+ * 
+ * O JSON salvo tem a estrutura: { [splitterId]: { isVertical, ratioV, ratioH } }
+ */
+export function saveSplitterSettings(splitterEl, config = { isVertical: null, ratioV: null, ratioH: null }) {
+  if (!splitterEl || !splitterEl.id) return;
+  const id = splitterEl.id;
+
+  const all = _loadAllSplitterSettings();
+  const cur = (all[id] && typeof all[id] === "object") ? all[id] : {};
+
+  // só salva o que for passado !== null (permite salvar só a orientação, por exemplo, sem mexer nos ratios)
+  if (typeof config.isVertical === "boolean") cur.isVertical = config.isVertical;
+  if (typeof config.ratioV === "number") cur.ratioV = config.ratioV;
+  if (typeof config.ratioH === "number") cur.ratioH = config.ratioH;
+  
+  all[id] = cur;
+  // salva tudo de volta
+  localStorage.setItem(LS_SPLITTER_SETTINGS_KEY, JSON.stringify(all));
+  console.log("Splitter settings salvos:", all);
+}
+
+/**
+ * Carrega e aplica SOMENTE o que existir salvo para esse splitter.
+ * - Se não existir nada salvo, não altera classes.
+ * - ratioV/ratioH retornam como number (ou undefined se não salvo).
+ */
+export function loadSplitterSettings(splitterEl) {
+  if (!splitterEl || !splitterEl.id) return;
+  const id = splitterEl.id;
+
+  const all = _loadAllSplitterSettings();
+  const cfg = all[id];
+
+  // nada salvo -> não mexe em nada (mantém HTML)
+  if (!cfg || typeof cfg !== "object") return;
+
+  // ratios: garante number ao retornar
+  return {
+    ratioV: (cfg.ratioV != null) ? Number(cfg.ratioV) : undefined,
+    ratioH: (cfg.ratioH != null) ? Number(cfg.ratioH) : undefined,
+    isVertical: cfg.isVertical
+  };
+}
+
 
 /**
  * Transforma um elemento "placeholder" em um splitter, injetando a estrutura necessária.
@@ -150,19 +185,34 @@ function initSplitter(splitterEl) {
   const first = splitterEl.querySelector(":scope > .pane.first");
   const second = splitterEl.querySelector(":scope > .pane.second");
   const divider = splitterEl.querySelector(":scope > .splitDivider");
+
+  // se não tiver a estrutura mínima, não inicializa (precisa dos 3 elementos principais)
+  if (!first || !second || !divider) return;
+  
+  // tenta pegar os botões de fechar, se existirem (dependendo do modo)
   const closeFirstBtn = first ? first.querySelector(":scope > .pane-close-btn") : null;
   const closeSecondBtn = second ? second.querySelector(":scope > .pane-close-btn") : null;
 
+  
   // guarda estado do dragging (agarrando ou nao)
   let dragging = false;
 
-  // guarda ratios separados por orientação
-  let ratioV = 0.5;
-  let ratioH = 0.5;
+  // inicializa orientação e ratios a partir do que tiver salvo (ou default 0.5)
+  const cfg = loadSplitterSettings(splitterEl);
+  let ratioV = (cfg && typeof cfg.ratioV === "number") ? cfg.ratioV : 0.5;
+  let ratioH = (cfg && typeof cfg.ratioH === "number") ? cfg.ratioH : 0.5;
+  if (cfg && cfg.isVertical) {
+    splitterEl.classList.add("is-vertical");
+    splitterEl.classList.remove("is-horizontal");
+  } else {
+    splitterEl.classList.remove("is-vertical");
+    splitterEl.classList.add("is-horizontal");
+  }
 
-  if (!first || !second || !divider) return;
 
-  const isVertical = () => splitterEl.classList.contains("is-vertical");
+  function isVertical() {
+    return splitterEl.classList.contains("is-vertical");
+  }
 
   function getTotalSize() {
     const rect = splitterEl.getBoundingClientRect();
@@ -238,6 +288,9 @@ function initSplitter(splitterEl) {
     const r = getCurrentRatio();
     if (isVertical()) ratioV = r;
     else ratioH = r;
+
+    // salva ratio atualizado após drag
+    saveSplitterSettings(splitterEl, { ratioV, ratioH });
   }
 
   function toggleOrientation() {
@@ -265,7 +318,7 @@ function initSplitter(splitterEl) {
       applyStoredRatio();
     }
 
-    saveSplitterSettings(splitterEl, isVertical());
+    saveSplitterSettings(splitterEl, { isVertical: isVertical() });
   }
 
   /* Eventos do Controle Divisor dos Panes */
@@ -332,7 +385,6 @@ function initSplitter(splitterEl) {
 
 
   // ✅ aplicação inicial (quem chamou init decide se é no load/domcontentloaded)
-  loadSplitterSettings(splitterEl);
   syncVisibility();
 }
 

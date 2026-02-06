@@ -99,7 +99,9 @@ Permite clicar nos pacotes p/ ver detalhes.
         class="floating-window floating-no-scroll hidden" 
         data-title="Package #?" >
         <!-- Splitter -->
-        <div id="parsedPackageSplitter" class="splitter splitter-root is-vertical" add-btn-close="second">
+        <div id="parsedPackageSplitter" 
+            class="splitter splitter-root is-vertical" 
+            add-btn-close="second" >
             <!-- Splitter First Pane for Parsed Package -->
             <div class="table-scroll">
                 <table id="parsedPackageTable" class="table-clean table-sticky">
