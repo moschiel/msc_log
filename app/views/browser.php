@@ -103,8 +103,7 @@ function render_browser($items, $msg) {
             </tbody>
         </table>
     </div>
-    <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/browser.js?v=<?= APP_VERSION ?>"></script>
+    <script type="module" src="./app/js/browser.js?v=<?= APP_VERSION ?>"></script>
 </body>
 </html>
 <?php

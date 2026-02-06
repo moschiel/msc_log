@@ -72,8 +72,8 @@ Permite clicar nos pacotes p/ ver detalhes.
             </button>
 
             <div class="">
-                <label for="selListMessage">Listar:</label>
-                <select name="selListMessage" id="selListMessage">
+                <label for="selListMessageTimeline">Listar:</label>
+                <select name="selListMessageTimeline" id="selListMessageTimeline">
                     <option value="none">--</option>
                 </select>
             </div>
@@ -136,18 +136,7 @@ Permite clicar nos pacotes p/ ver detalhes.
     <script>
         const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 
     </script>    
-    <script src="./app/js/utils.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/modal.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/split-pane.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/floating-window.js?v=<?= APP_VERSION ?>" defer></script>
-    <script src="./app/js/viewer-ui-elements.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-binary-reader.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-package-parser.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-package-highlight.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-message-parser.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-render-log.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-auto-refresh.js?v=<?= APP_VERSION ?>"></script>
-    <script src="./app/js/viewer-ui-events.js?v=<?= APP_VERSION ?>"></script>
+    <script type="module" src="./app/js/viewer.js?v=<?= APP_VERSION ?>"></script>
 </body>
 </html>
 <?php

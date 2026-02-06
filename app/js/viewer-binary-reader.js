@@ -1,4 +1,5 @@
-// binaryReader.js
+import { util } from "./utils.js";
+// viewer-binary-reader.js
 
 /**
  * @typedef {"validate" | "collect"} ProcessMode
@@ -11,21 +12,6 @@
  * @property {DataOrientation=} dataOrientation - v=Vertical, h=Horizontal
  */
 
-/** @typedef {[string, any]} RowNV_Vertical */
-/** @typedef {[string, (number|string), any]} RowNSV_Vertical */
-
-/** @typedef {[string[], any[]]} RowsNV_Horizontal */
-/** @typedef {[string[], (number|string)[], any[]]} RowsNSV_Horizontal */
-
-/**
- * rows pode ter 4 formatos:
- * - nv + v: RowNV_Vertical[]
- * - nsv + v: RowNSV_Vertical[]
- * - nv + h: RowsNV_Horizontal
- * - nsv + h: RowsNSV_Horizontal
- * @typedef {RowNV_Vertical[] | RowNSV_Vertical[] | RowsNV_Horizontal | RowsNSV_Horizontal} RowsAny
- */
-
 /**
  * @callback BytesToHexFn
  * @param {Uint8Array} bytes
@@ -36,7 +22,7 @@
  * @typedef {Object} BinaryReader
  * @property {DataView} dv
  * @property {Uint8Array} u8buf
- * @property {RowsAny} rows
+ * @property {Array<Array>} rows
  *
  * @property {function(): number} getOffset
  * @property {function(number): void} setOffset
@@ -77,24 +63,44 @@
 
 /**
  * Cria um leitor sequencial (DataView) com helpers de parse.
- * Retona um array multidimensional composto de "Nome", "Size", e "Valor" dos parametros parseados.
- * se a orientacao for vertical, retorna assim:
+ *
+ * Conforma a leitura é realizada, é montada uma estrutura tabular (rows) contendo os parâmetros parseados,
+ * onde cada célula representa:
+ *
+ * ```
+ * [ Nome, Size, Valor ]
+ * ```
+ * 
+ * A orientação das rows depende da opção de layout:
+ *
+ * Layout VERTICAL:
+ *
+ * ```
  * [
- *   [Nome 1, Size 1, Valor 1]
- *   [Nome 2, Size 2, Valor 2]
- *   [Nome n, Size n, Valor n]
+ *   [ Nome 1, Size 1, Valor 1 ],
+ *   [ Nome 2, Size 2, Valor 2 ],
+ *   [ Nome N, Size N, Valor N ]
  * ]
- * se for horizontal, retorna assim:
- *[
- *   [Nome 1,  Nome 2,  Nome n  ]
- *   [Size 1,  Size 2,  Size n  ]
- *   [Valor 1, Valor 2, Valor n ]
- *]
+ * ```
+ *
+ * Layout HORIZONTAL:
+ *
+ * ```
+ * [
+ *   [ Nome 1,  Nome 2,  Nome N  ],
+ *   [ Size 1,  Size 2,  Size N  ],
+ *   [ Valor 1, Valor 2, Valor N ]
+ * ]
+ * ```
+ *  
  * @param {Uint8Array} u8buf
+ *        Buffer de entrada contendo os dados binários a serem parseados.
  * @param {BinaryReaderOpts} [opts]
+ *        Opções de configuração do leitor
  * @returns {BinaryReader}
  */
-function createBinaryReader(u8buf, opts = {}) {
+export function createBinaryReader(u8buf, opts = {})
+ {
     const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
 
     let offset = 0;

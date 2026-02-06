@@ -1,10 +1,24 @@
+import { util } from "./utils.js";
+import { tailSplitWithPendingCC33, LOG_HEADER_EXAMPLE, detectCC33Packages
+} from "./viewer-package-parser.js";
+import { getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket 
+} from "./viewer-render-log.js";
+
 const PKG_HIGHLIGHT_VERSION = "V1";
 
 
-// Aplica estilos aos pacotes com CC33 
-// (sem operacao de replace() no texto inteiro pois ia ser lento demais, 
-// seta direto no vetor lines de acordo com os indexes passados)
-function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes) {
+/** 
+* Aplica estilos nas linhas do log que são compostas de pacotes CC33
+ 
+* seta direto no vetor lines de acordo com os indexes passados
+* 
+* @param {number} hlPkgCounter numero do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
+* @param {boolean} parseOk se o parse do pacote foi bem sucedido ou nao (pacote com erro de formato, etc)
+* @param {"Online" | "Offline" | null} connState estado da conexao no momento do pacote (Online, Offline, etc)
+* @param {Array<string>} lines array de linhas do log,
+* @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
+*/
+export function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
@@ -22,6 +36,7 @@ function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes) 
     const headerLen = LOG_HEADER_EXAMPLE.length;
     const total = lineIndexes.length;
 
+    // @ts-ignore
     if (PKG_HIGHLIGHT_VERSION === "V2") {
         // Versao 2 gera apenas uma tag <span> POR PACOTE, tendo menos elementos DOM para o browser gerenciar, deixando a pagina mais leve.
         // O estilo fica porco, não da pra aplicar bordas, e o header de cada linha tambem fica com background colorido
@@ -89,7 +104,13 @@ function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes) 
     }
 }
 
-function writeLogWithHighlightPackage(mode, textContent) {
+/**
+ * Escreve no logBox, convertendo o conteudo de texto para HTML estilizado
+ * aplicando highlight nos pacotes CC33 encontrados.
+ * @param {"set" | "append"} mode 
+ * @param {string} textContent 
+ */
+export function writeLogWithHighlightPackage(mode, textContent) {
     // Junta pendingText + deltaText e separa parte segura vs resto
     let { safeText, pendingText } = tailSplitWithPendingCC33(getLogBoxPendingPacket(), textContent);
 
@@ -107,7 +128,14 @@ function writeLogWithHighlightPackage(mode, textContent) {
     setLogBoxPendingPacket(pendingText ? pendingText : "");
 }
 
-function getHexFromPackageClassGroup(classPkgGroup) {
+/**
+ * Recupera o frame hexadecimal completo de um pacote CC33 que está no LogBox, 
+ * a partir do nome da classe do grupo do pacote.
+ * @param {string} classPkgGroup 
+ * @returns 
+ */
+export function getHexFromPackageClassGroup(classPkgGroup) {
+    // @ts-ignore
     if (PKG_HIGHLIGHT_VERSION === "V2") {
         let frameStr = "";
         const elements = document.getElementsByClassName(classPkgGroup);

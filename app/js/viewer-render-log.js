@@ -1,28 +1,53 @@
+import { util } from "./utils.js";
+import { ui } from "./viewer-ui-elements.js";
+
 let rawTextLog = "";
 
-function setRawLog(rawText) {
+/**
+ * Seta o conteudo bruto do log em memoria para uso futuro.
+ * 
+ * Util para quando precisa alternar o conteudo entre texto puro ou texto com HTML.
+ * @param {string} rawText 
+ */
+export function setRawLog(rawText) {
     rawTextLog = rawText;
 }
 
-function getRawLog() {
+/**
+ * Retorna o conteudo bruto do log em memoria.
+ * 
+ * Util para quando precisa alternar o conteudo entre texto puro ou texto com HTML.
+ * @returns {string} rawText
+ */
+export function getRawLog() {
     return rawTextLog;
 }
 
-function clearRawLog() {
+/**
+ * Limpa o conteudo bruto do log em memoria.
+ */
+export function clearRawLog() {
     setRawLog("");
 }
 
-function clearLogBox() {
+/**
+ * Limpa o conteudo do logBox (área visível do log).
+ */
+export function clearLogBox() {
     writeLogBox("set", "html", "Carregando...");
     setLogBoxPendingPacket("");
 }
 
 /**
- * @param {string} mode: "set" | "append"
- * @param {string} type: "text" | "html"
+ * Escreve no logBox (área visível do log).
+ * 
+ * Aceita conteudo em texto puro ou HTML.
+ * @param {"set" | "append"} mode
+ * @param {"text" | "html"} type
  * @param {string} content
+ * @param {boolean} [isPendingCC33Content=false] se true, escreve na parte do log reservada p/ texto pendente de pacote (CC33)
  */
-function writeLogBox(mode, type, content, isPendingCC33Content = false) {
+export function writeLogBox(mode, type, content, isPendingCC33Content = false) {
     const el = isPendingCC33Content ? ui.logPendingPacketContent : ui.logContent;
 
     if(mode === "set") 
@@ -44,15 +69,18 @@ function writeLogBox(mode, type, content, isPendingCC33Content = false) {
 }
 
 /**
- * @param {string} mode: "set" | "append"
- * @param {string} type: "text" | "html"
+ * Seta o conteudo pendente de completar um pacote CC33 no logBox (área visível do log).
  * @param {string} content
  */
-function setLogBoxPendingPacket(content) {
+export function setLogBoxPendingPacket(content) {
     writeLogBox("set", "text", content, true);
 }
 
-function getLogBoxPendingPacket() {
+/**
+ * Recupera o conteudo pendente de completar um pacote CC33 no logBox (área visível do log).
+ * @returns {string}
+ */
+export function getLogBoxPendingPacket() {
     return ui.logPendingPacketContent.textContent;
 }
 

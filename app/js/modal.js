@@ -1,8 +1,45 @@
-// Modal "componente" reutilizável (um único modal para a página inteira)
-const Modal = (() => {
-  const overlay = document.getElementById("modalOverlay");
-  const titleEl = document.getElementById("modalTitle");
-  const bodyEl  = document.getElementById("modalBody");
+// modal.js (ESM)
+
+let _modal = null;
+
+/**
+ * Inicializa o componente Modal.
+ *
+ * Responsável apenas pelo setup estrutural:
+ * - localiza os elementos fixos do modal no DOM
+ * - registra os listeners globais (overlay, ESC, data-modal-*, etc.)
+ * - cria e guarda a instância interna do modal
+ *
+ * Deve ser chamada UMA única vez, após o DOM estar pronto.
+ * Não abre o modal nem injeta conteúdo.
+ *
+ * @param {Object} [opts]
+ * @param {string} [opts.overlayId="modalOverlay"] ID do elemento overlay do modal
+ * @param {string} [opts.titleId="modalTitle"] ID do elemento de título
+ * @param {string} [opts.bodyId="modalBody"] ID do elemento de conteúdo
+ * @param {boolean} [opts.enableDataAttrs=true]
+ *        Se true, ativa abertura automática via atributos data-modal-*
+ * @returns {{open: Function, close: Function, isOpen: Function}|null}
+ *          Instância do modal ou null se os elementos não existirem na página
+ */
+export function initModal(opts = {}) {
+  if (_modal) return _modal; // evita init duplo
+
+  const {
+    overlayId = "modalOverlay",
+    titleId = "modalTitle",
+    bodyId = "modalBody",
+    enableDataAttrs = true, // bind automático via data-modal-*
+  } = opts;
+
+  const overlay = document.getElementById(overlayId);
+  const titleEl = document.getElementById(titleId);
+  const bodyEl  = document.getElementById(bodyId);
+
+  if (!overlay || !titleEl || !bodyEl) {
+    // não quebra o app se o modal não existir nessa página
+    return null;
+  }
 
   let lastFocusEl = null;
   let onCloseCb = null;
@@ -11,11 +48,10 @@ const Modal = (() => {
     return overlay.classList.contains("is-open");
   }
 
-  function open(opts) {
-    opts = opts || {};
-    const title = (opts.title != null) ? String(opts.title) : "";
-    const bodyHtml = (opts.bodyHtml != null) ? String(opts.bodyHtml) : "";
-    onCloseCb = (typeof opts.onClose === "function") ? opts.onClose : null;
+  function open(mopts = {}) {
+    const title = (mopts.title != null) ? String(mopts.title) : "";
+    const bodyHtml = (mopts.bodyHtml != null) ? String(mopts.bodyHtml) : "";
+    onCloseCb = (typeof mopts.onClose === "function") ? mopts.onClose : null;
 
     lastFocusEl = document.activeElement;
 
@@ -26,6 +62,7 @@ const Modal = (() => {
     overlay.setAttribute("aria-hidden", "false");
 
     // foca no primeiro botão de fechar (se existir)
+    /** @type {HTMLElement} */
     const closeBtn = overlay.querySelector("[data-modal-close]");
     if (closeBtn) closeBtn.focus();
   }
@@ -53,6 +90,8 @@ const Modal = (() => {
 
   // Fecha ao clicar em qualquer elemento com data-modal-close
   overlay.addEventListener("click", (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+
     const el = e.target.closest("[data-modal-close]");
     if (el) close();
   });
@@ -62,22 +101,56 @@ const Modal = (() => {
     if (e.key === "Escape" && isOpen()) close();
   });
 
-  return { open, close, isOpen };
-})();
+  // bind automático via data-attrs (opcional)
+  // qualquer elemento com data-modal-title / data-modal-body abre o modal
+  if (enableDataAttrs) {
+    document.addEventListener("click", (e) => {
+      if (!(e.target instanceof HTMLElement)) return;
 
-// Binds: qualquer elemento com data-modal-title / data-modal-body abre o modal
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-modal-title],[data-modal-body]");
-  if (!btn) return;
+      const btn = e.target.closest("[data-modal-title],[data-modal-body]");
+      if (!btn) return;
 
-  const title = btn.getAttribute("data-modal-title") || "";
-  const bodyHtml = btn.getAttribute("data-modal-body") || "";
+      const t = btn.getAttribute("data-modal-title") || "";
+      const b = btn.getAttribute("data-modal-body") || "";
+      open({ title: t, bodyHtml: b });
+    });
+  }
 
-  // opcional: impedir comportamento padrão caso seja <a>
-  // e.preventDefault();
+  _modal = { open, close, isOpen };
+  return _modal;
+}
 
-  Modal.open({ title, bodyHtml });
-});
+// Conveniência: pra quem quer só usar sem guardar retorno
+export function openModal(opts) {
+  if (!_modal) {
+    console.warn("Modal não inicializado. Chame initModal() primeiro.");
+    return null;
+  }
+  _modal.open(opts);
+}
 
-// Se quiser abrir por código:
-// Modal.open({ title: "Oi", bodyHtml: "Texto <b>HTML</b>" });
+export function closeModal() {
+  if (!_modal) {
+    console.warn("Modal não inicializado. Chame initModal() primeiro.");
+    return null;
+  }
+  _modal.close();
+}
+
+/**
+ * Retorna a instância do Modal já inicializada.
+ *
+ * Deve ser usada após a chamada de initModal().
+ * 
+ * Não cria nem inicializa o modal automaticamente.
+ *
+ * @returns {{open: Function, close: Function, isOpen: Function}|null}
+ *          Instância atual do modal ou null se ainda não inicializado
+ */
+export function getModal() {
+  if (!_modal) {
+    console.warn("Modal não inicializado. Chame initModal() primeiro.");
+    return null;
+  }
+  return _modal;
+}

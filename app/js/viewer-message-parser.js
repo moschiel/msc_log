@@ -1,7 +1,15 @@
+import { util } from "./utils.js";
+import { setSplitterPaneVisible } from "./split-pane.js";
+import { ui } from "./viewer-ui-elements.js";
+import { getRawLog } from "./viewer-render-log.js";
+import { clearMessageCounters, detectCC33Packages } from "./viewer-package-parser.js";
+import { createBinaryReader } from "./viewer-binary-reader.js";
+import { openFloatingWindow } from "./floating-window.js";
 
-
-// Mapa equivalente ao Dictionary<UInt16, string>
-const msgsList = new Map([
+/**
+ * ID e descrição das mensagens, e se suportam timeline
+ */
+export const msgsList = new Map([
   [0x0000, { description: "Keep Alive", timelineSupport: false }],
   [0x1000, { description: "Reset INFO", timelineSupport: false }],
   [0x1100, { description: "Basic Position", timelineSupport: false }],
@@ -61,6 +69,9 @@ const msgsList = new Map([
   [0x200E, { description: "Factory Reset", timelineSupport: false }]
 ]);
 
+/**
+ * ID e descrição das eventos de telemetria, e se suportam timeline
+ */
 const telemetryEventsList = new Map([
     [1,"WARNING EXCESS RPM"],
     [2,"EXCESS RPM"],
@@ -98,10 +109,10 @@ const telemetryEventsList = new Map([
 /**
  * Retorna a descrição de uma mensagem pelo seu ID.
  *
- * @param {Number} id - id da mensagem
+ * @param {Number} id id da mensagem
  * @returns {string} descrição da mensagem
  */    
-function getMsgName(id) {
+export function getMsgName(id) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
     let ret = `0x${hex} - `;
@@ -116,12 +127,12 @@ function getMsgName(id) {
 /**
  * Preenche a tabela #messageTable com os parâmetros da mensagem parseada
  *
- * @param {boolean} implemented - diz se foi implementado o parseamento dessa mensagem
- * @param {Number} msgID - id da mensagem a ser mostrada na tabela
- * @param {Array<string>} headers - dados dos headers da tabela
- * @param {Array<Array>} rows - dados dos rows da tabela
+ * @param {boolean} implemented diz se foi implementado o parseamento dessa mensagem
+ * @param {Number} msgID id da mensagem a ser mostrada na tabela
+ * @param {Array<string>} headers dados dos headers da tabela
+ * @param {Array<Array>} rows dados dos rows da tabela
  */
-function showParsedMessageOnTable(implemented, msgID, headers, rows) {
+export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     if(implemented) {
         ui.labelMessageDescription.textContent = getMsgName(msgID);
         util.Table.Create(ui.messageTable, headers, rows);
@@ -129,40 +140,59 @@ function showParsedMessageOnTable(implemented, msgID, headers, rows) {
         ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
         ui.messageTable.innerHTML = "";
     }
-    // util.setVisible(ui.windowParsedMessage, true);
+    
     openFloatingWindow(ui.windowParsedMessage)
 }
 
 /**
- * Pesquisa no Log todas as mensagens de um ID específico, 
- * e lista o parseamento de todas as mensagens na tabela #listMessageTable
- *
- * @param {Number} msgID - id da mensagem a ser pesquisada no Log
+ * Inicializa as opções do select #selListMessageTimeline 
+ * com as mensagens que suportam listagem na tabela #listMessageTable
  */
-function listMessage(msgID) {
+export function initSelectMessageIDOptions() {
+    for (const [id, info] of msgsList) {
+        if (info.timelineSupport) {
+            const opt = document.createElement("option");
+            const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
+
+            // @ts-ignore
+            opt.value = id;
+            opt.textContent = `${idHex} - ${info.description}`;
+            ui.selListMessageTimeline.appendChild(opt);
+        }
+    }
+}
+
+/**
+ * Pesquisa no Log todas as mensagens de um ID específico, 
+ * e lista a timeline na tabela #listMessageTable
+ *
+ * @param {Number} msgID id da mensagem a ser pesquisada no Log
+ */
+export function listMessageTimeline(msgID) {
     console.log("Valor selecionado:", "0x" + msgID.toString(16));
     
     if(isNaN(msgID)) {
-        ui.mainSplitter._setPaneVisible(2, false);  
+        setSplitterPaneVisible(ui.mainSplitter, 2, false);
         return;
     }
     
     clearMessageCounters();
     const { messageDataTable } = detectCC33Packages(getRawLog(), { collectMsgID: msgID });
     util.Table.Create(ui.listMessageTable, messageDataTable.headers, messageDataTable.rows);
-    ui.mainSplitter._setPaneVisible(2, true);
+    setSplitterPaneVisible(ui.mainSplitter, 2, true);
 }
 
-/** Parsea uma mensagem
- * @param {number} msgID uint16
- * @param {Uint8Array} data uint8[]
- * @param {string} dataMode: "nv" | "nsv", // nv=Name/Value, nsv=Name/Size/Value
- * @param {string} dataOrientation: "v" | "h" // v=Vertical / h=Horizontal
+/** Parsea uma mensagem, e retorna as rows dos parâmetros parseados
+ * 
+ * @param {number} msgID
+ * @param {Uint8Array} data
+ * @param {"nv" | "nsv"} dataMode nv=Name/Value, nsv=Name/Size/Value
+ * @param {"v" | "h"} dataOrientation v=Vertical / h=Horizontal
  * @returns {{ 
  *  isImplemented: boolean,
  *  rows: Array<Array> }}
  */
-function parseMessage(msgID, data, dataMode, dataOrientation) {
+export function parseMessage(msgID, data, dataMode, dataOrientation) {
     const br = createBinaryReader(data, {
         processMode: "collect", // collect parsed data
         dataMode, 

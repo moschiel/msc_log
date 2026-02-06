@@ -1,16 +1,40 @@
-window.addEventListener("load", () => {
-    // carrega options no selListMessage
-    for (const [id, info] of msgsList) {
-        if (info.timelineSupport) {
-            const opt = document.createElement("option");
-            const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
-            opt.value = id;
-            opt.textContent = `${idHex} - ${info.description}`;
-            ui.selListMessage.appendChild(opt);
-        }
-    }
+import { ui } from "./viewer-ui-elements.js";
+import { util } from "./utils.js";
+import { initAllFloatingWindows } from "./floating-window.js";
+import { initAllSplitters } from "./split-pane.js";
+import { initModal, getModal  } from "./modal.js";
+import { listMessageTimeline, parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
+} from "./viewer-message-parser.js";
+import { tailRefreshNow, setTailAutoRefresh
+} from "./viewer-auto-refresh.js";
+import { getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket
+} from "./viewer-render-log.js";
+import { clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable,
+} from "./viewer-package-parser.js";
+import { writeLogWithHighlightPackage, getHexFromPackageClassGroup 
+} from "./viewer-package-highlight.js";
 
-    //forca um refresh inicial do logBox
+// Evento de página carregada, 
+// após carregamento inicializamos outros componentes da UI
+// além de forçar uma atualização inicial do conteúdo do log.
+window.addEventListener("load", () => {
+    // carrega options no seletor #selListMessageTimeline
+    initSelectMessageIDOptions();
+
+    // inicializa floating windows (elementos com a classe floating-window)
+    initAllFloatingWindows();
+
+    // inicializa splitters (elementos com a classe splitter)
+    initAllSplitters();
+
+    // inicializa o modal único
+    initModal({ 
+        overlayId: "modalOverlay", 
+        titleId: "modalTitle",
+        bodyId: "modalBody" 
+    });
+
+    // forca uma requisição inicial do conteúdo do log
     tailRefreshNow();
 });
 
@@ -24,31 +48,29 @@ ui.btnAutoScroll.addEventListener("click", () => {
 });
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    ui.btnHighlightPkg.disable = true;
-    ui.btnTailAutoRefresh.disable = true;
+    ui.btnHighlightPkg.disabled = true;
+    ui.btnTailAutoRefresh.disabled = true;
 
     clearHighlightPkgCounters();
     clearLogBox();
 
     const isPressed = util.toogleButton(ui.btnHighlightPkg);
-    if (isPressed) 
-    {
+    if (isPressed) {
         writeLogWithHighlightPackage("set", getRawLog());
     }
-    else 
-    {
+    else {
         // Nao tem nada pra fazer highlight, setamos o texto puro
         writeLogBox("set", "text", getRawLog());
         setLogBoxPendingPacket("");
     }
 
-    ui.btnHighlightPkg.disable = false;
-    ui.btnTailAutoRefresh.disable = false;
+    ui.btnHighlightPkg.disabled = false;
+    ui.btnTailAutoRefresh.disabled = false;
 });
 
-ui.selListMessage.addEventListener("change", () => {
-    const id = Number(ui.selListMessage.value);
-    listMessage(id);
+ui.selListMessageTimeline.addEventListener("change", () => {
+    const id = Number(ui.selListMessageTimeline.value);
+    listMessageTimeline(id);
 });
 
 ui.btnPkgConfig.addEventListener("click", () => {
@@ -56,7 +78,7 @@ ui.btnPkgConfig.addEventListener("click", () => {
     const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
     const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
 
-    Modal.open({
+    getModal().open({
         title: "Configurações",
         bodyHtml: `
 <div>
@@ -76,7 +98,9 @@ ui.btnPkgConfig.addEventListener("click", () => {
     });
 
     const modalBody = document.getElementById("modalBody");
+    /** @type {HTMLInputElement} */
     const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
+    /** @type {HTMLInputElement} */
     const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
 
     cbIgnoreAck.onchange = () => {
@@ -90,6 +114,8 @@ ui.btnPkgConfig.addEventListener("click", () => {
 
 let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
+    if (!(e.target instanceof HTMLElement)) return;
+
     if (e.target.classList.contains('hl-pkg-ok')) {
         let frameStr = getHexFromPackageClassGroup(e.target.classList[0]);
         const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
@@ -101,16 +127,16 @@ ui.logBox.addEventListener("click", e => {
             if (messages.length > 0) {
                 for (const msg of messages) {
                     if (msg.id === lastMessageIdClicked) {
-                        const {isImplemented, rows} = parseMessage(
-                            msg.id, 
-                            msg.data, 
+                        const { isImplemented, rows } = parseMessage(
+                            msg.id,
+                            msg.data,
                             "nsv", /* Collect parametes name, size, and value */
                             "v" /* Parametes Vertical Orientation */
                         );
                         showParsedMessageOnTable(
                             isImplemented,
                             msg.id,
-                            ["Name", "Size", "Value"], 
+                            ["Name", "Size", "Value"],
                             rows
                         );
                         return;
@@ -126,6 +152,8 @@ ui.logBox.addEventListener("click", e => {
 
 ui.packageTable.addEventListener("click", (ev) => {
     try {
+        if (!(ev.target instanceof HTMLElement)) return;
+
         const tr = ev.target.closest("tr");
         if (!tr) return;
 
@@ -158,20 +186,20 @@ ui.packageTable.addEventListener("click", (ev) => {
         }
 
         // 3) Parsear mensagem e mostrar na tabela
-        const {isImplemented, rows} = parseMessage(
-            messageID, 
-            col3Bytes, 
+        const { isImplemented, rows } = parseMessage(
+            messageID,
+            col3Bytes,
             "nsv", // Collect parameters name, size and value
             "v" // Data vertical orientation
         );
         showParsedMessageOnTable(
-            isImplemented, 
-            messageID, 
-            ["Name", "Size", "Value"], 
+            isImplemented,
+            messageID,
+            ["Name", "Size", "Value"],
             rows
         );
     }
     catch (e) {
         console.error(e.message);
     }
-});
+}); 

@@ -1,4 +1,11 @@
-const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
+import { util } from "./utils.js";
+import { ui } from "./viewer-ui-elements.js";
+import { highlightPackage } from "./viewer-package-highlight.js";
+import { parseMessage, getMsgName } from "./viewer-message-parser.js";
+import { createBinaryReader } from "./viewer-binary-reader.js";
+import { openFloatingWindow } from "./floating-window.js";
+
+export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 
 // highlight package counters
 let hlPkgCounter = 0;
@@ -8,17 +15,27 @@ let hlErrPkgCounter = 0;
 // list message counters
 let listMsgCounter = 0;
 
-function clearHighlightPkgCounters() {
+/** 
+* Reseta os contadores usados para highlight de pacotes.
+*/
+export function clearHighlightPkgCounters() {
     hlPkgCounter = 0;
     hlOfflinePkgCounter = 0;
     hlErrPkgCounter = 0;
 }
 
-function clearMessageCounters() {
+/**
+* Reseta os contadores usados para listagem de mensagens.
+*/
+export function clearMessageCounters() {
     listMsgCounter = 0;
 }
 
 /**
+ * Detecta pacotes CC33 no texto para:
+ * - retornar o texto convertido para HTML, aplicando CSS de highlight nesses pacotes.
+ * - ou retornar todas as mensagens de um ID específico.
+ * 
  * @param {string} text,
  * @param {{
  *   highlight?: boolean,
@@ -31,7 +48,7 @@ function clearMessageCounters() {
  *  rows: Array<Array>
  * }}}
  */
-function detectCC33Packages(text, opt = { highlight: false, collectMsgID: null }) {
+export function detectCC33Packages(text, opt = { highlight: false, collectMsgID: null }) {
     const lines = text.split(/\r?\n/);
     const headerLen = LOG_HEADER_EXAMPLE.length;
     
@@ -93,7 +110,7 @@ function detectCC33Packages(text, opt = { highlight: false, collectMsgID: null }
             console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             if (opt.highlight) hlErrPkgCounter++;
             if (opt.highlight)
-                highlightPackage(hlPkgCounter, false, "", lines, lineIndexes);
+                highlightPackage(hlPkgCounter, false, null, lines, lineIndexes);
         } 
 
         // reset
@@ -153,16 +170,20 @@ function detectCC33Packages(text, opt = { highlight: false, collectMsgID: null }
 
 
 /**
+ * Parsea o pacote CC33, retornando:
+ * - os dados do pacote em formato tabular (headers e rows),
+ * - e as mensagens contidas no pacote (messages)
+ * 
  * @param {Uint8Array} u8buf
- * @param {string} processMode?: "validate" | "collect",
+ * @param {"validate" | "collect"} processMode
  * @returns {{ 
- *  parseOk: string, 
+ *  parseOk: boolean, 
  *  connState: "Online" | "Offline", 
  *  rows: Array<Array>, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}>, 
  *  headers: Array<string> }}
  */
-function parseCC33Package(u8buf, processMode) {
+export function parseCC33Package(u8buf, processMode) {
     const br = createBinaryReader(u8buf, {
         processMode,
         dataMode: "nsv", /* name, size, value */
@@ -236,14 +257,28 @@ function parseCC33Package(u8buf, processMode) {
     };  
 }
 
-function savePkgAnalyzeConfig(config, value) {
-    const key = `${LOG_FILE_NAME}::pkg-analyze::${config}`;
+/**
+ * Salva a configuração de análise de pacotes no localStorage.
+ * @param {string} config
+ * @param {string} value
+ */
+export function savePkgAnalyzeConfig(config, value) {
+    // @ts-ignore
+    const currentLogFileName = LOG_FILE_NAME;
+    const key = `${currentLogFileName}::pkg-analyze::${config}`;
     localStorage.setItem(key, value);
     console.log("save", key);
 }
 
-function readPkgAnalyzeConfig(config) {
-    const key = `${LOG_FILE_NAME}::pkg-analyze::${config}`;
+/**
+ * Lê a configuração de análise de pacotes salva no localStorage.
+ * @param {string} config
+ * @returns {string}
+ */
+export function readPkgAnalyzeConfig(config) {
+    // @ts-ignore
+    const currentLogFileName = LOG_FILE_NAME;
+    const key = `${currentLogFileName}::pkg-analyze::${config}`;
     const v = localStorage.getItem(key);
 
     if(v === null) {
@@ -255,9 +290,13 @@ function readPkgAnalyzeConfig(config) {
     return v;
 }
 
-function showParsedPackageOnTable(headers, rows) {
+/**
+ * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
+ * @param {Array<string>} headers 
+ * @param {Array<Array>} rows 
+ */
+export function showParsedPackageOnTable(headers, rows) {
     util.Table.Create(ui.packageTable, headers, rows);
-    // util.setVisible(ui.windowParsedPackage, true);
     openFloatingWindow(ui.windowParsedPackage);
 }
 
@@ -276,7 +315,6 @@ function showParsedPackageOnTable(headers, rows) {
  *   - se achar, rest começa no CC33; senão, rest = "".
  *
  * @param {string} textChunk
- * @param {number} headerLen
  * @returns {{ before: string, rest: string }}
  */
 function splitTailIfEndsWithIncompleteCC33(textChunk) {
@@ -377,10 +415,15 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
 }
 
 /**
- * Wrapper recomendado pro tail: concatena pendência + chunk e separa de novo.
- * NÃO adiciona '\n' automaticamente (tail pode cortar no meio de uma linha).
+ * Divide o chunk de texto recebido em: 
+ * - parte segura (sem frames incompletos) 
+ * - parte pendente (final do log pode ter um pacote CC33 incompleto que pode chegar a qualquer momento)
+ * 
+ * @param {string} pendingText
+ * @param {string} chunk
+ * @returns {{ safeText: string, pendingText: string }}
  */
-function tailSplitWithPendingCC33(pendingText, chunk) {
+export function tailSplitWithPendingCC33(pendingText, chunk) {
   const combined = (pendingText || "") + (chunk || "");
   const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
   return { safeText: before || "", pendingText: rest || "" };

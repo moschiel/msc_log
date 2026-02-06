@@ -1,3 +1,12 @@
+import { util } from "./utils.js";
+import { ui } from "./viewer-ui-elements.js";
+import {
+  clearLogBox, clearRawLog, setRawLog, getRawLog, writeLogBox, setLogBoxPendingPacket
+} from "./viewer-render-log.js";
+import { clearHighlightPkgCounters } from "./viewer-package-parser.js";
+import { writeLogWithHighlightPackage } from "./viewer-package-highlight.js"
+
+
 let refreshTimer = null;
 let lastFileSize = 0;
 
@@ -9,16 +18,21 @@ function clearAllLogData() {
 }
 
 function ajaxUrl() {
-    const url = new URL(window.location.href);
-    url.searchParams.set("ajax", "1");
-    url.searchParams.set("file_offset", lastFileSize); // Nao pede o arquivo inteiro, apenas conteudo adicional se houver
-    url.searchParams.delete("view");
-    url.searchParams.delete("download");
-    return url.toString();
+  const url = new URL(window.location.href);
+  url.searchParams.set("ajax", "1");
+  // @ts-ignore
+  url.searchParams.set("file_offset", lastFileSize); // Nao pede o arquivo inteiro, apenas conteudo adicional se houver
+  url.searchParams.delete("view");
+  url.searchParams.delete("download");
+  return url.toString();
 }
 
-
-async function tailRefreshNow() {
+/**
+ * Requisita ao servidor o conteudo adicional do arquivo de log (tail) se existir.
+ * 
+ * Atualiza o logBox e o rawLog com o novo conteudo.
+ */
+export async function tailRefreshNow() {
   try {
     const resp = await fetch(ajaxUrl(), { cache: "no-store" });
 
@@ -29,12 +43,12 @@ async function tailRefreshNow() {
       // Ué, o arquivo diminuiu? 
       // alguem deve ter editado o conteudo do arquivo manualmente, 
       // nesse caso relemos o conteudo do arquivo do inicio      // arquivo "voltou"/diminuiu: reset geral
-      ui.btnTailAutoRefresh.disable = true;
+      ui.btnTailAutoRefresh.disabled = true;
       if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) stopTailAutoRefresh();
       clearAllLogData();
       tailRefreshNow();
       if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) startTailAutoRefresh();
-      ui.btnTailAutoRefresh.disable = false;
+      ui.btnTailAutoRefresh.disabled = false;
       return;
     }
 
@@ -56,12 +70,10 @@ async function tailRefreshNow() {
     // Atualiza raw log
     setRawLog(getRawLog() + deltaText);
 
-    if(util.isToogleButtonPressed(ui.btnHighlightPkg)) 
-    {
+    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
       writeLogWithHighlightPackage("append", deltaText);
-    } 
-    else 
-    {
+    }
+    else {
       writeLogBox("append", "text", deltaText);
     }
   } catch (e) {
@@ -73,22 +85,25 @@ async function tailRefreshNow() {
 
 
 function startTailAutoRefresh() {
-    stopTailAutoRefresh();
-    refreshTimer = setInterval(()=> {
-        if(util.isToogleButtonPressed(ui.btnTailAutoRefresh)) {
-            tailRefreshNow();
-        }
-    }, 3000);
+  stopTailAutoRefresh();
+  refreshTimer = setInterval(() => {
+    if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) {
+      tailRefreshNow();
+    }
+  }, 3000);
 }
 
 function stopTailAutoRefresh() {
-    if (refreshTimer) clearInterval(refreshTimer);
-    refreshTimer = null;
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = null;
 }
 
-function setTailAutoRefresh() {
-    if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) 
-        startTailAutoRefresh();
-    else 
-        stopTailAutoRefresh();
+/**
+ * Configura o auto refresh do tail do log de acordo com o estado do botão de auto refresh.
+ */
+export function setTailAutoRefresh() {
+  if (util.isToogleButtonPressed(ui.btnTailAutoRefresh))
+    startTailAutoRefresh();
+  else
+    stopTailAutoRefresh();
 }
