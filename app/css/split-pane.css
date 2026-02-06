@@ -20,11 +20,11 @@
 }
 
 /* Orientações */
-.splitter.is-vertical {
+.splitter.is-horizontal {
   flex-direction: column;
 }
 
-.splitter.is-horizontal {
+.splitter.is-vertical {
   flex-direction: row;
 }
 
@@ -68,7 +68,7 @@
 }
 
 /* Divider por orientação */
-.splitter.is-vertical > .splitDivider {
+.splitter.is-horizontal > .splitDivider {
   /* height: 10px; */
   height: 6px;
   cursor: row-resize;
@@ -76,7 +76,7 @@
   border-bottom: 1px solid #ccc;
 }
 
-.splitter.is-horizontal > .splitDivider {
+.splitter.is-vertical > .splitDivider {
   /* width: 10px; */
   width: 6px;
   cursor: col-resize;
@@ -90,12 +90,12 @@
   background: #bdbdbd;
 }
 
-.splitter.is-vertical > .splitDivider > .splitDivider-grip {
+.splitter.is-horizontal > .splitDivider > .splitDivider-grip {
   width: 60px;
   height: 3px;
 }
 
-.splitter.is-horizontal > .splitDivider > .splitDivider-grip {
+.splitter.is-vertical > .splitDivider > .splitDivider-grip {
   width: 3px;
   height: 60px;
 }
@@ -155,12 +155,12 @@
      border: 1px solid rgba(255,255,255,0.15); 
   }*/
 
-  .splitter.is-vertical > .splitDivider {
+  .splitter.is-horizontal > .splitDivider {
     border-top: 1px solid rgba(255,255,255,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.15);
   }
 
-  .splitter.is-horizontal > .splitDivider {
+  .splitter.is-vertical > .splitDivider {
     border-left: 1px solid rgba(255,255,255,0.15);
     border-right: 1px solid rgba(255,255,255,0.15);
   }

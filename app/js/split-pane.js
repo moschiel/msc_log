@@ -216,16 +216,16 @@ function initSplitter(splitterEl) {
 
   function getTotalSize() {
     const rect = splitterEl.getBoundingClientRect();
-    return isVertical() ? rect.height : rect.width;
+    return isVertical() ? rect.width : rect.height;
   }
 
   function getDividerSize() {
-    return isVertical() ? divider.offsetHeight : divider.offsetWidth;
+    return isVertical() ? divider.offsetWidth : divider.offsetHeight;
   }
 
   function pointerToFirstPx(clientX, clientY) {
     const rect = splitterEl.getBoundingClientRect();
-    return isVertical() ? (clientY - rect.top) : (clientX - rect.left);
+    return isVertical() ? (clientX - rect.left) :(clientY - rect.top);
   }
 
   function setSplitByFirstPx(firstPx) {
@@ -246,8 +246,8 @@ function initSplitter(splitterEl) {
     if (!total) return 0.5;
 
     const firstNow = isVertical()
-      ? first.getBoundingClientRect().height
-      : first.getBoundingClientRect().width;
+      ? first.getBoundingClientRect().width
+      : first.getBoundingClientRect().height;
 
     return clamp(firstNow / total, 0, 1);
   }
@@ -331,7 +331,7 @@ function initSplitter(splitterEl) {
     dragging = true;
     divider.setPointerCapture(e.pointerId);
     document.body.style.userSelect = "none";
-    document.body.style.cursor = isVertical() ? "row-resize" : "col-resize";
+    document.body.style.cursor = isVertical() ? "col-resize" : "row-resize";
   });
 
   divider.addEventListener("pointermove", (e) => {
