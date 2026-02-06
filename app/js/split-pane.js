@@ -348,6 +348,18 @@ export function initAllSplitters(root = document) {
  * Retorna false se o splitter não foi inicializado ainda.
  */
 export function setSplitterPaneVisible(splitterEl, pane, visible) {
+  if (!splitterEl) return false;
+
+  if(!splitterEl.classList.contains("splitter")) {
+    console.warn("Elemento não é um splitter:", splitterEl);
+    return false;
+  }
+
+  if (!splitterEl.classList.contains("splitter-initialized")) {
+    console.warn("Splitter não inicializado ainda:", splitterEl);
+    return false;
+  }
+
   const api = splitterApi.get(splitterEl);
   if (!api) return false; // não inicializou ainda
 

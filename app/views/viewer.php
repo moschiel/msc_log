@@ -95,7 +95,9 @@ Permite clicar nos pacotes p/ ver detalhes.
     </div>
 
     <!-- Floating Window Parsed Package -->
-    <div id="windowParsedPackage" class="floating-window floating-no-scroll hidden" data-title="Parsed Package CC33">
+    <div id="windowParsedPackage" 
+        class="floating-window floating-no-scroll hidden" 
+        data-title="Parsed Package CC33" >
         <div class="table-scroll">
             <table id="packageTable" class="table-clean table-sticky">
                 <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
@@ -105,8 +107,10 @@ Permite clicar nos pacotes p/ ver detalhes.
     </div>
 
     <!-- Floating Window Parsed Message -->
-    <div id="windowParsedMessage" class="floating-window floating-no-scroll hidden" data-title="Parsed Message">
-        <div id="labelMessageDescription">ID da Mensagem AQUI</div>
+    <div id="windowParsedMessage" 
+        class="floating-window floating-no-scroll hidden" 
+        data-title="Parsed Message" >
+        <!-- <div id="labelMessageDescription">ID da Mensagem AQUI</div> -->
         <div class="table-scroll">
             <table id="messageTable" class="table-clean table-sticky">
                 <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>

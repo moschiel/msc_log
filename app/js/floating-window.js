@@ -370,14 +370,33 @@ function initFloatingWindow(win) {
 /**
  * Abre uma janela flutuante, trazendo-a para frente.
  * 
- * Chamar util.setVisible já seria suficiente, 
+ * Também podemos redefinir o título opcionalmente.
+ * 
+ * Chamar util.setVisible já seria suficiente para mostrar a janela, 
  * mas temos que aumentar o zIndex pra nova janela nao aparecer escondida.
  * 
  * Essa função encapsula tudo isso.
  * 
  * @param {HTMLElement} win - HTMLElement com a class "floating-window"
+ * @param {Object} opts - Opções adicionais
+ * @param {string|null} opts.title - Título opcional para redefinir na janela
  */
-export function openFloatingWindow(win) {
+export function openFloatingWindow(win, opts = {title: null}) {
+    if (!win) return;
+    
+    if (!win.classList.contains("floating-window")) {
+        console.warn("openFloatingWindow: elemento não é uma floating-window");
+        return;
+    }
+    if (!win.classList.contains("floating-initialized")) {
+        console.warn("openFloatingWindow: floating-window não inicializada. Chame initAllFloatingWindows() primeiro.");
+        return;
+    }
+
+    if (opts.title !== null) {
+        win.querySelector(".title").textContent = opts.title;
+    }
+
     globalFloatWindowZ += 1;
     win.style.zIndex = String(globalFloatWindowZ);
 

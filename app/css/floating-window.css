@@ -62,7 +62,7 @@
 
 /* ===== CONTEÚDO ===== */
 .floating-window .content {
-  padding: 12px;
+  /* padding: 12px; */
   height: calc(100% - 40px);
   overflow: auto;
   user-select: text; /* aqui pode selecionar texto */

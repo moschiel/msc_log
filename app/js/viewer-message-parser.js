@@ -134,14 +134,15 @@ export function getMsgName(id) {
  */
 export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     if(implemented) {
-        ui.labelMessageDescription.textContent = getMsgName(msgID);
+        //ui.labelMessageDescription.textContent = getMsgName(msgID);
         util.Table.Create(ui.messageTable, headers, rows);
     } else {
-        ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
-        ui.messageTable.innerHTML = "";
+        //ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
+        //description = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
+        ui.messageTable.innerHTML = `Parseamento dessa mensagem não foi desenvolvido.`;
     }
     
-    openFloatingWindow(ui.windowParsedMessage)
+    openFloatingWindow(ui.windowParsedMessage, {title: getMsgName(msgID)});
 }
 
 /**
