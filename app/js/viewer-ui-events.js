@@ -115,39 +115,43 @@ ui.btnPkgConfig.addEventListener("click", () => {
 let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
     if (!(e.target instanceof HTMLElement)) return;
+    if (!e.target.classList.contains('hl-pkg-ok')) return;
 
-    if (e.target.classList.contains('hl-pkg-ok')) {
-        let frameStr = getHexFromPackageClassGroup(e.target.classList[0]);
-        const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
-        if (parseOk) {
-            // Cria tabela do pacote
-            showParsedPackageOnTable(headers, rows);
+    const classPkgGroup = e.target.classList[0];
+    if (!classPkgGroup.startsWith("pkg-")) return;
+    
+    let frameStr = getHexFromPackageClassGroup(classPkgGroup);
+    const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
 
-            // Parsea e cria tabela da ultima mensagem clicada
-            if (messages.length > 0) {
-                for (const msg of messages) {
-                    if (msg.id === lastMessageIdClicked) {
-                        const { isImplemented, rows } = parseMessage(
-                            msg.id,
-                            msg.data,
-                            "nsv", /* Collect parametes name, size, and value */
-                            "v" /* Parametes Vertical Orientation */
-                        );
-                        showParsedMessageOnTable(
-                            isImplemented,
-                            msg.id,
-                            ["Name", "Size", "Value"],
-                            rows
-                        );
-                        return;
-                    }
-                }
+    if(!parseOk) return;
+    
+    // Cria tabela do pacote
+    const pkgIndex = classPkgGroup.replace("pkg-", "");
+    showParsedPackageOnTable(headers, rows, pkgIndex);
+
+    // Parsea e cria tabela da ultima mensagem clicada
+    if (messages.length > 0) {
+        for (const msg of messages) {
+            if (msg.id === lastMessageIdClicked) {
+                const { isImplemented, rows } = parseMessage(
+                    msg.id,
+                    msg.data,
+                    "nsv", /* Collect parametes name, size, and value */
+                    "v" /* Parametes Vertical Orientation */
+                );
+                showParsedMessageOnTable(
+                    isImplemented,
+                    msg.id,
+                    ["Name", "Size", "Value"],
+                    rows
+                );
+                return;
             }
-            // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-            ui.labelMessageDescription.innerHTML = "";
-            ui.messageTable.innerHTML = "";
         }
     }
+
+    // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
+    ui.messageTable.innerHTML = "O pacote atual não possui essa mensagem.";    
 });
 
 ui.packageTable.addEventListener("click", (ev) => {

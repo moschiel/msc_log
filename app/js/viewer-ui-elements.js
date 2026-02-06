@@ -22,7 +22,6 @@
  * @property {HTMLDivElement} windowParsedPackage
  * @property {HTMLTableElement} packageTable
  * @property {HTMLDivElement} windowParsedMessage
- * @property {HTMLSpanElement} labelMessageDescription
  * @property {HTMLTableElement} messageTable
  */
 
@@ -78,10 +77,6 @@ export const ui = {
 
   windowParsedMessage: /** @type {HTMLDivElement} */ (
     document.getElementById("windowParsedMessage")
-  ),
-
-  labelMessageDescription: /** @type {HTMLSpanElement} */ (
-    document.getElementById("labelMessageDescription")
   ),
 
   messageTable: /** @type {HTMLTableElement} */ (

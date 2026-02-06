@@ -134,11 +134,8 @@ export function getMsgName(id) {
  */
 export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     if(implemented) {
-        //ui.labelMessageDescription.textContent = getMsgName(msgID);
         util.Table.Create(ui.messageTable, headers, rows);
     } else {
-        //ui.labelMessageDescription.textContent = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
-        //description = `Parseamento Não Implementado para ${getMsgName(msgID)}`;
         ui.messageTable.innerHTML = `Parseamento dessa mensagem não foi desenvolvido.`;
     }
     

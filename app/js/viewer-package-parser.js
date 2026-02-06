@@ -294,10 +294,13 @@ export function readPkgAnalyzeConfig(config) {
  * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
  * @param {Array<string>} headers 
  * @param {Array<Array>} rows 
+ * @param {Number|string|null} pkgIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
-export function showParsedPackageOnTable(headers, rows) {
+export function showParsedPackageOnTable(headers, rows, pkgIndex=null) {
     util.Table.Create(ui.packageTable, headers, rows);
-    openFloatingWindow(ui.windowParsedPackage);
+    openFloatingWindow(ui.windowParsedPackage, {
+        title: pkgIndex !== null ? `Package #${pkgIndex}` : "Package #?"
+    });
 }
 
 /**

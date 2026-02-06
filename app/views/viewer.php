@@ -110,7 +110,6 @@ Permite clicar nos pacotes p/ ver detalhes.
     <div id="windowParsedMessage" 
         class="floating-window floating-no-scroll hidden" 
         data-title="Parsed Message" >
-        <!-- <div id="labelMessageDescription">ID da Mensagem AQUI</div> -->
         <div class="table-scroll">
             <table id="messageTable" class="table-clean table-sticky">
                 <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
