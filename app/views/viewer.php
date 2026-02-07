@@ -72,7 +72,7 @@ Permite clicar nos pacotes p/ ver detalhes.
             </button>
 
             <div class="">
-                <label for="selListMessage">Listar:</label>
+                <!-- <label for="selListMessage">Listar:</label> -->
                 <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                 </select>
@@ -85,7 +85,7 @@ Permite clicar nos pacotes p/ ver detalhes.
             <div id="logBox" class="log-box">
                 <span id="logContent">Carregando...</span><span id="logPendingPacketContent"></span>
             </div>
-            <div class="table-scroll hidden">
+            <div class="table-scroll hidden" id="listMessageContainer">
                 <table id="listMessageTable" class="table-clean table-sticky">
                     <thead><tr><th>Example</th><th>Example</th><th>Example</th></tr></thead>
                     <tbody><tr><td>Tamanho do pacote</td><td>2</td><td>174</td></tr><tr><td>Option</td><td>1</td><td>3 - Provider</td></tr><tr><td>Sei lá</td><td>2</td><td>0x0104</td></tr><tr><td>Tamanho do SN</td><td>1</td><td>5</td></tr><tr><td>SerialNumber</td><td>5 (BCD)</td><td>1625200106</td></tr><tr><td>Index do Pacote</td><td>2</td><td>57581</td></tr><tr><td>Tipo de Serviço</td><td>1</td><td>0x81 - ACK requested, Online</td></tr><tr><td>0x1101 - Extended Position</td><td>55</td><td>0186CE0969A0AFF0EF0001FBE201051000000200800047ABF112914A3C016F0999011000200080CE096945010A081EB1FB222208000000</td></tr><tr><td>0x1121 - MSC830 aditional Data</td><td>31</td><td>2D0856082E08260845085508FF0CBF00000100000000000000000000000000</td></tr><tr><td>0x1400 - Telemetry Data</td><td>56</td><td>0063000000000000000000000000000000000000000000000000000000000000082E830740ABF11200000000320030002900B45F08007001</td></tr><tr><td>0x1501 - Accessory Report V2</td><td>2</td><td>0000</td></tr></tbody>
@@ -110,7 +110,7 @@ Permite clicar nos pacotes p/ ver detalhes.
                 </table>
             </div>
             <!-- Splitter Second Pane for Parsed Message -->
-            <div style="width: 100%;" class="backColor hidden">
+            <div style="width: 100%;" class="paneBackColor hidden">
                 <div id="labelMessageDescription" style="padding: 10px;">ID da Mensagem AQUI</div>
                 <div class="table-scroll">
                     <table id="parsedMessageTable" class="table-clean table-sticky">

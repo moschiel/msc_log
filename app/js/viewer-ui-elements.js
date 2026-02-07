@@ -18,6 +18,7 @@
  * @property {HTMLDivElement} logContent
  * @property {HTMLDivElement} logPendingPacketContent
  *
+ * @property {HTMLDivElement} listMessageContainer
  * @property {HTMLTableElement} listMessageTable
  * @property {HTMLDivElement} parsedPackageSplitter
  * @property {HTMLDivElement} windowParsedPackage
@@ -62,6 +63,10 @@ export const ui = {
 
   logPendingPacketContent: /** @type {HTMLDivElement} */ (
     document.getElementById("logPendingPacketContent")
+  ),
+
+  listMessageContainer: /** @type {HTMLDivElement} */ (
+    document.getElementById("listMessageContainer")
   ),
 
   listMessageTable: /** @type {HTMLTableElement} */ (

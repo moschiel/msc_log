@@ -135,9 +135,15 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
                 util.Table.Create(ui.listMessageTable, parsed.messageDataTable.headers, parsed.messageDataTable.rows);
             else if (mode === "append")
                 util.Table.AddRows(ui.listMessageTable, parsed.messageDataTable.rows);
+
+            // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final
+            if (util.isToogleButtonPressed(ui.btnAutoScroll)) {
+                ui.listMessageContainer.scrollTop = ui.listMessageContainer.scrollHeight;
+            }
         }
     }
 
     // atualiza pending do logBox (área visível do log) com o texto pendente de completar um pacote CC33
     setLogBoxPendingPacket(pendingText || "");
 }
+

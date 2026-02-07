@@ -86,11 +86,13 @@ ui.selListMessage.addEventListener("change", () => {
         // um ID de mensagem foi acabou de ser selecionado,
         // reprocessa TODO o log 
         // renderizando as mensagens do ID selecionado na tabela
+        ui.selListMessage.classList.add("is-selected");
         processLogChunkAndRender("set", getRawLog(), { searchMsgID });
         setSplitterPaneVisible(ui.mainSplitter, 2, true);
     } else {
         // pesquisa de mensagem acabou de ser desativada
         // esconde painel de mensagens e limpa tabela
+        ui.selListMessage.classList.remove("is-selected");
         ui.listMessageTable.innerHTML = "";
         setSplitterPaneVisible(ui.mainSplitter, 2, false);
     }
