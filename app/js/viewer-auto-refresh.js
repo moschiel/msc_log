@@ -1,10 +1,10 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import {
-  clearLogBox, clearRawLog, setRawLog, getRawLog, writeLogBox, setLogBoxPendingPacket
+  clearLogBox, clearRawLog, setRawLog, getRawLog, writeLogBox, setLogBoxPendingPacket,
+  processLogChunkAndRender
 } from "./viewer-render-log.js";
 import { clearHighlightPkgCounters } from "./viewer-package-parser.js";
-import { writeLogWithHighlightPackage } from "./viewer-package-highlight.js"
 
 
 let refreshTimer = null;
@@ -64,18 +64,26 @@ export async function tailRefreshNow() {
       lastFileSize = fileSize;
     }
 
-    const deltaText = await resp.text();
-    if (deltaText.length === 0) return;
+    const tailText = await resp.text();
+    if (tailText.length === 0) return;
 
     // Atualiza raw log
-    setRawLog(getRawLog() + deltaText);
+    setRawLog(getRawLog() + tailText);
 
-    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
-      writeLogWithHighlightPackage("append", deltaText);
+    const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
+    const searchMsgID = Number(ui.selListMessage.value);
+    if (highlight || !isNaN(searchMsgID)) {
+      // Se highlight de pacote ou pesquisa de mensagem estiver ativo, 
+      // processa o tail recebido para renderizar o novo conteudo de acordo com as opções.
+      processLogChunkAndRender("append", tailText, { highlight, searchMsgID });
     }
-    else {
-      writeLogBox("append", "text", deltaText);
+
+    if (!highlight) {
+      // highlight inativo, 
+      // renderiza o texto bruto do Tail recebido no logBox (área visível do log)
+      writeLogBox("append", "text", tailText);
     }
+
   } catch (e) {
     setRawLog("Erro ao carregar arquivo: " + e);
     writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);

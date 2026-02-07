@@ -72,8 +72,8 @@ Permite clicar nos pacotes p/ ver detalhes.
             </button>
 
             <div class="">
-                <label for="selListMessageTimeline">Listar:</label>
-                <select name="selListMessageTimeline" id="selListMessageTimeline">
+                <label for="selListMessage">Listar:</label>
+                <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                 </select>
             </div>

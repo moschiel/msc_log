@@ -1,24 +1,23 @@
 import { ui } from "./viewer-ui-elements.js";
 import { util } from "./utils.js";
 import { initAllFloatingWindows } from "./floating-window.js";
-import { initAllSplitters } from "./split-pane.js";
+import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
 import { initModal, getModal  } from "./modal.js";
-import { listMessageTimeline, parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
+import { parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
 } from "./viewer-message-parser.js";
 import { tailRefreshNow, setTailAutoRefresh
 } from "./viewer-auto-refresh.js";
-import { getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket
+import { getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender
 } from "./viewer-render-log.js";
-import { clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable,
+import { clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearMessageCounters,
 } from "./viewer-package-parser.js";
-import { writeLogWithHighlightPackage, getHexFromPackageClassGroup 
-} from "./viewer-package-highlight.js";
+import { getHexFromPackageClassGroup } from "./viewer-package-highlight.js";
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
 // além de forçar uma atualização inicial do conteúdo do log.
 window.addEventListener("load", () => {
-    // carrega options no seletor #selListMessageTimeline
+    // carrega options no seletor #selListMessage
     initSelectMessageIDOptions();
 
     // inicializa floating windows (elementos com a classe floating-window)
@@ -50,27 +49,55 @@ ui.btnAutoScroll.addEventListener("click", () => {
 ui.btnHighlightPkg.addEventListener("click", () => {
     ui.btnHighlightPkg.disabled = true;
     ui.btnTailAutoRefresh.disabled = true;
+    ui.selListMessage.disabled = true;
 
     clearHighlightPkgCounters();
     clearLogBox();
 
-    const isPressed = util.toogleButton(ui.btnHighlightPkg);
-    if (isPressed) {
-        writeLogWithHighlightPackage("set", getRawLog());
+    util.toogleButton(ui.btnHighlightPkg);
+    const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
+    if (highlight) {
+        // hihglight acabou de ser ativado
+        // reprocessa TODO o log 
+        // renderizando com highlight nos pacotes CC33 encontradas
+        processLogChunkAndRender("set", getRawLog(), { highlight });
     }
     else {
-        // Nao tem nada pra fazer highlight, setamos o texto puro
+        // highlight acabou de ser desativado, 
+        // renderiza TODO o texto bruto de volta no logBox
         writeLogBox("set", "text", getRawLog());
         setLogBoxPendingPacket("");
     }
 
     ui.btnHighlightPkg.disabled = false;
     ui.btnTailAutoRefresh.disabled = false;
+    ui.selListMessage.disabled = false;
 });
 
-ui.selListMessageTimeline.addEventListener("change", () => {
-    const id = Number(ui.selListMessageTimeline.value);
-    listMessageTimeline(id);
+ui.selListMessage.addEventListener("change", () => {
+    ui.btnHighlightPkg.disabled = true;
+    ui.btnTailAutoRefresh.disabled = true;
+    ui.selListMessage.disabled = true;
+
+    clearMessageCounters();
+
+    const searchMsgID = Number(ui.selListMessage.value);
+    if (!isNaN(searchMsgID)) {
+        // um ID de mensagem foi acabou de ser selecionado,
+        // reprocessa TODO o log 
+        // renderizando as mensagens do ID selecionado na tabela
+        processLogChunkAndRender("set", getRawLog(), { searchMsgID });
+        setSplitterPaneVisible(ui.mainSplitter, 2, true);
+    } else {
+        // pesquisa de mensagem acabou de ser desativada
+        // esconde painel de mensagens e limpa tabela
+        ui.listMessageTable.innerHTML = "";
+        setSplitterPaneVisible(ui.mainSplitter, 2, false);
+    }
+
+    ui.btnHighlightPkg.disabled = false;
+    ui.btnTailAutoRefresh.disabled = false;
+    ui.selListMessage.disabled = false;
 });
 
 ui.btnPkgConfig.addEventListener("click", () => {

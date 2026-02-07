@@ -2,6 +2,7 @@
  * @typedef {Object} TableHelper
  * @property {(table: HTMLTableElement, headers: string[], rows: Array<Array>)=>void} Create
  * @property {(table: HTMLTableElement, row: Array)=>void} AddRow
+ * @property {(table: HTMLTableElement, rows: Array)=>void} AddRows
  */
 
 /**
@@ -210,6 +211,31 @@ export const util = {
 
       tbody.appendChild(tr);
     },
+
+    /**
+     * @param {HTMLTableElement} table
+     * @param {Array<Array>} rows
+     * @return {void}
+     */
+    AddRows(table, rows) {
+      /** @type {HTMLTableSectionElement|null} */
+      const tbody = table.querySelector("tbody");
+      
+      if (!tbody) {
+        console.warn("Tabela não possui <tbody>");
+        return;
+      }
+
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        row.forEach((cell) => {
+          const td = document.createElement("td");
+          td.textContent = String(cell);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
   },
 
   // ======== Time ========

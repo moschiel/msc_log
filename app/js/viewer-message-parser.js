@@ -7,70 +7,70 @@ import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
 
 /**
- * ID e descrição das mensagens, e se suportam timeline
+ * ID e descrição das mensagens, e se suportam listagem
  */
 export const msgsList = new Map([
-  [0x0000, { description: "Keep Alive", timelineSupport: false }],
-  [0x1000, { description: "Reset INFO", timelineSupport: false }],
-  [0x1100, { description: "Basic Position", timelineSupport: false }],
-  [0x1101, { description: "Extended Position", timelineSupport: true }],
-  [0x1121, { description: "MSC830 aditional Data", timelineSupport: false }],
-  [0x1122, { description: "MSC530  aditional Data", timelineSupport: false }],
-  [0x1130, { description: "Risk Rules Data", timelineSupport: false }],
-  [0x1140, { description: "Login Event", timelineSupport: false }],
-  [0x1200, { description: "Data Terminal Msg", timelineSupport: false }],
-  [0x1210, { description: "Data Terminal Auth", timelineSupport: false }],
-  [0x1300, { description: "Report Configurations", timelineSupport: false }],
-  [0x1310, { description: "Report Context", timelineSupport: false }],
-  [0x1400, { description: "Telemetry Data", timelineSupport: false }],
-  [0x1401, { description: "Telemetry Delta", timelineSupport: false }],
-  [0x1402, { description: "Telemetry Events", timelineSupport: false }],
-  [0x1403, { description: "Black Box Delta", timelineSupport: false }],
-  [0x1404, { description: "Black Box PKG", timelineSupport: false }],
-  [0x1405, { description: "Telemetry Delta V2", timelineSupport: false }],
-  [0x1406, { description: "G Force Event", timelineSupport: false }],
-  [0x1407, { description: "Telemetry Delta V3", timelineSupport: false }],
-  [0x1500, { description: "Accessory Report", timelineSupport: false }],
-  [0x1501, { description: "Accessory Report V2", timelineSupport: false }],
-  [0x1600, { description: "TPMS PKG", timelineSupport: false }],
-  [0xFFFF, { description: "ACK/NACK Response", timelineSupport: false }],
-  [0x2001, { description: "RESET", timelineSupport: false }],
-  [0x200A, { description: "REQUEST POSITION", timelineSupport: false }],
-  [0x2005, { description: "ACTUATORS", timelineSupport: false }],
-  [0x2004, { description: "SECURITY ACTUATORS", timelineSupport: false }],
-  [0x2003, { description: "CYCLIC ACTUATORS", timelineSupport: false }],
-  [0x200B, { description: "TEXT MSG TO DATA TERMINAL", timelineSupport: false }],
-  [0x200C, { description: "DATA TERMINAL AUDIO", timelineSupport: false }],
-  [0x2010, { description: "SET ODOMETER", timelineSupport: false }],
-  [0x2011, { description: "SET HOURMETER", timelineSupport: false }],
-  [0x2014, { description: "SET FUEL", timelineSupport: false }],
-  [0x2012, { description: "RESET ALARM - CLEAR", timelineSupport: false }],
-  [0x2013, { description: "RESET ALARM - KEEP", timelineSupport: false }],
-  [0x2015, { description: "SET TPMS TEST TIMEOUT", timelineSupport: false }],
-  [0x3000, { description: "SET CONFIGURATIONS", timelineSupport: false }],
-  [0x3100, { description: "READ CONFIGURATIONS", timelineSupport: false }],
-  [0x3200, { description: "READ CONTEXT INFO", timelineSupport: false }],
-  [0x201A, { description: "ENABLE RISK ANALYSIS", timelineSupport: false }],
-  [0x201B, { description: "DISABLE RISK ANALYSIS", timelineSupport: false }],
-  [0x201C, { description: "REQUEST BLACKBOX", timelineSupport: false }],
-  [0x201D, { description: "START YMODEM RECEIVE", timelineSupport: false }],
-  [0x201E, { description: "FORCE MDM REPORT", timelineSupport: false }],
-  [0x2020, { description: "REQUEST UPLOAD DIR", timelineSupport: false }],
-  [0x2021, { description: "REQUEST UPLOAD LOG", timelineSupport: false }],
-  [0x2022, { description: "REQUEST TAIL LOG", timelineSupport: false }],
-  [0x4000, { description: "EMBEDDED FILE - GET", timelineSupport: false }],
-  [0x4001, { description: "EMBEDDED FILE - CREATE", timelineSupport: false }],
-  [0x4002, { description: "EMBEDDED FILE - WRITE", timelineSupport: false }],
-  [0x4003, { description: "EMBEDDED FILE - CLOSE", timelineSupport: false }],
-  [0x4004, { description: "EMBEDDED FILE - DELETE", timelineSupport: false }],
-  [0x4010, { description: "EMBEDDED FILE - DNLD", timelineSupport: false }],
-  [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD", timelineSupport: false }],
-  [0x200D, { description: "Embedded Actions Filter", timelineSupport: false }],
-  [0x200E, { description: "Factory Reset", timelineSupport: false }]
+  [0x0000, { description: "Keep Alive", listSupport: false }],
+  [0x1000, { description: "Reset INFO", listSupport: false }],
+  [0x1100, { description: "Basic Position", listSupport: false }],
+  [0x1101, { description: "Extended Position", listSupport: true }],
+  [0x1121, { description: "MSC830 aditional Data", listSupport: false }],
+  [0x1122, { description: "MSC530  aditional Data", listSupport: false }],
+  [0x1130, { description: "Risk Rules Data", listSupport: false }],
+  [0x1140, { description: "Login Event", listSupport: false }],
+  [0x1200, { description: "Data Terminal Msg", listSupport: false }],
+  [0x1210, { description: "Data Terminal Auth", listSupport: false }],
+  [0x1300, { description: "Report Configurations", listSupport: false }],
+  [0x1310, { description: "Report Context", listSupport: false }],
+  [0x1400, { description: "Telemetry Data", listSupport: false }],
+  [0x1401, { description: "Telemetry Delta", listSupport: false }],
+  [0x1402, { description: "Telemetry Events", listSupport: false }],
+  [0x1403, { description: "Black Box Delta", listSupport: false }],
+  [0x1404, { description: "Black Box PKG", listSupport: false }],
+  [0x1405, { description: "Telemetry Delta V2", listSupport: false }],
+  [0x1406, { description: "G Force Event", listSupport: false }],
+  [0x1407, { description: "Telemetry Delta V3", listSupport: false }],
+  [0x1500, { description: "Accessory Report", listSupport: false }],
+  [0x1501, { description: "Accessory Report V2", listSupport: false }],
+  [0x1600, { description: "TPMS PKG", listSupport: false }],
+  [0xFFFF, { description: "ACK/NACK Response", listSupport: false }],
+  [0x2001, { description: "RESET", listSupport: false }],
+  [0x200A, { description: "REQUEST POSITION", listSupport: false }],
+  [0x2005, { description: "ACTUATORS", listSupport: false }],
+  [0x2004, { description: "SECURITY ACTUATORS", listSupport: false }],
+  [0x2003, { description: "CYCLIC ACTUATORS", listSupport: false }],
+  [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: false }],
+  [0x200C, { description: "DATA TERMINAL AUDIO", listSupport: false }],
+  [0x2010, { description: "SET ODOMETER", listSupport: false }],
+  [0x2011, { description: "SET HOURMETER", listSupport: false }],
+  [0x2014, { description: "SET FUEL", listSupport: false }],
+  [0x2012, { description: "RESET ALARM - CLEAR", listSupport: false }],
+  [0x2013, { description: "RESET ALARM - KEEP", listSupport: false }],
+  [0x2015, { description: "SET TPMS TEST TIMEOUT", listSupport: false }],
+  [0x3000, { description: "SET CONFIGURATIONS", listSupport: false }],
+  [0x3100, { description: "READ CONFIGURATIONS", listSupport: false }],
+  [0x3200, { description: "READ CONTEXT INFO", listSupport: false }],
+  [0x201A, { description: "ENABLE RISK ANALYSIS", listSupport: false }],
+  [0x201B, { description: "DISABLE RISK ANALYSIS", listSupport: false }],
+  [0x201C, { description: "REQUEST BLACKBOX", listSupport: false }],
+  [0x201D, { description: "START YMODEM RECEIVE", listSupport: false }],
+  [0x201E, { description: "FORCE MDM REPORT", listSupport: false }],
+  [0x2020, { description: "REQUEST UPLOAD DIR", listSupport: false }],
+  [0x2021, { description: "REQUEST UPLOAD LOG", listSupport: false }],
+  [0x2022, { description: "REQUEST TAIL LOG", listSupport: false }],
+  [0x4000, { description: "EMBEDDED FILE - GET", listSupport: false }],
+  [0x4001, { description: "EMBEDDED FILE - CREATE", listSupport: false }],
+  [0x4002, { description: "EMBEDDED FILE - WRITE", listSupport: false }],
+  [0x4003, { description: "EMBEDDED FILE - CLOSE", listSupport: false }],
+  [0x4004, { description: "EMBEDDED FILE - DELETE", listSupport: false }],
+  [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: false }],
+  [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD", listSupport: false }],
+  [0x200D, { description: "Embedded Actions Filter", listSupport: false }],
+  [0x200E, { description: "Factory Reset", listSupport: false }]
 ]);
 
 /**
- * ID e descrição das eventos de telemetria, e se suportam timeline
+ * ID e descrição das eventos de telemetria, e se suportam listagem
  */
 const telemetryEventsList = new Map([
     [1,"WARNING EXCESS RPM"],
@@ -144,41 +144,21 @@ export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
 }
 
 /**
- * Inicializa as opções do select #selListMessageTimeline 
+ * Inicializa as opções do select #selListMessage 
  * com as mensagens que suportam listagem na tabela #listMessageTable
  */
 export function initSelectMessageIDOptions() {
     for (const [id, info] of msgsList) {
-        if (info.timelineSupport) {
+        if (info.listSupport) {
             const opt = document.createElement("option");
             const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
 
             // @ts-ignore
             opt.value = id;
             opt.textContent = `${idHex} - ${info.description}`;
-            ui.selListMessageTimeline.appendChild(opt);
+            ui.selListMessage.appendChild(opt);
         }
     }
-}
-
-/**
- * Pesquisa no Log todas as mensagens de um ID específico, 
- * e lista a timeline na tabela #listMessageTable
- *
- * @param {Number} msgID id da mensagem a ser pesquisada no Log
- */
-export function listMessageTimeline(msgID) {
-    console.log("Valor selecionado:", "0x" + msgID.toString(16));
-    
-    if(isNaN(msgID)) {
-        setSplitterPaneVisible(ui.mainSplitter, 2, false);
-        return;
-    }
-    
-    clearMessageCounters();
-    const { messageDataTable } = detectCC33Packages(getRawLog(), { collectMsgID: msgID });
-    util.Table.Create(ui.listMessageTable, messageDataTable.headers, messageDataTable.rows);
-    setSplitterPaneVisible(ui.mainSplitter, 2, true);
 }
 
 /** Parsea uma mensagem, e retorna as rows dos parâmetros parseados

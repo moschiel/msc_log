@@ -39,7 +39,7 @@ export function clearMessageCounters() {
  * @param {string} text,
  * @param {{
  *   highlight?: boolean,
- *   collectMsgID?: Number
+ *   searchMsgID?: Number
  * }} [opt]
  * @returns {{
  * htmlWithPackagesHighlight: string,
@@ -48,7 +48,7 @@ export function clearMessageCounters() {
  *  rows: Array<Array>
  * }}}
  */
-export function detectCC33Packages(text, opt = { highlight: false, collectMsgID: null }) {
+export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: null }) {
     const lines = text.split(/\r?\n/);
     const headerLen = LOG_HEADER_EXAMPLE.length;
     
@@ -80,7 +80,7 @@ export function detectCC33Packages(text, opt = { highlight: false, collectMsgID:
                     return; // pula pacote
                 }
 
-                if (opt.collectMsgID === msg.id) {
+                if (opt.searchMsgID === msg.id) {
                     const {isImplemented, rows} = parseMessage(
                         msg.id, 
                         msg.data, 
@@ -164,7 +164,7 @@ export function detectCC33Packages(text, opt = { highlight: false, collectMsgID:
     
     return {
         htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : text,
-        messageDataTable: opt.collectMsgID ? messageDataTable : null
+        messageDataTable: opt.searchMsgID ? messageDataTable : null
     }
 }
 

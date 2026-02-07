@@ -104,29 +104,6 @@ export function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIn
     }
 }
 
-/**
- * Escreve no logBox, convertendo o conteudo de texto para HTML estilizado
- * aplicando highlight nos pacotes CC33 encontrados.
- * @param {"set" | "append"} mode 
- * @param {string} textContent 
- */
-export function writeLogWithHighlightPackage(mode, textContent) {
-    // Junta pendingText + deltaText e separa parte segura vs resto
-    let { safeText, pendingText } = tailSplitWithPendingCC33(getLogBoxPendingPacket(), textContent);
-
-    // texto seguro para ser analisado os pacotes CC33
-    if (safeText && safeText.length > 0) {
-        let innerHTML = util.escapeHtml(safeText);
-        // Aplica highlight dos pacotes com CC33
-        const { htmlWithPackagesHighlight } = detectCC33Packages(innerHTML, { highlight: true });
-        writeLogBox(mode, "html", htmlWithPackagesHighlight);
-    }
-
-    //texto com pacote CC33 incompleto no final (pendente de ser completado)
-    //nesse caso nao parseamos o pacote se nao chegou tudo
-    //vai deixar de ser 'pendente' quando chegar um chunk com o fim do pacote
-    setLogBoxPendingPacket(pendingText ? pendingText : "");
-}
 
 /**
  * Recupera o frame hexadecimal completo de um pacote CC33 que está no LogBox, 

@@ -11,7 +11,7 @@
  * @property {HTMLButtonElement} btnHighlightPkg
  * @property {HTMLButtonElement} btnPkgConfig
  *
- * @property {HTMLSelectElement} selListMessageTimeline
+ * @property {HTMLSelectElement} selListMessage
  *
  * @property {HTMLDivElement} mainSplitter
  * @property {HTMLDivElement} logBox
@@ -44,8 +44,8 @@ export const ui = {
     document.getElementById("btnPkgConfig")
   ),
 
-  selListMessageTimeline: /** @type {HTMLSelectElement} */ (
-    document.getElementById("selListMessageTimeline")
+  selListMessage: /** @type {HTMLSelectElement} */ (
+    document.getElementById("selListMessage")
   ),
 
   mainSplitter: /** @type {HTMLDivElement} */ (
