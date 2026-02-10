@@ -11,10 +11,11 @@ body {
 
 /* Estilo para esconder elementos dinamicamente via js */
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
-input, .normal-btn {
+input,
+.normal-btn {
   font: inherit;
 }
 
@@ -34,7 +35,7 @@ input, .normal-btn {
 /* botão ON/OFF (toogle) */
 .toogle-btn {
   appearance: none;
-  border: 1px solid rgba(128,128,128,0.35);
+  border: 1px solid rgba(128, 128, 128, 0.35);
   color: inherit;
   border-radius: 10px;
   /* padding: 4px 6px; */
@@ -47,9 +48,9 @@ input, .normal-btn {
   justify-content: center;
   user-select: none;
 
-  border-color: rgba(128,128,128,0.25);
-  background: rgba(128,128,128,0.08);
-  color: rgba(0,0,0,0.65);
+  border-color: rgba(128, 128, 128, 0.25);
+  background: rgba(128, 128, 128, 0.08);
+  color: rgba(0, 0, 0, 0.65);
 
   transition:
     background 120ms ease,
@@ -59,7 +60,7 @@ input, .normal-btn {
 }
 
 .toogle-btn:hover {
-  background: rgba(128,128,128,0.18);
+  background: rgba(128, 128, 128, 0.18);
 }
 
 .toogle-btn:active {
@@ -68,7 +69,7 @@ input, .normal-btn {
 
 .toogle-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(100,150,255,0.35);
+  box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.35);
 }
 
 .toogle-btn-icon {
@@ -78,18 +79,18 @@ input, .normal-btn {
 /* ON */
 .toogle-btn.is-pressed,
 select.is-selected {
-  border-color: rgba(80,160,110,0.55);
-  background: rgba(80,160,110,0.30);
+  border-color: rgba(80, 160, 110, 0.55);
+  background: rgba(80, 160, 110, 0.30);
   opacity: 1;
 }
 
 .toogle-btn.is-pressed:hover,
 select.is-selected:hover {
-  background: rgba(80,160,110,0.40);
+  background: rgba(80, 160, 110, 0.40);
 }
 
 /* Botao Emoji */
-.emoji-btn{
+.emoji-btn {
   appearance: none;
   -webkit-appearance: none;
   border: none;
@@ -98,15 +99,17 @@ select.is-selected:hover {
   margin: 0;
   cursor: pointer;
   line-height: 1;
-  font: inherit; /* mantém tamanho do emoji conforme fonte */
+  font: inherit;
+  /* mantém tamanho do emoji conforme fonte */
 }
 
-.emoji-btn:focus{
+.emoji-btn:focus {
   outline: none;
 }
 
-.emoji-btn:focus-visible{
-  outline: 2px solid #3b82f6; /* foco acessível */
+.emoji-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  /* foco acessível */
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -118,10 +121,74 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
+/* input file */
+/* ================================
+ * FILE INPUT - LIGHT MODE
+ * ================================ */
+
+input[type="file"] {
+  font-family: inherit;
+  font-size: 12px;
+
+  color: #111;
+  background: #ffffff;
+
+  border: 1px solid #bfbfbf;
+  border-radius: 4px;
+
+  padding: 4px;
+  box-sizing: border-box;
+
+  cursor: pointer;
+}
+
+/* Botão interno (Chrome / Edge / Firefox) */
+input[type="file"]::file-selector-button {
+  margin-right: 8px;
+  padding: 5px 10px;
+
+  font-size: 12px;
+  font-family: inherit;
+
+  background: #e6e6e6;
+  color: #111;
+
+  border: 1px solid #bfbfbf;
+  border-radius: 4px;
+
+  cursor: pointer;
+}
+
+/* Hover do botão */
+input[type="file"]::file-selector-button:hover {
+  background: #dcdcdc;
+}
+
+/* Focus */
+input[type="file"]:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.35);
+}
+
+
+/* Custom flie picker */
+.local-file-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.local-file-name {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  color: #666;
+}
+
 /* ===== select / combobox ===== */
 select {
   font: inherit;
-  padding: 6px 28px 6px 8px; /* espaço extra p/ seta */
+  padding: 6px 28px 6px 8px;
+  /* espaço extra p/ seta */
   border: 1px solid #999;
   border-radius: 6px;
   background: #eee;
@@ -160,13 +227,16 @@ select:disabled {
   /* aparece emcima do elemento*/
   /* bottom: 120%;  */
   /* 👈 aparece embaixo do */
-  top: 120%;                 
+  top: 120%;
   /* transform: translateX(-50%); */
 
-  white-space: pre; /* permite quebrar linha */
+  white-space: pre;
+  /* permite quebrar linha */
   display: inline-block;
-  width: max-content;     /* width = maior linha */
-  max-width: 90vw;        /* segurança pra não sair da tela */
+  width: max-content;
+  /* width = maior linha */
+  max-width: 90vw;
+  /* segurança pra não sair da tela */
 
   background: #333;
   color: #fff;
@@ -185,7 +255,7 @@ select:disabled {
 }
 
 
-.paneBackColor {  
+.paneBackColor {
   background: #f0f0f0;
 }
 
@@ -207,15 +277,16 @@ select:disabled {
   }
 
   .toogle-btn {
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .toogle-btn:hover {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
   }
+
   .toogle-btn.is-pressed:hover,
-   select.is-selected:hover {
-    background: rgba(80,160,110,0.40);
+  select.is-selected:hover {
+    background: rgba(80, 160, 110, 0.40);
   }
 
   .normal-btn:hover {
@@ -226,21 +297,46 @@ select:disabled {
     filter: invert(1);
   }
 
+  input[type="file"] {
+    color: #e6e6e6;
+    background: #1e1e1e;
+    border-color: #444;
+  }
+
+  input[type="file"]::file-selector-button {
+    background: #2a2a2a;
+    color: #e6e6e6;
+    border-color: #444;
+  }
+
+  input[type="file"]::file-selector-button:hover {
+    background: #333;
+  }
+
+  input[type="file"]:focus {
+    border-color: #6aa9ff;
+    box-shadow: 0 0 0 1px rgba(106, 169, 255, 0.4);
+  }
+
   select {
     background: #2a2a2a;
     border-color: #555;
     color: #eee;
     /* scrollbar-color: #3a3a3a #1e1e1e;      thumb | track */
-    color-scheme: light dark; 
+    color-scheme: light dark;
   }
 
   select:hover {
     background: #333;
   }
 
-  select > option {
+  select>option {
     background: #2a2a2a;
     color: #eee;
+  }
+
+  .local-file-name {
+    color: #aaa;
   }
 
   /* Estilo dark mode de links */

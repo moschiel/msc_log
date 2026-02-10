@@ -2,7 +2,7 @@
 // app/views/viewer.php
 
 
-function render_viewer($selectedFile) {
+function render_viewer($selectedFile, $isLocal) {
     global $ROOT_DIR, $currentPath;
 
     $title = ($selectedFile !== '') ? $selectedFile : '(nenhum arquivo)';
@@ -27,17 +27,34 @@ function render_viewer($selectedFile) {
 <body>
     <div class="main">
         <div class="header-container">
-            <a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
-                <button class="emoji-btn">⬅️</button>
-            </a>
-
-            <div>
-                <b>Arquivo:</b>
-                <a href="<?= htmlspecialchars($downloadUrl) ?>">
-                    <span><?= htmlspecialchars($title) ?></span>
-                </a>
-            </div>
-
+            <?php
+                if ($isLocal) {  
+                    ?>
+                    <div class="local-file-picker">
+                        <button id="btnPickLocalFile" type="button" class="normal-btn">
+                            📂 Abrir arquivo
+                        </button>
+                        <span id="labelLocalFile" class="local-file-name">
+                            nenhum arquivo selecionado
+                        </span>
+                    </div>
+                    <?php
+                } else { 
+                    ?>
+                    <a href="<?= buildBrowserLink(dirname($selectedFile), 'date_desc', '0') ?>">
+                        <button class="emoji-btn">⬅️</button>
+                    </a>
+        
+                    <div>
+                        <b>Arquivo:</b>
+                        <a href="<?= htmlspecialchars($downloadUrl) ?>">
+                            <span><?= htmlspecialchars($title) ?></span>
+                        </a>
+                    </div>
+                    <?php
+                } 
+            ?>
+        
             <button 
                 id="btnTailAutoRefresh"
                 type="button"

@@ -2,14 +2,19 @@ import { ui } from "./viewer-ui-elements.js";
 import { util } from "./utils.js";
 import { initAllFloatingWindows } from "./floating-window.js";
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
-import { initModal, getModal  } from "./modal.js";
-import { parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
+import { initModal, getModal } from "./modal.js";
+import {
+    parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
 } from "./viewer-message-parser.js";
-import { tailRefreshNow, setTailAutoRefresh
+import {
+    tailRefreshNow, setTailAutoRefresh, setLocalFileObject, clearAllLogData,
+    setLocalFileHandle
 } from "./viewer-auto-refresh.js";
-import { getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender
+import {
+    getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
-import { clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearMessageCounters,
+import {
+    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearMessageCounters,
 } from "./viewer-package-parser.js";
 import { getHexFromPackageClassGroup } from "./viewer-package-highlight.js";
 
@@ -27,15 +32,45 @@ window.addEventListener("load", () => {
     initAllSplitters();
 
     // inicializa o modal único
-    initModal({ 
-        overlayId: "modalOverlay", 
+    initModal({
+        overlayId: "modalOverlay",
         titleId: "modalTitle",
-        bodyId: "modalBody" 
+        bodyId: "modalBody"
     });
 
     // forca uma requisição inicial do conteúdo do log
     tailRefreshNow();
 });
+
+if (ui.btnPickLocalFile) {
+    ui.btnPickLocalFile.addEventListener("click", async () => {
+        try {
+            const [handle] = await window.showOpenFilePicker({
+                multiple: false,
+                types: [{
+                    description: "Logs",
+                    accept: { "text/plain": [".log", ".txt", ".asc"] }
+                }]
+            });
+
+            if (!handle) return; // nenhum arquivo selecionado
+
+            clearAllLogData();
+            setLocalFileHandle(handle);
+
+            ui.labelLocalFile.textContent = handle.name;
+
+            await tailRefreshNow();
+
+        } catch (e) {
+            // cancelado pelo usuário → ignora
+            if (e.name !== "AbortError") {
+                console.error(e);
+            }
+        }
+    });
+
+}
 
 ui.btnTailAutoRefresh.addEventListener("click", () => {
     util.toogleButton(ui.btnTailAutoRefresh);
@@ -47,9 +82,7 @@ ui.btnAutoScroll.addEventListener("click", () => {
 });
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    ui.btnHighlightPkg.disabled = true;
-    ui.btnTailAutoRefresh.disabled = true;
-    ui.selListMessage.disabled = true;
+    disableControlsForRender(true);
 
     clearHighlightPkgCounters();
     clearLogBox();
@@ -69,15 +102,11 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         setLogBoxPendingPacket("");
     }
 
-    ui.btnHighlightPkg.disabled = false;
-    ui.btnTailAutoRefresh.disabled = false;
-    ui.selListMessage.disabled = false;
+    disableControlsForRender(false);
 });
 
 ui.selListMessage.addEventListener("change", () => {
-    ui.btnHighlightPkg.disabled = true;
-    ui.btnTailAutoRefresh.disabled = true;
-    ui.selListMessage.disabled = true;
+    disableControlsForRender(true);
 
     clearMessageCounters();
 
@@ -97,9 +126,7 @@ ui.selListMessage.addEventListener("change", () => {
         setSplitterPaneVisible(ui.mainSplitter, 2, false);
     }
 
-    ui.btnHighlightPkg.disabled = false;
-    ui.btnTailAutoRefresh.disabled = false;
-    ui.selListMessage.disabled = false;
+    disableControlsForRender(false);
 });
 
 ui.btnPkgConfig.addEventListener("click", () => {
@@ -148,12 +175,12 @@ ui.logBox.addEventListener("click", e => {
 
     const classPkgGroup = e.target.classList[0];
     if (!classPkgGroup.startsWith("pkg-")) return;
-    
+
     let frameStr = getHexFromPackageClassGroup(classPkgGroup);
     const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
 
-    if(!parseOk) return;
-    
+    if (!parseOk) return;
+
     // Cria tabela do pacote
     const pkgIndex = classPkgGroup.replace("pkg-", "");
     showParsedPackageOnTable(headers, rows, pkgIndex);
@@ -180,7 +207,7 @@ ui.logBox.addEventListener("click", e => {
     }
 
     // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-    ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";    
+    ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";
 });
 
 ui.parsedPackageTable.addEventListener("click", (ev) => {

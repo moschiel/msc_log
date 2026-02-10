@@ -6,6 +6,8 @@
 
 /**
  * @typedef {Object} ViewerUI
+ * @property {HTMLButtonElement} btnPickLocalFile
+ * @property {HTMLSpanElement} labelLocalFile
  * @property {HTMLButtonElement} btnTailAutoRefresh
  * @property {HTMLButtonElement} btnAutoScroll
  * @property {HTMLButtonElement} btnHighlightPkg
@@ -29,6 +31,14 @@
 
 /** @type {ViewerUI} */
 export const ui = {
+  labelLocalFile: /** @type {HTMLSpanElement} */ (
+    document.getElementById("labelLocalFile")
+  ),
+  
+  btnPickLocalFile: /** @type {HTMLButtonElement} */ (
+    document.getElementById("btnPickLocalFile")
+  ),
+
   btnTailAutoRefresh: /** @type {HTMLButtonElement} */ (
     document.getElementById("btnTailAutoRefresh")
   ),

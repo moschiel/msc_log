@@ -53,7 +53,7 @@ if (isset($_GET['download']) && $_GET['download'] == '1') {
 // VIEWER MODE (página separada)
 // ---------------------------
 if ($fileViewerMode) {
-    render_viewer($selectedFile);
+    render_viewer($selectedFile, $isLocal);
 } else { // BROWSER FILE TREE MODE
     // ---------------------------
     // DELETE (arquivo ou diretório) na pasta atual
