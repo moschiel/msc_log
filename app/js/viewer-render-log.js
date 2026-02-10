@@ -131,9 +131,10 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
 
         // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
         if (!isNaN(opts.searchMsgID)) {
-            if (mode === "set")
+            // mesmo se vier mode "append", forçamos criacao se tabela não tem tHead
+            if (mode === "set" || ui.listMessageTable.tHead === null)
                 util.Table.Create(ui.listMessageTable, parsed.messageDataTable.headers, parsed.messageDataTable.rows);
-            else if (mode === "append")
+            else if (mode === "append") 
                 util.Table.AddRows(ui.listMessageTable, parsed.messageDataTable.rows);
 
             // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final

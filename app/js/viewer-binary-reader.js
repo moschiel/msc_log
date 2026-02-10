@@ -19,6 +19,11 @@ import { util } from "./utils.js";
  */
 
 /**
+ * @typedef {Object} ReadCStringOptions
+ * @property {boolean} [allowToEnd] - Permite ler até o final se não houver NULL
+ */
+
+/**
  * @typedef {Object} BinaryReader
  * @property {DataView} dv
  * @property {Uint8Array} u8buf
@@ -38,6 +43,7 @@ import { util } from "./utils.js";
  * @property {function(string, boolean=): number} read_u32
  * @property {function(string, boolean=): bigint} read_u64
  * @property {function(string, number): Uint8Array} read_bytes
+ * @property {(name: string, opts?: ReadCStringOptions) => string} read_cstring
  *
  * @property {function(number): string} hex_u8
  * @property {function(number): string} hex_u16
@@ -59,6 +65,7 @@ import { util } from "./utils.js";
  * @property {function(string, number): any} add_row_bytes_BCD
  * @property {function(string): string} add_row_u32_timestamp
  * @property {function(string): string} add_row_i32_coord
+ * @property {(name: string, opts?: ReadCStringOptions) => string} add_row_cstring
  */
 
 /**
@@ -99,8 +106,7 @@ import { util } from "./utils.js";
  *        Opções de configuração do leitor
  * @returns {BinaryReader}
  */
-export function createBinaryReader(u8buf, opts = {})
- {
+export function createBinaryReader(u8buf, opts = {}) {
     const dv = new DataView(u8buf.buffer, u8buf.byteOffset, u8buf.byteLength);
 
     let offset = 0;
@@ -176,6 +182,32 @@ export function createBinaryReader(u8buf, opts = {})
         return s;
     };
 
+    const read_cstring = (name, opts) => {
+        const o = opts || {};
+        const allowToEnd = !!o.allowToEnd;
+
+        let start = offset;
+        let end = offset;
+
+        while (end < u8buf.length && u8buf[end] !== 0x00) {
+            end++;
+        }
+
+        const foundNull = (end < u8buf.length && u8buf[end] === 0x00);
+
+        if (!foundNull && !allowToEnd) {
+            // não achou '\0' e não pode ir até o fim
+            need(name, (end - start) + 1); // força o mesmo erro padrão do seu reader
+        }
+
+        const text = new TextDecoder("utf-8").decode(u8buf.slice(start, end));
+
+        // avança offset: se achou '\0', pula ele; senão, vai até o final
+        offset = foundNull ? (end + 1) : end;
+
+        return text;
+    };
+
     const skip = (name, n) => {
         need(name, n);
         offset += n;
@@ -185,7 +217,7 @@ export function createBinaryReader(u8buf, opts = {})
     const hex_u8 = (v) => `0x${(v & 0xFF).toString(16).toUpperCase().padStart(2, "0")}`;
     const hex_u16 = (v) => `0x${(v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`;
     const hex_u32 = (v) => `0x${(v >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
-    
+
     // ======== adders ========
     function add_row(name, size, value) {
         // console.log(name, size, value);
@@ -276,6 +308,17 @@ export function createBinaryReader(u8buf, opts = {})
         return b;
     };
 
+    const add_row_cstring = (name, opts) => {
+        const startOffset = offset;
+        const value = read_cstring(name, opts);
+        const size = offset - startOffset;
+
+        add_row(name, size, value);
+        return value;
+    };
+
+
+
     // fallback simples caso você não passe util.bufferToHex
     function bytesToHex(arr) {
         let s = "";
@@ -330,6 +373,7 @@ export function createBinaryReader(u8buf, opts = {})
         read_u32,
         read_u64,
         read_bytes,
+        read_cstring,
 
         // format
         hex_u8,
@@ -348,6 +392,7 @@ export function createBinaryReader(u8buf, opts = {})
         add_row_hex_u16,
         add_row_hex_u32,
         add_row_bytes_hex,
+        add_row_cstring,
         add_row_bytes_BCD,
         add_row_u32_timestamp,
         add_row_i32_coord,

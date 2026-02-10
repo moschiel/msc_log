@@ -10,100 +10,100 @@ import { openFloatingWindow } from "./floating-window.js";
  * ID e descrição das mensagens, e se suportam listagem
  */
 export const msgsList = new Map([
-  [0x0000, { description: "Keep Alive", listSupport: false }],
-  [0x1000, { description: "Reset INFO", listSupport: false }],
-  [0x1100, { description: "Basic Position", listSupport: false }],
-  [0x1101, { description: "Extended Position", listSupport: true }],
-  [0x1121, { description: "MSC830 aditional Data", listSupport: false }],
-  [0x1122, { description: "MSC530  aditional Data", listSupport: false }],
-  [0x1130, { description: "Risk Rules Data", listSupport: false }],
-  [0x1140, { description: "Login Event", listSupport: false }],
-  [0x1200, { description: "Data Terminal Msg", listSupport: false }],
-  [0x1210, { description: "Data Terminal Auth", listSupport: false }],
-  [0x1300, { description: "Report Configurations", listSupport: false }],
-  [0x1310, { description: "Report Context", listSupport: false }],
-  [0x1400, { description: "Telemetry Data", listSupport: false }],
-  [0x1401, { description: "Telemetry Delta", listSupport: false }],
-  [0x1402, { description: "Telemetry Events", listSupport: false }],
-  [0x1403, { description: "Black Box Delta", listSupport: false }],
-  [0x1404, { description: "Black Box PKG", listSupport: false }],
-  [0x1405, { description: "Telemetry Delta V2", listSupport: false }],
-  [0x1406, { description: "G Force Event", listSupport: false }],
-  [0x1407, { description: "Telemetry Delta V3", listSupport: false }],
-  [0x1500, { description: "Accessory Report", listSupport: false }],
-  [0x1501, { description: "Accessory Report V2", listSupport: false }],
-  [0x1600, { description: "TPMS PKG", listSupport: false }],
-  [0xFFFF, { description: "ACK/NACK Response", listSupport: false }],
-  [0x2001, { description: "RESET", listSupport: false }],
-  [0x200A, { description: "REQUEST POSITION", listSupport: false }],
-  [0x2005, { description: "ACTUATORS", listSupport: false }],
-  [0x2004, { description: "SECURITY ACTUATORS", listSupport: false }],
-  [0x2003, { description: "CYCLIC ACTUATORS", listSupport: false }],
-  [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: false }],
-  [0x200C, { description: "DATA TERMINAL AUDIO", listSupport: false }],
-  [0x2010, { description: "SET ODOMETER", listSupport: false }],
-  [0x2011, { description: "SET HOURMETER", listSupport: false }],
-  [0x2014, { description: "SET FUEL", listSupport: false }],
-  [0x2012, { description: "RESET ALARM - CLEAR", listSupport: false }],
-  [0x2013, { description: "RESET ALARM - KEEP", listSupport: false }],
-  [0x2015, { description: "SET TPMS TEST TIMEOUT", listSupport: false }],
-  [0x3000, { description: "SET CONFIGURATIONS", listSupport: false }],
-  [0x3100, { description: "READ CONFIGURATIONS", listSupport: false }],
-  [0x3200, { description: "READ CONTEXT INFO", listSupport: false }],
-  [0x201A, { description: "ENABLE RISK ANALYSIS", listSupport: false }],
-  [0x201B, { description: "DISABLE RISK ANALYSIS", listSupport: false }],
-  [0x201C, { description: "REQUEST BLACKBOX", listSupport: false }],
-  [0x201D, { description: "START YMODEM RECEIVE", listSupport: false }],
-  [0x201E, { description: "FORCE MDM REPORT", listSupport: false }],
-  [0x2020, { description: "REQUEST UPLOAD DIR", listSupport: false }],
-  [0x2021, { description: "REQUEST UPLOAD LOG", listSupport: false }],
-  [0x2022, { description: "REQUEST TAIL LOG", listSupport: false }],
-  [0x4000, { description: "EMBEDDED FILE - GET", listSupport: false }],
-  [0x4001, { description: "EMBEDDED FILE - CREATE", listSupport: false }],
-  [0x4002, { description: "EMBEDDED FILE - WRITE", listSupport: false }],
-  [0x4003, { description: "EMBEDDED FILE - CLOSE", listSupport: false }],
-  [0x4004, { description: "EMBEDDED FILE - DELETE", listSupport: false }],
-  [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: false }],
-  [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD", listSupport: false }],
-  [0x200D, { description: "Embedded Actions Filter", listSupport: false }],
-  [0x200E, { description: "Factory Reset", listSupport: false }]
+    [0x0000, { description: "Keep Alive", listSupport: false }],
+    [0x1000, { description: "Reset INFO", listSupport: false }],
+    [0x1100, { description: "Basic Position", listSupport: false }],
+    [0x1101, { description: "Extended Position", listSupport: true }],
+    [0x1121, { description: "MSC830 aditional Data", listSupport: false }],
+    [0x1122, { description: "MSC530  aditional Data", listSupport: false }],
+    [0x1130, { description: "Risk Rules Data", listSupport: false }],
+    [0x1140, { description: "Login Event", listSupport: false }],
+    [0x1200, { description: "Data Terminal Msg", listSupport: false }],
+    [0x1210, { description: "Data Terminal Auth", listSupport: false }],
+    [0x1300, { description: "Report Configurations", listSupport: false }],
+    [0x1310, { description: "Report Context", listSupport: false }],
+    [0x1400, { description: "Telemetry Data", listSupport: false }],
+    [0x1401, { description: "Telemetry Delta", listSupport: false }],
+    [0x1402, { description: "Telemetry Events", listSupport: false }],
+    [0x1403, { description: "Black Box Delta", listSupport: false }],
+    [0x1404, { description: "Black Box PKG", listSupport: false }],
+    [0x1405, { description: "Telemetry Delta V2", listSupport: false }],
+    [0x1406, { description: "G Force Event", listSupport: false }],
+    [0x1407, { description: "Telemetry Delta V3", listSupport: false }],
+    [0x1500, { description: "Accessory Report", listSupport: false }],
+    [0x1501, { description: "Accessory Report V2", listSupport: false }],
+    [0x1600, { description: "TPMS PKG", listSupport: false }],
+    [0xFFFF, { description: "ACK/NACK Response", listSupport: false }],
+    [0x2001, { description: "RESET", listSupport: false }],
+    [0x200A, { description: "REQUEST POSITION", listSupport: false }],
+    [0x2005, { description: "ACTUATORS", listSupport: false }],
+    [0x2004, { description: "SECURITY ACTUATORS", listSupport: false }],
+    [0x2003, { description: "CYCLIC ACTUATORS", listSupport: false }],
+    [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: false }],
+    [0x200C, { description: "DATA TERMINAL AUDIO", listSupport: false }],
+    [0x2010, { description: "SET ODOMETER", listSupport: false }],
+    [0x2011, { description: "SET HOURMETER", listSupport: false }],
+    [0x2014, { description: "SET FUEL", listSupport: false }],
+    [0x2012, { description: "RESET ALARM - CLEAR", listSupport: false }],
+    [0x2013, { description: "RESET ALARM - KEEP", listSupport: false }],
+    [0x2015, { description: "SET TPMS TEST TIMEOUT", listSupport: false }],
+    [0x3000, { description: "SET CONFIGURATIONS", listSupport: false }],
+    [0x3100, { description: "READ CONFIGURATIONS", listSupport: false }],
+    [0x3200, { description: "READ CONTEXT INFO", listSupport: false }],
+    [0x201A, { description: "ENABLE RISK ANALYSIS", listSupport: false }],
+    [0x201B, { description: "DISABLE RISK ANALYSIS", listSupport: false }],
+    [0x201C, { description: "REQUEST BLACKBOX", listSupport: false }],
+    [0x201D, { description: "START YMODEM RECEIVE", listSupport: false }],
+    [0x201E, { description: "FORCE MDM REPORT", listSupport: false }],
+    [0x2020, { description: "REQUEST UPLOAD DIR", listSupport: false }],
+    [0x2021, { description: "REQUEST UPLOAD LOG", listSupport: false }],
+    [0x2022, { description: "REQUEST TAIL LOG", listSupport: false }],
+    [0x4000, { description: "EMBEDDED FILE - GET", listSupport: false }],
+    [0x4001, { description: "EMBEDDED FILE - CREATE", listSupport: false }],
+    [0x4002, { description: "EMBEDDED FILE - WRITE", listSupport: false }],
+    [0x4003, { description: "EMBEDDED FILE - CLOSE", listSupport: false }],
+    [0x4004, { description: "EMBEDDED FILE - DELETE", listSupport: false }],
+    [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: false }],
+    [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD", listSupport: false }],
+    [0x200D, { description: "Embedded Actions Filter", listSupport: false }],
+    [0x200E, { description: "Factory Reset", listSupport: false }]
 ]);
 
 /**
  * ID e descrição das eventos de telemetria, e se suportam listagem
  */
 const telemetryEventsList = new Map([
-    [1,"WARNING EXCESS RPM"],
-    [2,"EXCESS RPM"],
-    [3,"WARNING SPEED EXCESS DRY"],
-    [4,"SPEED EXCESS DRY"],
-    [5,"WARNING SPEED EXCESS WET"],
-    [6,"SPEED EXCESS WET"],
-    [7,"WARNING NEUTRAL COASTING"],
-    [8,"NEUTRAL COASTING"],
-    [9,"WARNING EXCESS STOP TIME"],
-    [10,"EXCESS STOP TIME"],
-    [11,"WARNING CLUTCH EXCESS"],
-    [12,"CLUTCH EXCESS"],
-    [13,"ACC EXCESS"],
-    [14,"BRAKE EXCESS"],
-    [15,"ROTO WARNING SPEED EXCESS DRY"],
-    [16,"ROTO SPEED EXCESS DRY"],
-    [17,"ROTO WARNING SPEED EXCESS WET"],
-    [18,"ROTO SPEED EXCESS WET"],
-    [19,"G-FORCE LATERAL"],
-    [20,"AIR BREAK PRESSURE TOO LOW"],
-    [21,"SEATBELT FAULT"],
-    [22,"FUEL TANK FALL EXCESS"],
-    [23,"EXCESS LIQUID COOLING TEMPERATURE"],
-    [24,"EXCESS MOTOR OIL TEMPERATURE" ],
-    [25,"EXCESS MOTOR OIL PRESSURE" ],
-    [26,"KICKDOWN_EXCESS" ],
-    [27,"LIQUID_COOLING_LEVEL_TOO_LOW"],
-    [28,"OIL_LEVEL_TOO_LOW" ],
-    [29,"CATALYST_LEVEL_TOO_LOW" ],
-    [30,"WATER_IN_FUEL" ],
-    [31,"DIFFERENTIAL_BLOCKED"]
+    [1, "WARNING EXCESS RPM"],
+    [2, "EXCESS RPM"],
+    [3, "WARNING SPEED EXCESS DRY"],
+    [4, "SPEED EXCESS DRY"],
+    [5, "WARNING SPEED EXCESS WET"],
+    [6, "SPEED EXCESS WET"],
+    [7, "WARNING NEUTRAL COASTING"],
+    [8, "NEUTRAL COASTING"],
+    [9, "WARNING EXCESS STOP TIME"],
+    [10, "EXCESS STOP TIME"],
+    [11, "WARNING CLUTCH EXCESS"],
+    [12, "CLUTCH EXCESS"],
+    [13, "ACC EXCESS"],
+    [14, "BRAKE EXCESS"],
+    [15, "ROTO WARNING SPEED EXCESS DRY"],
+    [16, "ROTO SPEED EXCESS DRY"],
+    [17, "ROTO WARNING SPEED EXCESS WET"],
+    [18, "ROTO SPEED EXCESS WET"],
+    [19, "G-FORCE LATERAL"],
+    [20, "AIR BREAK PRESSURE TOO LOW"],
+    [21, "SEATBELT FAULT"],
+    [22, "FUEL TANK FALL EXCESS"],
+    [23, "EXCESS LIQUID COOLING TEMPERATURE"],
+    [24, "EXCESS MOTOR OIL TEMPERATURE"],
+    [25, "EXCESS MOTOR OIL PRESSURE"],
+    [26, "KICKDOWN_EXCESS"],
+    [27, "LIQUID_COOLING_LEVEL_TOO_LOW"],
+    [28, "OIL_LEVEL_TOO_LOW"],
+    [29, "CATALYST_LEVEL_TOO_LOW"],
+    [30, "WATER_IN_FUEL"],
+    [31, "DIFFERENTIAL_BLOCKED"]
 ]);
 
 /**
@@ -111,7 +111,7 @@ const telemetryEventsList = new Map([
  *
  * @param {Number} id id da mensagem
  * @returns {string} descrição da mensagem
- */    
+ */
 export function getMsgName(id) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
@@ -134,7 +134,7 @@ export function getMsgName(id) {
  */
 export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     ui.labelMessageDescription.textContent = getMsgName(msgID);
-    if(implemented) {
+    if (implemented) {
         util.Table.Create(ui.parsedMessageTable, headers, rows);
     } else {
         ui.parsedMessageTable.innerHTML = `Parseamento dessa mensagem não foi desenvolvido.`;
@@ -174,12 +174,12 @@ export function initSelectMessageIDOptions() {
 export function parseMessage(msgID, data, dataMode, dataOrientation) {
     const br = createBinaryReader(data, {
         processMode: "collect", // collect parsed data
-        dataMode, 
+        dataMode,
         dataOrientation
     });
 
     let isImplemented = true;
-    
+
     // -------- switch principal --------
     switch (msgID) {
         case 0x1101: {
@@ -230,7 +230,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 const id = br.read_u32(`Geozone ID[${i}]`);
                 const gzId = (id & 0x00FFFFFF) >>> 0;
                 const flags = (id >>> 24) & 0xFF;
-                br.add_row(`GZ[${i}]`, 5 ,`Group=${group}, ID=${gzId}, Flags=${flags}`);
+                br.add_row(`GZ[${i}]`, 5, `Group=${group}, ID=${gzId}, Flags=${flags}`);
             }
             break;
         }
@@ -248,7 +248,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Time Ideling");
             br.add_row_u32("Total Fuel");
             br.add_row_u32("Odometer (m)");
-            br.add_row_u32("Flags", true, (flags) => {  
+            br.add_row_u32("Flags", true, (flags) => {
                 let text = `Raw: ${br.hex_u32(flags)} \r\n`;
                 text += "Bits:  \r\n";
                 text += `   *Odometer Accumulated: ${(flags & 0x00000001) ? "1" : "0"}\r\n`;
@@ -272,24 +272,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             }
             break;
         }
-/*
-        case 0x1401: {
-            br.add_row_u8("Type");
-            br.add_row_u32("Time RPM Blue");
-            br.add_row_u32("Time RPM Green");
-            br.add_row_u32("Time RPM Yellow");
-            br.add_row_u32("Time RPM Red");
-            br.add_row_u32("Total Time");
-            br.add_row_u32("Time Ideling");
-            br.add_row_u32("Time Retarder");
-            br.add_row_u32("Fuel (ml)");
-            br.add_row_u32("Distance (m)");
-            br.add_row_u32("RFU");
-            br.add_row_u32("RFU");
-            br.add_row_u32("Driver ID");
-            break;
-        }
-*/
+
         case 0x1405: {
             br.add_row_u8("Type");
             const unidades = ["Tempo", "Distância"];
@@ -308,106 +291,78 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Driver ID");
             break;
         }
-/*
+
         case 0x4010: {
-            const strList = util.splitNullTerminatedAscii(data);
+            const protoCode = br.add_row_cstring("Protocol");
+            const host = br.add_row_cstring("Host");
+            const port = br.add_row_cstring("Port");
+            br.add_row_cstring("Login");
+            br.add_row_cstring("Pwd");
+            const pathFile = br.add_row_cstring("PathFile");
 
-            if (strList.length < 6) {
-                rows.push(["Erro", "Error in Data Buffer"]);
-                break;
-            }
-
-            const protoCode = strList[0];
             const strProto =
                 protoCode === "1" ? "http" :
                     protoCode === "2" ? "https" :
                         protoCode === "3" ? "ftp" : "";
 
-            rows.push(["Protocol", `${strList[0]} (${strProto})`]);
-            rows.push(["Host", strList[1]]);
-            rows.push(["Port", strList[2]]);
-            rows.push(["Login", strList[3]]);
-            rows.push(["Pwd", strList[4]]);
-            rows.push(["PathFile", strList[5]]);
-            rows.push(["***URL***", `${strProto}://${strList[1]}:${strList[2]}${strList[5]}`]);
+            br.add_row("***URL***", "N/A", `${strProto}://${host}:${port}${pathFile}`);
             break;
         }
 
         case 0x1200:
         case 0x200B: {
             if (msgID === 0x1200) {
-                rows.push(["Message Type", hex_u16(read_u16())]);
+                br.add_row_hex_u16("Message Type");
                 br.add_row_u32("RFU");
             }
-
-            rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
-
+            br.add_row_u32_timestamp("Timestamp");
             br.add_row_u32("Message ID");
             br.add_row_u32("RFU");
-
-            rows.push(["Message", util.asciiFromOffset(count)]);
-            count = data.length;
+            br.add_row_cstring("Message", { allowToEnd: true });
             break;
         }
 
         case 0x1300:
         case 0x3000: {
-            while (count < dv.byteLength) {
-                const b0 = read_u8();
-                const b1 = read_u8();
-                const b2 = read_u8();
-                const strID = `${b0.toString(16).toUpperCase().padStart(2, "0")} ` +
-                    `${b1.toString(16).toUpperCase().padStart(2, "0")} ` +
-                    `${b2.toString(16).toUpperCase().padStart(2, "0")}`;
-
-                const size = read_u8();
-                const blob = read_bytes(size);
-
-                rows.push([strID, String(size), util.bufferToHex(blob)]);
+            while (br.getOffset() < br.getLength()) {
+                const id = br.read_bytes("config id", 3);
+                const size = br.read_u8("config size");
+                const value = br.read_bytes("config value", size);
+                br.add_row(util.bufferToHex(id), size, util.bufferToHex(value));
             }
-
-            util.Table.Create(ui.parsedPackageTable, ["ID", "Size", "Data (Hex Buffer)"], rows);
-            return true;
+            break;
         }
 
         case 0x1310: {
-            while (count < dv.byteLength) {
-                const id = read_u16();
-                const val = read_u32();
-                rows.push([String(id), (val >>> 0).toString(16).toUpperCase().padStart(8, "0")]);
+            while (br.getOffset() < br.getLength()) {
+                const id = br.read_u16("context id");
+                const val = br.read_u32("context value");
+                br.add_row(String(id), 4, val.toString(16).toUpperCase().padStart(8, "0"));
             }
-
-            util.Table.Create(ui.parsedPackageTable, ["ID (index)", "Data (Hex)"], rows);
-            return true;
+            break;
         }
 
         case 0x3100:
         case 0x3200: {
-            while (count < dv.byteLength) {
+            let value = "";
+            while (br.getOffset() < br.getLength()) {
+                let id = "";
                 if (msgID === 0x3100) {
-                    const a = read_u8();
-                    const b = read_u8();
-                    const c = read_u8();
-                    rows.push([`${a.toString(16).toUpperCase().padStart(2, "0")} ${b.toString(16).toUpperCase().padStart(2, "0")} ${c.toString(16).toUpperCase().padStart(2, "0")}`]);
+                    id = util.bufferToHex(br.read_bytes("config_id", 3));
                 } else {
-                    rows.push([String(read_u16())]);
+                    id = String(br.read_u16("context_id"));
                 }
+                value += id + "\n"
             }
 
-            util.Table.Create(ui.parsedPackageTable, ["ID"], rows);
-            return true;
+            br.add_row("IDs Solicitados", br.getLength(), value);
+            break;
         }
 
-        case 0x4004: {
-            rows.push([getAsciiStringAll()]);
-            util.Table.Create(ui.parsedPackageTable, ["File Name"], rows);
-            return true;
-        }
-*/
         case 0x1402: {
             const eventID = br.add_row_u8('Event ID', (v) => {
                 let evDesc;
-                if(telemetryEventsList.has(v)) 
+                if (telemetryEventsList.has(v))
                     evDesc = telemetryEventsList.get(v);
                 else
                     evDesc = "Evento Desconhecido";
@@ -457,7 +412,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             // Info of packet (bb_pck_info_t)
             br.add_row_u8("status", (v) => {
                 let text = "";
-                switch(v) {
+                switch (v) {
                     case 0x00: text = "ACK"; break;
                     case 0xAA: text = "Save"; break;
                     case 0xFF: text = "Free"; break;
@@ -508,8 +463,8 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 text += `   *satellites: ${v & 0x1F} (5 bits)\r\n`;
 
                 let statusAntena = "";
-                let valAntena = (v >> 5) & 0x03; 
-                switch(valAntena) {
+                let valAntena = (v >> 5) & 0x03;
+                switch (valAntena) {
                     case 0: statusAntena = "Normal"; break;
                     case 1: statusAntena = "Open"; break;
                     case 2: statusAntena = "Short"; break;
@@ -517,7 +472,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 }
 
                 text += `   *antenna: ${valAntena}, ${statusAntena} (2 bits)\r\n`;
-                text += `   *fix: ${(v >> 7) & 0x01} (1 bit)\r\n`; 
+                text += `   *fix: ${(v >> 7) & 0x01} (1 bit)\r\n`;
                 return text;
             });
 
@@ -531,18 +486,18 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 let text = `Raw: ${br.hex_u16(v)} \r\n`;
                 text += `Bits: \r\n`;
                 text += `   *speed: ${(v & 0x0001)}\r\n`;
-                text += `   *rpm: ${(v & 0x0002) === 0 ? 0 : 1 }\r\n`;
-                text += `   *odometer: ${(v & 0x0004) === 0 ? 0 : 1 }\r\n`;
-                text += `   *fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1 }\r\n`;
-                text += `   *total fuel: ${(v & 0x0010) === 0 ? 0 : 1 }\r\n`;
-                text += `   *level tank: ${(v & 0x0020) === 0 ? 0 : 1 }\r\n`;
-                text += `   *brake: ${(v & 0x0040) === 0 ? 0 : 1 }\r\n`;
-                text += `   *parking brake: ${(v & 0x0080) === 0 ? 0 : 1 }\r\n`;
+                text += `   *rpm: ${(v & 0x0002) === 0 ? 0 : 1}\r\n`;
+                text += `   *odometer: ${(v & 0x0004) === 0 ? 0 : 1}\r\n`;
+                text += `   *fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1}\r\n`;
+                text += `   *total fuel: ${(v & 0x0010) === 0 ? 0 : 1}\r\n`;
+                text += `   *level tank: ${(v & 0x0020) === 0 ? 0 : 1}\r\n`;
+                text += `   *brake: ${(v & 0x0040) === 0 ? 0 : 1}\r\n`;
+                text += `   *parking brake: ${(v & 0x0080) === 0 ? 0 : 1}\r\n`;
 
-                text += `   *clutch: ${(v & 0x0100) === 0 ? 0 : 1 }\r\n`;
-                text += `   *retarder: ${(v & 0x0200) === 0 ? 0 : 1 }\r\n`;
-                text += `   *gears: ${(v & 0x0400) === 0 ? 0 : 1 }\r\n`;
-                text += `   *reserved: ${(v & 0xF800) >> 11 } (5 bits)\r\n`;
+                text += `   *clutch: ${(v & 0x0100) === 0 ? 0 : 1}\r\n`;
+                text += `   *retarder: ${(v & 0x0200) === 0 ? 0 : 1}\r\n`;
+                text += `   *gears: ${(v & 0x0400) === 0 ? 0 : 1}\r\n`;
+                text += `   *reserved: ${(v & 0xF800) >> 11} (5 bits)\r\n`;
                 return text;
             });
 
@@ -550,14 +505,14 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("Module Enabled", (v) => {
                 let text = `Raw: ${br.hex_u8(v)} \r\n`;
                 text += `Bits: \r\n`;
-                text += `   *ISV: ${(v & 0x01) === 0 ? 0 : 1 }\r\n`;
-                text += `   *Telemetry: ${(v & 0x02) === 0 ? 0 : 1 }\r\n`;
-                text += `   *Data Terminal: ${(v & 0x04) === 0 ? 0 : 1 }\r\n`;
-                text += `   *Satellital: ${(v & 0x08) === 0 ? 0 : 1 }\r\n`;
-                text += `   *Drive Time: ${(v & 0x10) === 0 ? 0 : 1 }\r\n`;
-                text += `   *Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1 }\r\n`;
-                text += `   *RFU1: ${(v & 0x40) === 0 ? 0 : 1 }\r\n`;
-                text += `   *RFU2: ${(v & 0x80) === 0 ? 0 : 1 }\r\n`;
+                text += `   *ISV: ${(v & 0x01) === 0 ? 0 : 1}\r\n`;
+                text += `   *Telemetry: ${(v & 0x02) === 0 ? 0 : 1}\r\n`;
+                text += `   *Data Terminal: ${(v & 0x04) === 0 ? 0 : 1}\r\n`;
+                text += `   *Satellital: ${(v & 0x08) === 0 ? 0 : 1}\r\n`;
+                text += `   *Drive Time: ${(v & 0x10) === 0 ? 0 : 1}\r\n`;
+                text += `   *Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1}\r\n`;
+                text += `   *RFU1: ${(v & 0x40) === 0 ? 0 : 1}\r\n`;
+                text += `   *RFU2: ${(v & 0x80) === 0 ? 0 : 1}\r\n`;
                 return text;
             });
 
@@ -568,63 +523,63 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             break;
         }
 
-/*
-        case 0x1600: {
-            br.add_row_u64("Device Serial");
-
-            rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
-
-            br.add_row_u8("Device Position");
-            br.add_row_u8("Pairing Status");
-
-            rows.push(["Nominal Pressure", read_u8() * 5490]);
-            rows.push(["Low-Pressure Warning", `${read_u8()}%`]);
-            rows.push(["Low-Pressure Alert", `${read_u8()}%`]);
-            br.add_row_u8("High-Temperature Alert");
-
-            br.add_row_u32("RFU");
-
-            need(1);
-            const sensorsCount = dv.getUint8(count);
-            count += 1;
-            rows.push(["Sensors Count", sensorsCount]);
-
-            for (let i = 0; i < sensorsCount; i++) {
-                const prefix = `  [${i}] - `;
-
-                const id = read_u32();
-                rows.push([`${prefix}ID`, `0x${id.toString(16).toUpperCase()}`]);
-
-                const rawPressure = read_u8();
-                const psi = Math.round((rawPressure * 5490) / 6894.7448);
-                rows.push([`${prefix}PRESSURE`, `${psi} PSI`]);
-
-                rows.push([`${prefix}TEMPERATURE`, `${read_u8() - 50} Celsius`]);
-
-                rows.push([`${prefix}POSITION`, hex_u8(read_u8())]);
-
-                rows.push([`${prefix}RSSI`, read_u8()]);
-
-                need(1);
-                const b1 = dv.getUint8(count);
-                count += 1;
-                rows.push([`${prefix}STA COMM`, (b1 & 0x07)]);
-                rows.push([`${prefix}MOVING`, ((b1 & 0x08) > 0).toString()]);
-                rows.push([`${prefix}OPE MODE`, ((b1 >> 4) & 0x0F)]);
-
-                need(1);
-                const b2 = dv.getUint8(count);
-                count += 1;
-                rows.push([`${prefix}ALERT PRES`, (b2 & 0x03)]);
-                rows.push([`${prefix}ALERT TEMP`, ((b2 & 0x04) > 0).toString()]);
-                rows.push([`${prefix}ALERT BAT`, ((b2 & 0x08) > 0).toString()]);
-                rows.push([`${prefix}vBAT`, ((((b2 >> 4) & 0x0F) + 20) / 10.0).toString()]);
-            }
-
-            count = data.length;
-            break;
-        }
-*/
+        /*
+                case 0x1600: {
+                    br.add_row_u64("Device Serial");
+        
+                    rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
+        
+                    br.add_row_u8("Device Position");
+                    br.add_row_u8("Pairing Status");
+        
+                    rows.push(["Nominal Pressure", read_u8() * 5490]);
+                    rows.push(["Low-Pressure Warning", `${read_u8()}%`]);
+                    rows.push(["Low-Pressure Alert", `${read_u8()}%`]);
+                    br.add_row_u8("High-Temperature Alert");
+        
+                    br.add_row_u32("RFU");
+        
+                    need(1);
+                    const sensorsCount = dv.getUint8(count);
+                    count += 1;
+                    rows.push(["Sensors Count", sensorsCount]);
+        
+                    for (let i = 0; i < sensorsCount; i++) {
+                        const prefix = `  [${i}] - `;
+        
+                        const id = read_u32();
+                        rows.push([`${prefix}ID`, `0x${id.toString(16).toUpperCase()}`]);
+        
+                        const rawPressure = read_u8();
+                        const psi = Math.round((rawPressure * 5490) / 6894.7448);
+                        rows.push([`${prefix}PRESSURE`, `${psi} PSI`]);
+        
+                        rows.push([`${prefix}TEMPERATURE`, `${read_u8() - 50} Celsius`]);
+        
+                        rows.push([`${prefix}POSITION`, hex_u8(read_u8())]);
+        
+                        rows.push([`${prefix}RSSI`, read_u8()]);
+        
+                        need(1);
+                        const b1 = dv.getUint8(count);
+                        count += 1;
+                        rows.push([`${prefix}STA COMM`, (b1 & 0x07)]);
+                        rows.push([`${prefix}MOVING`, ((b1 & 0x08) > 0).toString()]);
+                        rows.push([`${prefix}OPE MODE`, ((b1 >> 4) & 0x0F)]);
+        
+                        need(1);
+                        const b2 = dv.getUint8(count);
+                        count += 1;
+                        rows.push([`${prefix}ALERT PRES`, (b2 & 0x03)]);
+                        rows.push([`${prefix}ALERT TEMP`, ((b2 & 0x04) > 0).toString()]);
+                        rows.push([`${prefix}ALERT BAT`, ((b2 & 0x08) > 0).toString()]);
+                        rows.push([`${prefix}vBAT`, ((((b2 >> 4) & 0x0F) + 20) / 10.0).toString()]);
+                    }
+        
+                    count = data.length;
+                    break;
+                }
+        */
         default: {
             isImplemented = false;
         }
@@ -632,6 +587,6 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
 
     return {
         isImplemented,
-        rows: br.rows        
+        rows: br.rows
     }
 }
