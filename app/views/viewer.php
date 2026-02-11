@@ -92,9 +92,11 @@ Permite clicar nos pacotes p/ ver detalhes.
 
 Lista todas as mensagens do ID selecionado.
 
+Botão ▦ deve estar ativo.
+
 ⚠ Em logs grandes, a página pode ficar lenta." >
                 <!-- <label for="selListMessage">Listar:</label> -->
-                <select name="selListMessage" id="selListMessage">
+                <select disabled name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                 </select>
             </div>

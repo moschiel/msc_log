@@ -1,7 +1,7 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import { highlightPackage } from "./viewer-package-highlight.js";
-import { parseMessage, getMsgName } from "./viewer-message-parser.js";
+import { parseMessage, getMsgName, hlMessagesCount, clearMessageCounter, updateMessageCounter } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
 
@@ -12,28 +12,6 @@ export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 export let hlPkgCounter = 0;
 export let hlOfflinePkgCounter = 0;
 export let hlErrPkgCounter = 0;
-export let hlMessagesCount = []; // objeto que guarda contagem de cada mensagem por id
-
-// list message counter
-// guarda a quantidade de mensagens do id pesquisado
-let listMsgCounter = 0;
-
-function hlUpdateMessageCounter(id) {
-    let entry = hlMessagesCount.find(m => m.id === id);
-
-    if (!entry) {
-        entry = {
-            id,
-            description: getMsgName(id),
-            count: 1
-        };
-        hlMessagesCount.push(entry);
-    } else {
-        entry.count++;
-    }
-
-    return entry;
-}
 
 /** 
 * Reseta os contadores usados para highlight de pacotes.
@@ -42,14 +20,7 @@ export function clearHighlightPkgCounters() {
     hlPkgCounter = 0;
     hlOfflinePkgCounter = 0;
     hlErrPkgCounter = 0;
-    hlMessagesCount = [];
-}
-
-/**
-* Reseta os contadores usados para listagem da mensagem selecionada.
-*/
-export function clearSelectedMessageCounters() {
-    listMsgCounter = 0;
+    clearMessageCounter();
 }
 
 /**
@@ -94,7 +65,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             const { parseOk, connState, messages } = parseCC33Package(util.hexToBuffer(frameStr), "validate");
 
             for (const msg of messages) {
-                if (opt.highlight) hlUpdateMessageCounter(msg.id);
+                if (opt.highlight) updateMessageCounter(msg.id);
 
                 if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
                     || (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
@@ -112,12 +83,10 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                     );
 
                     if (isImplemented) {
-                        if (listMsgCounter == 0) {
+                        if (messageDataTable.headers.length === 0) {
                             messageDataTable.headers = rows[0]; // parameters names
-                        } else {
-                            messageDataTable.rows.push(rows[1]); // parameters values
                         }
-                        listMsgCounter++;
+                        messageDataTable.rows.push(rows[1]); // parameters values
                     }
                 }
             }

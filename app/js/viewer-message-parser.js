@@ -15,7 +15,7 @@ export const msgsList = new Map([
     [0x1122, { description: "MSC530  aditional Data" }],
     [0x1130, { description: "Risk Rules Data" }],
     [0x1140, { description: "Login Event" }],
-    [0x1200, { description: "Data Terminal Msg" }],
+    [0x1200, { description: "Data Terminal Msg", listSupport: true }],
     [0x1210, { description: "Data Terminal Auth" }],
     [0x1300, { description: "Report Configurations" }],
     [0x1310, { description: "Report Context" }],
@@ -36,7 +36,7 @@ export const msgsList = new Map([
     [0x2005, { description: "ACTUATORS" }],
     [0x2004, { description: "SECURITY ACTUATORS" }],
     [0x2003, { description: "CYCLIC ACTUATORS" }],
-    [0x200B, { description: "TEXT MSG TO DATA TERMINAL" }],
+    [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: true }],
     [0x200C, { description: "DATA TERMINAL AUDIO" }],
     [0x2010, { description: "SET ODOMETER" }],
     [0x2011, { description: "SET HOURMETER" }],
@@ -140,9 +140,42 @@ export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     setSplitterPaneVisible(ui.parsedPackageSplitter, 2, true);
 }
 
+export let hlMessagesCount = []; // objeto que guarda contagem de cada mensagem por id
+
+/**
+ * Atualiza contador de mensagens por ID, 
+ * cada chamada incrementa o contador do ID passado
+ */
+export function updateMessageCounter(id) {
+    let entry = hlMessagesCount.find(m => m.id === id);
+
+    if (!entry) {
+        // Nova mensagem inserida
+        entry = {
+            id,
+            description: getMsgName(id),
+            count: 1
+        };
+        hlMessagesCount.push(entry);
+        revealMessageOption(id);
+    } else {
+        // Incrementa contador da mensagem já existente
+        entry.count++;
+    }
+
+    return entry;
+}
+
+export function clearMessageCounter() {
+    hlMessagesCount = [];
+    hideAllListMessageOptionsExceptFirst();
+}
+
 /**
  * Inicializa as opções do select #selListMessage 
  * com as mensagens que suportam listagem na tabela #listMessageTable
+ * OBS: todas iniciam "hidden", então ao ativar analise de pacotes, 
+ * se uma mensagem existir no log, ai deve ficar visivel para selecionar.
  */
 export function initSelectMessageIDOptions() {
     for (const [id, info] of msgsList) {
@@ -153,10 +186,41 @@ export function initSelectMessageIDOptions() {
             // @ts-ignore
             opt.value = id;
             opt.textContent = `${idHex} - ${info.description}`;
+            opt.classList.add("hidden");
             ui.selListMessage.appendChild(opt);
         }
     }
 }
+
+function revealMessageOption(id) {
+    const option = ui.selListMessage.querySelector(
+        `option[value="${id}"]`
+    );
+
+    if (option) {
+        option.classList.remove("hidden");
+    }
+}
+
+export function hideAllListMessageOptionsExceptFirst() {
+    const options = ui.selListMessage.querySelectorAll("option");
+
+    options.forEach((opt, index) => {
+        if (index > 0) {
+            opt.classList.add("hidden");
+        }
+    });
+}
+
+
+// esconde painel de mensagens e limpa tabela
+export function hideListMessagePane() {
+    ui.selListMessage.classList.remove("is-selected");
+    ui.listMessageTable.innerHTML = "";
+    setSplitterPaneVisible(ui.mainSplitter, 2, false);
+}
+
+
 
 /** Parsea uma mensagem, e retorna as rows dos parâmetros parseados
  * 

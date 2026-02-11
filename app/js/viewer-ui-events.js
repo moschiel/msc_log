@@ -4,18 +4,20 @@ import { initAllFloatingWindows } from "./floating-window.js";
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
 import { initModal, getModal } from "./modal.js";
 import {
-    parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions
+    parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
+    hlMessagesCount,
+    hideAllListMessageOptionsExceptFirst,
+    hideListMessagePane
 } from "./viewer-message-parser.js";
 import {
-    tailRefreshNow, setTailAutoRefresh, setLocalFileObject, clearAllLogData,
+    tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileHandle
 } from "./viewer-auto-refresh.js";
 import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
 import {
-    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearSelectedMessageCounters,
-    hlMessagesCount,
+    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
 import { getHexFromPackageClassGroup } from "./viewer-package-highlight.js";
 
@@ -46,6 +48,7 @@ window.addEventListener("load", () => {
 if (ui.btnPickLocalFile) {
     ui.btnPickLocalFile.addEventListener("click", async () => {
         try {
+            // @ts-ignore
             const [handle] = await window.showOpenFilePicker({
                 multiple: false,
                 types: [{
@@ -105,12 +108,22 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     }
 
     disableControlsForRender(false);
+
+    if(highlight) {
+        // analise de pacote ativada, libera o seletor de mensagem
+        ui.selListMessage.disabled = false;
+    } else {
+        // analise de pacote inativa, bloquea o uso do seletor de mensagens
+        ui.selListMessage.selectedIndex = 0;
+        ui.selListMessage.disabled = true;
+        hideListMessagePane();
+        hideAllListMessageOptionsExceptFirst();
+    }
 });
+
 
 ui.selListMessage.addEventListener("change", () => {
     disableControlsForRender(true);
-
-    clearSelectedMessageCounters();
 
     const searchMsgID = Number(ui.selListMessage.value);
     if (!isNaN(searchMsgID)) {
@@ -123,56 +136,11 @@ ui.selListMessage.addEventListener("change", () => {
     } else {
         // pesquisa de mensagem acabou de ser desativada
         // esconde painel de mensagens e limpa tabela
-        ui.selListMessage.classList.remove("is-selected");
-        ui.listMessageTable.innerHTML = "";
-        setSplitterPaneVisible(ui.mainSplitter, 2, false);
+        hideListMessagePane();
     }
 
     disableControlsForRender(false);
 });
-
-let lastMessageIdClicked = 0;
-ui.logBox.addEventListener("click", e => {
-    if (!(e.target instanceof HTMLElement)) return;
-    if (!e.target.classList.contains('hl-pkg-ok')) return;
-
-    const classPkgGroup = e.target.classList[0];
-    if (!classPkgGroup.startsWith("pkg-")) return;
-
-    let frameStr = getHexFromPackageClassGroup(classPkgGroup);
-    const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
-
-    if (!parseOk) return;
-
-    // Cria tabela do pacote
-    const pkgIndex = classPkgGroup.replace("pkg-", "");
-    showParsedPackageOnTable(headers, rows, pkgIndex);
-
-    // Parsea e cria tabela da ultima mensagem clicada
-    if (messages.length > 0) {
-        for (const msg of messages) {
-            if (msg.id === lastMessageIdClicked) {
-                const { isImplemented, rows } = parseMessage(
-                    msg.id,
-                    msg.data,
-                    "nsv", /* Collect parametes name, size, and value */
-                    "v" /* Parametes Vertical Orientation */
-                );
-                showParsedMessageOnTable(
-                    isImplemented,
-                    msg.id,
-                    ["Name", "Size", "Value"],
-                    rows
-                );
-                return;
-            }
-        }
-    }
-
-    // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
-    ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";
-});
-
 
 ui.btnStatistics.addEventListener("click", () => {
     let contentHtml = "";
@@ -249,6 +217,48 @@ ui.btnPkgConfig.addEventListener("click", () => {
     cbIgnoreKeepAlive.onchange = () => {
         savePkgAnalyzeConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
     };
+});
+
+let lastMessageIdClicked = 0;
+ui.logBox.addEventListener("click", e => {
+    if (!(e.target instanceof HTMLElement)) return;
+    if (!e.target.classList.contains('hl-pkg-ok')) return;
+
+    const classPkgGroup = e.target.classList[0];
+    if (!classPkgGroup.startsWith("pkg-")) return;
+
+    let frameStr = getHexFromPackageClassGroup(classPkgGroup);
+    const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
+
+    if (!parseOk) return;
+
+    // Cria tabela do pacote
+    const pkgIndex = classPkgGroup.replace("pkg-", "");
+    showParsedPackageOnTable(headers, rows, pkgIndex);
+
+    // Parsea e cria tabela da ultima mensagem clicada
+    if (messages.length > 0) {
+        for (const msg of messages) {
+            if (msg.id === lastMessageIdClicked) {
+                const { isImplemented, rows } = parseMessage(
+                    msg.id,
+                    msg.data,
+                    "nsv", /* Collect parametes name, size, and value */
+                    "v" /* Parametes Vertical Orientation */
+                );
+                showParsedMessageOnTable(
+                    isImplemented,
+                    msg.id,
+                    ["Name", "Size", "Value"],
+                    rows
+                );
+                return;
+            }
+        }
+    }
+
+    // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
+    ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";
 });
 
 ui.parsedPackageTable.addEventListener("click", (ev) => {
