@@ -9,12 +9,31 @@ export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 
 // highlight package counters
-let hlPkgCounter = 0;
-let hlOfflinePkgCounter = 0;
-let hlErrPkgCounter = 0;
+export let hlPkgCounter = 0;
+export let hlOfflinePkgCounter = 0;
+export let hlErrPkgCounter = 0;
+export let hlMessagesCount = []; // objeto que guarda contagem de cada mensagem por id
 
-// list message counters
+// list message counter
+// guarda a quantidade de mensagens do id pesquisado
 let listMsgCounter = 0;
+
+function hlUpdateMessageCounter(id) {
+    let entry = hlMessagesCount.find(m => m.id === id);
+
+    if (!entry) {
+        entry = {
+            id,
+            description: getMsgName(id),
+            count: 1
+        };
+        hlMessagesCount.push(entry);
+    } else {
+        entry.count++;
+    }
+
+    return entry;
+}
 
 /** 
 * Reseta os contadores usados para highlight de pacotes.
@@ -23,12 +42,13 @@ export function clearHighlightPkgCounters() {
     hlPkgCounter = 0;
     hlOfflinePkgCounter = 0;
     hlErrPkgCounter = 0;
+    hlMessagesCount = [];
 }
 
 /**
-* Reseta os contadores usados para listagem de mensagens.
+* Reseta os contadores usados para listagem da mensagem selecionada.
 */
-export function clearMessageCounters() {
+export function clearSelectedMessageCounters() {
     listMsgCounter = 0;
 }
 
@@ -74,6 +94,8 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             const { parseOk, connState, messages } = parseCC33Package(util.hexToBuffer(frameStr), "validate");
 
             for (const msg of messages) {
+                if (opt.highlight) hlUpdateMessageCounter(msg.id);
+
                 if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
                     || (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
                     lineIndexes = []; // reset linhas
@@ -158,8 +180,10 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
         flushPackage();  
     }
 
-    if (opt.highlight)
+    if (opt.highlight) {
         console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
+        console.log("Quantidade de cada mensagem", hlMessagesCount);
+    }
 
     return {
         htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : text,

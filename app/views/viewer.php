@@ -93,13 +93,16 @@ Permite clicar nos pacotes p/ ver detalhes.
 Lista todas as mensagens do ID selecionado.
 
 ⚠ Em logs grandes, a página pode ficar lenta." >
-                <label for="selListMessage">Listar:</label>
+                <!-- <label for="selListMessage">Listar:</label> -->
                 <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                 </select>
             </div>
 
-            <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
+            <div class="align-right">
+                <button id="btnStatistics" class="emoji-btn">📊</button>
+                <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
+            </div>
         </div>
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical" add-btn-close="none">

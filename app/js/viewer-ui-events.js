@@ -14,7 +14,8 @@ import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
 import {
-    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearMessageCounters,
+    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable, clearSelectedMessageCounters,
+    hlMessagesCount,
 } from "./viewer-package-parser.js";
 import { getHexFromPackageClassGroup } from "./viewer-package-highlight.js";
 
@@ -109,7 +110,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
 ui.selListMessage.addEventListener("change", () => {
     disableControlsForRender(true);
 
-    clearMessageCounters();
+    clearSelectedMessageCounters();
 
     const searchMsgID = Number(ui.selListMessage.value);
     if (!isNaN(searchMsgID)) {
@@ -128,45 +129,6 @@ ui.selListMessage.addEventListener("change", () => {
     }
 
     disableControlsForRender(false);
-});
-
-ui.btnPkgConfig.addEventListener("click", () => {
-
-    const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
-    const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
-
-    getModal().open({
-        title: "Configurações",
-        bodyHtml: `
-<div>
-    <div style="padding-bottom: 16px;">
-        Análise de Pacotes
-    </div>
-    <label>
-        <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
-        Ignorar ACK (message ID 0xFFFF)
-    </label>
-    <br>
-    <label>
-        <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
-        Ignorar KEEP-ALIVE (message ID 0x0000)
-    </label>
-<div>`
-    });
-
-    const modalBody = document.getElementById("modalBody");
-    /** @type {HTMLInputElement} */
-    const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
-    /** @type {HTMLInputElement} */
-    const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
-
-    cbIgnoreAck.onchange = () => {
-        savePkgAnalyzeConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
-    };
-
-    cbIgnoreKeepAlive.onchange = () => {
-        savePkgAnalyzeConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
-    };
 });
 
 let lastMessageIdClicked = 0;
@@ -209,6 +171,84 @@ ui.logBox.addEventListener("click", e => {
 
     // Se nao possui a ultima mensagem clicada, nao mostra a tabela da mensagem
     ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";
+});
+
+
+ui.btnStatistics.addEventListener("click", () => {
+    let contentHtml = "";
+    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
+        const sorted = [...hlMessagesCount]
+            .sort((a, b) => b.count - a.count);
+        
+        if(sorted) {
+            contentHtml = sorted.map(m => `
+                <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                    <span>${m.description}</span>
+                    <strong>${m.count}</strong>
+                </div>
+            `).join("");
+        } else {
+            contentHtml = "<div>Nenhuma mensagem registrada</div>";
+        }
+    } else {
+        contentHtml = `
+        <div> Botão   
+            <button class='toogle-btn'>
+                <span class='toogle-btn-icon'>▦</span>
+            </button>
+            deve estar ativo.
+        </div>`
+    }
+      
+    getModal().open({
+        title: "Estatísticas",
+        bodyHtml: `
+<div>
+    <div style="padding-bottom: 16px;">
+        Contagem de Mensagens
+    </div>
+     ${contentHtml}
+<div>`
+    });
+});
+
+ui.btnPkgConfig.addEventListener("click", () => {
+
+    const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
+    const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
+
+    getModal().open({
+        title: "Configurações",
+        bodyHtml: `
+<div>
+    <div style="padding-bottom: 16px;">
+        Análise de Pacotes
+    </div>
+    <label>
+        <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
+        Ignorar ACK (message ID 0xFFFF)
+    </label>
+    <br>
+    <label>
+        <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
+        Ignorar KEEP-ALIVE (message ID 0x0000)
+    </label>
+<div>`
+    });
+
+    const modalBody = document.getElementById("modalBody");
+    /** @type {HTMLInputElement} */
+    const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
+    /** @type {HTMLInputElement} */
+    const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
+
+    cbIgnoreAck.onchange = () => {
+        savePkgAnalyzeConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
+    };
+
+    cbIgnoreKeepAlive.onchange = () => {
+        savePkgAnalyzeConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
+    };
 });
 
 ui.parsedPackageTable.addEventListener("click", (ev) => {

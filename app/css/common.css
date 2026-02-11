@@ -14,6 +14,11 @@ body {
   display: none !important;
 }
 
+/* Util para jogar elementos a direita de uma div pai flex */
+.align-right {
+    margin-left: auto !important;
+}
+
 input,
 .normal-btn {
   font: inherit;

@@ -1,72 +1,69 @@
 import { util } from "./utils.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 import { ui } from "./viewer-ui-elements.js";
-import { getRawLog } from "./viewer-render-log.js";
-import { clearMessageCounters, detectCC33Packages } from "./viewer-package-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
-import { openFloatingWindow } from "./floating-window.js";
 
 /**
  * ID e descrição das mensagens, e se suportam listagem
  */
 export const msgsList = new Map([
-    [0x0000, { description: "Keep Alive", listSupport: false }],
-    [0x1000, { description: "Reset INFO", listSupport: false }],
-    [0x1100, { description: "Basic Position", listSupport: false }],
+    [0x0000, { description: "Keep Alive" }],
+    [0x1000, { description: "Reset INFO" }],
+    [0x1100, { description: "Basic Position" }],
     [0x1101, { description: "Extended Position", listSupport: true }],
-    [0x1121, { description: "MSC830 aditional Data", listSupport: false }],
-    [0x1122, { description: "MSC530  aditional Data", listSupport: false }],
-    [0x1130, { description: "Risk Rules Data", listSupport: false }],
-    [0x1140, { description: "Login Event", listSupport: false }],
-    [0x1200, { description: "Data Terminal Msg", listSupport: false }],
-    [0x1210, { description: "Data Terminal Auth", listSupport: false }],
-    [0x1300, { description: "Report Configurations", listSupport: false }],
-    [0x1310, { description: "Report Context", listSupport: false }],
-    [0x1400, { description: "Telemetry Data", listSupport: false }],
-    [0x1401, { description: "Telemetry Delta", listSupport: false }],
-    [0x1402, { description: "Telemetry Events", listSupport: false }],
-    [0x1403, { description: "Black Box Delta", listSupport: false }],
-    [0x1404, { description: "Black Box PKG", listSupport: false }],
-    [0x1405, { description: "Telemetry Delta V2", listSupport: false }],
-    [0x1406, { description: "G Force Event", listSupport: false }],
-    [0x1407, { description: "Telemetry Delta V3", listSupport: false }],
-    [0x1500, { description: "Accessory Report", listSupport: false }],
-    [0x1501, { description: "Accessory Report V2", listSupport: false }],
-    [0x1600, { description: "TPMS PKG", listSupport: false }],
-    [0xFFFF, { description: "ACK/NACK Response", listSupport: false }],
-    [0x2001, { description: "RESET", listSupport: false }],
-    [0x200A, { description: "REQUEST POSITION", listSupport: false }],
-    [0x2005, { description: "ACTUATORS", listSupport: false }],
-    [0x2004, { description: "SECURITY ACTUATORS", listSupport: false }],
-    [0x2003, { description: "CYCLIC ACTUATORS", listSupport: false }],
-    [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: false }],
-    [0x200C, { description: "DATA TERMINAL AUDIO", listSupport: false }],
-    [0x2010, { description: "SET ODOMETER", listSupport: false }],
-    [0x2011, { description: "SET HOURMETER", listSupport: false }],
-    [0x2014, { description: "SET FUEL", listSupport: false }],
-    [0x2012, { description: "RESET ALARM - CLEAR", listSupport: false }],
-    [0x2013, { description: "RESET ALARM - KEEP", listSupport: false }],
-    [0x2015, { description: "SET TPMS TEST TIMEOUT", listSupport: false }],
-    [0x3000, { description: "SET CONFIGURATIONS", listSupport: false }],
-    [0x3100, { description: "READ CONFIGURATIONS", listSupport: false }],
-    [0x3200, { description: "READ CONTEXT INFO", listSupport: false }],
-    [0x201A, { description: "ENABLE RISK ANALYSIS", listSupport: false }],
-    [0x201B, { description: "DISABLE RISK ANALYSIS", listSupport: false }],
-    [0x201C, { description: "REQUEST BLACKBOX", listSupport: false }],
-    [0x201D, { description: "START YMODEM RECEIVE", listSupport: false }],
-    [0x201E, { description: "FORCE MDM REPORT", listSupport: false }],
-    [0x2020, { description: "REQUEST UPLOAD DIR", listSupport: false }],
-    [0x2021, { description: "REQUEST UPLOAD LOG", listSupport: false }],
-    [0x2022, { description: "REQUEST TAIL LOG", listSupport: false }],
-    [0x4000, { description: "EMBEDDED FILE - GET", listSupport: false }],
-    [0x4001, { description: "EMBEDDED FILE - CREATE", listSupport: false }],
-    [0x4002, { description: "EMBEDDED FILE - WRITE", listSupport: false }],
-    [0x4003, { description: "EMBEDDED FILE - CLOSE", listSupport: false }],
-    [0x4004, { description: "EMBEDDED FILE - DELETE", listSupport: false }],
-    [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: false }],
-    [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD", listSupport: false }],
-    [0x200D, { description: "Embedded Actions Filter", listSupport: false }],
-    [0x200E, { description: "Factory Reset", listSupport: false }]
+    [0x1121, { description: "MSC830 aditional Data", listSupport: true }],
+    [0x1122, { description: "MSC530  aditional Data" }],
+    [0x1130, { description: "Risk Rules Data" }],
+    [0x1140, { description: "Login Event" }],
+    [0x1200, { description: "Data Terminal Msg" }],
+    [0x1210, { description: "Data Terminal Auth" }],
+    [0x1300, { description: "Report Configurations" }],
+    [0x1310, { description: "Report Context" }],
+    [0x1400, { description: "Telemetry Data", listSupport: true }],
+    [0x1401, { description: "Telemetry Delta" }],
+    [0x1402, { description: "Telemetry Events" }],
+    [0x1403, { description: "Black Box Delta" }],
+    [0x1404, { description: "Black Box PKG" }],
+    [0x1405, { description: "Telemetry Delta V2", listSupport: true }],
+    [0x1406, { description: "G Force Event" }],
+    [0x1407, { description: "Telemetry Delta V3" }],
+    [0x1500, { description: "Accessory Report" }],
+    [0x1501, { description: "Accessory Report V2" }],
+    [0x1600, { description: "TPMS PKG" }],
+    [0xFFFF, { description: "ACK/NACK Response" }],
+    [0x2001, { description: "RESET" }],
+    [0x200A, { description: "REQUEST POSITION" }],
+    [0x2005, { description: "ACTUATORS" }],
+    [0x2004, { description: "SECURITY ACTUATORS" }],
+    [0x2003, { description: "CYCLIC ACTUATORS" }],
+    [0x200B, { description: "TEXT MSG TO DATA TERMINAL" }],
+    [0x200C, { description: "DATA TERMINAL AUDIO" }],
+    [0x2010, { description: "SET ODOMETER" }],
+    [0x2011, { description: "SET HOURMETER" }],
+    [0x2014, { description: "SET FUEL" }],
+    [0x2012, { description: "RESET ALARM - CLEAR" }],
+    [0x2013, { description: "RESET ALARM - KEEP" }],
+    [0x2015, { description: "SET TPMS TEST TIMEOUT" }],
+    [0x3000, { description: "SET CONFIGURATIONS" }],
+    [0x3100, { description: "READ CONFIGURATIONS" }],
+    [0x3200, { description: "READ CONTEXT INFO" }],
+    [0x201A, { description: "ENABLE RISK ANALYSIS" }],
+    [0x201B, { description: "DISABLE RISK ANALYSIS" }],
+    [0x201C, { description: "REQUEST BLACKBOX" }],
+    [0x201D, { description: "START YMODEM RECEIVE" }],
+    [0x201E, { description: "FORCE MDM REPORT" }],
+    [0x2020, { description: "REQUEST UPLOAD DIR" }],
+    [0x2021, { description: "REQUEST UPLOAD LOG" }],
+    [0x2022, { description: "REQUEST TAIL LOG" }],
+    [0x4000, { description: "EMBEDDED FILE - GET" }],
+    [0x4001, { description: "EMBEDDED FILE - CREATE" }],
+    [0x4002, { description: "EMBEDDED FILE - WRITE" }],
+    [0x4003, { description: "EMBEDDED FILE - CLOSE" }],
+    [0x4004, { description: "EMBEDDED FILE - DELETE" }],
+    [0x4010, { description: "EMBEDDED FILE - DNLD" }],
+    [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD" }],
+    [0x200D, { description: "Embedded Actions Filter" }],
+    [0x200E, { description: "Factory Reset" }]
 ]);
 
 /**
@@ -249,16 +246,16 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Total Fuel");
             br.add_row_u32("Odometer (m)");
             br.add_row_u32("Flags", true, (flags) => {
-                let text = `Raw: ${br.hex_u32(flags)} \r\n`;
+                let text = `Raw: ${br.hex_u32(flags)}, \r\n`;
                 text += "Bits:  \r\n";
-                text += `   *Odometer Accumulated: ${(flags & 0x00000001) ? "1" : "0"}\r\n`;
-                text += `   *Flag Calibration -> Avail:${(flags & 0x00000002) ? "1" : "0"}, Status:${(flags & 0x00000004) ? "1" : "0"}\r\n`;
-                text += `   *Clutch -> Avail:${(flags & 0x00000008) ? "1" : "0"}, Status:${(flags & 0x00000010) ? "1" : "0"}\r\n`;
-                text += `   *Brake -> Avail:${(flags & 0x00000020) ? "1" : "0"}, Status:${(flags & 0x00000040) ? "1" : "0"}\r\n`;
-                text += `   *Parking Brake -> Avail:${(flags & 0x00000080) ? "1" : "0"}, Status:${(flags & 0x00000100) ? "1" : "0"}\r\n`;
-                text += `   *Retarder -> Avail:${(flags & 0x00000200) ? "1" : "0"}, Status:${(flags & 0x00000400) ? "1" : "0"}\r\n`;
-                text += `   *Wiper Status:${(flags & 0x00000800) ? "1" : "0"}\r\n`;
-                text += `   *Rain Detected:${(flags & 0x00001000) ? "1" : "0"}\r\n`;
+                text += `   Odom Accum: ${(flags & 0x00000001) ? "1" : "0"},\r\n`;
+                text += `   Flag Cal [Avail: ${(flags & 0x00000002) ? "1" : "0"}, Val: ${(flags & 0x00000004) ? "1" : "0"}],\r\n`;
+                text += `   Clutch [Avail: ${(flags & 0x00000008) ? "1" : "0"}, Val: ${(flags & 0x00000010) ? "1" : "0"}],\r\n`;
+                text += `   Brake [Avail: ${(flags & 0x00000020) ? "1" : "0"}, Val: ${(flags & 0x00000040) ? "1" : "0"}],\r\n`;
+                text += `   Parking Brake [Avail :${(flags & 0x00000080) ? "1" : "0"}, Val :${(flags & 0x00000100) ? "1" : "0"}],\r\n`;
+                text += `   Retarder [Avail: ${(flags & 0x00000200) ? "1" : "0"}, Val: ${(flags & 0x00000400) ? "1" : "0"}],\r\n`;
+                text += `   Wiper: ${(flags & 0x00000800) ? "1" : "0"},\r\n`;
+                text += `   Rain: ${(flags & 0x00001000) ? "1" : "0"},\r\n`;
                 return text;
             });
 
@@ -458,9 +455,9 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("altitude (m x10)");
             br.add_row_u8("course (degress x2)");
             br.add_row_u8("GPS flags", (v) => {
-                let text = `Raw: ${br.hex_u8(v)} \r\n`;
+                let text = `Raw: ${br.hex_u8(v)}, \r\n`;
                 text += `Bits: \r\n`;
-                text += `   *satellites: ${v & 0x1F} (5 bits)\r\n`;
+                text += `   satellites: ${v & 0x1F} (5 bits),\r\n`;
 
                 let statusAntena = "";
                 let valAntena = (v >> 5) & 0x03;
@@ -471,8 +468,8 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                     case 3: statusAntena = "Unknown"; break;
                 }
 
-                text += `   *antenna: ${valAntena}, ${statusAntena} (2 bits)\r\n`;
-                text += `   *fix: ${(v >> 7) & 0x01} (1 bit)\r\n`;
+                text += `   antenna: ${valAntena}, ${statusAntena} (2 bits),\r\n`;
+                text += `   fix: ${(v >> 7) & 0x01} (1 bit),\r\n`;
                 return text;
             });
 
@@ -483,21 +480,21 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
 
             // Info available (bb_pck_available_t.telemetry)
             br.add_row_u16("TM available", true, (v) => {
-                let text = `Raw: ${br.hex_u16(v)} \r\n`;
+                let text = `Raw: ${br.hex_u16(v)}, \r\n`;
                 text += `Bits: \r\n`;
-                text += `   *speed: ${(v & 0x0001)}\r\n`;
-                text += `   *rpm: ${(v & 0x0002) === 0 ? 0 : 1}\r\n`;
-                text += `   *odometer: ${(v & 0x0004) === 0 ? 0 : 1}\r\n`;
-                text += `   *fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1}\r\n`;
-                text += `   *total fuel: ${(v & 0x0010) === 0 ? 0 : 1}\r\n`;
-                text += `   *level tank: ${(v & 0x0020) === 0 ? 0 : 1}\r\n`;
-                text += `   *brake: ${(v & 0x0040) === 0 ? 0 : 1}\r\n`;
-                text += `   *parking brake: ${(v & 0x0080) === 0 ? 0 : 1}\r\n`;
+                text += `   speed: ${(v & 0x0001)},\r\n`;
+                text += `   rpm: ${(v & 0x0002) === 0 ? 0 : 1},\r\n`;
+                text += `   odometer: ${(v & 0x0004) === 0 ? 0 : 1},\r\n`;
+                text += `   fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1},\r\n`;
+                text += `   total fuel: ${(v & 0x0010) === 0 ? 0 : 1},\r\n`;
+                text += `   level tank: ${(v & 0x0020) === 0 ? 0 : 1},\r\n`;
+                text += `   brake: ${(v & 0x0040) === 0 ? 0 : 1},\r\n`;
+                text += `   parking brake: ${(v & 0x0080) === 0 ? 0 : 1},\r\n`;
 
-                text += `   *clutch: ${(v & 0x0100) === 0 ? 0 : 1}\r\n`;
-                text += `   *retarder: ${(v & 0x0200) === 0 ? 0 : 1}\r\n`;
-                text += `   *gears: ${(v & 0x0400) === 0 ? 0 : 1}\r\n`;
-                text += `   *reserved: ${(v & 0xF800) >> 11} (5 bits)\r\n`;
+                text += `   clutch: ${(v & 0x0100) === 0 ? 0 : 1},\r\n`;
+                text += `   retarder: ${(v & 0x0200) === 0 ? 0 : 1},\r\n`;
+                text += `   gears: ${(v & 0x0400) === 0 ? 0 : 1},\r\n`;
+                text += `   reserved: ${(v & 0xF800) >> 11} (5 bits)\r\n`;
                 return text;
             });
 
@@ -505,14 +502,14 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("Module Enabled", (v) => {
                 let text = `Raw: ${br.hex_u8(v)} \r\n`;
                 text += `Bits: \r\n`;
-                text += `   *ISV: ${(v & 0x01) === 0 ? 0 : 1}\r\n`;
-                text += `   *Telemetry: ${(v & 0x02) === 0 ? 0 : 1}\r\n`;
-                text += `   *Data Terminal: ${(v & 0x04) === 0 ? 0 : 1}\r\n`;
-                text += `   *Satellital: ${(v & 0x08) === 0 ? 0 : 1}\r\n`;
-                text += `   *Drive Time: ${(v & 0x10) === 0 ? 0 : 1}\r\n`;
-                text += `   *Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1}\r\n`;
-                text += `   *RFU1: ${(v & 0x40) === 0 ? 0 : 1}\r\n`;
-                text += `   *RFU2: ${(v & 0x80) === 0 ? 0 : 1}\r\n`;
+                text += `   ISV: ${(v & 0x01) === 0 ? 0 : 1},\r\n`;
+                text += `   Telemetry: ${(v & 0x02) === 0 ? 0 : 1},\r\n`;
+                text += `   Data Terminal: ${(v & 0x04) === 0 ? 0 : 1},\r\n`;
+                text += `   Satellital: ${(v & 0x08) === 0 ? 0 : 1},\r\n`;
+                text += `   Drive Time: ${(v & 0x10) === 0 ? 0 : 1},\r\n`;
+                text += `   Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1},\r\n`;
+                text += `   RFU1: ${(v & 0x40) === 0 ? 0 : 1},\r\n`;
+                text += `   RFU2: ${(v & 0x80) === 0 ? 0 : 1}\r\n`;
                 return text;
             });
 

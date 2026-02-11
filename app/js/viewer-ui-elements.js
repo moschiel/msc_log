@@ -11,9 +11,9 @@
  * @property {HTMLButtonElement} btnTailAutoRefresh
  * @property {HTMLButtonElement} btnAutoScroll
  * @property {HTMLButtonElement} btnHighlightPkg
- * @property {HTMLButtonElement} btnPkgConfig
- *
  * @property {HTMLSelectElement} selListMessage
+ * @property {HTMLButtonElement} btnPkgConfig
+ * @property {HTMLButtonElement} btnStatistics
  *
  * @property {HTMLDivElement} mainSplitter
  * @property {HTMLDivElement} logBox
@@ -51,12 +51,16 @@ export const ui = {
     document.getElementById("btnHighlightPkg")
   ),
 
-  btnPkgConfig: /** @type {HTMLButtonElement} */ (
-    document.getElementById("btnPkgConfig")
-  ),
-
   selListMessage: /** @type {HTMLSelectElement} */ (
     document.getElementById("selListMessage")
+  ),
+
+  btnStatistics: /** @type {HTMLButtonElement} */ (
+    document.getElementById("btnStatistics")
+  ),
+  
+  btnPkgConfig: /** @type {HTMLButtonElement} */ (
+    document.getElementById("btnPkgConfig")
   ),
 
   mainSplitter: /** @type {HTMLDivElement} */ (

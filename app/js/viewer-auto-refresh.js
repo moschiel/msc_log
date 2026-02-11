@@ -5,7 +5,7 @@ import {
   processLogChunkAndRender,
   disableControlsForRender
 } from "./viewer-render-log.js";
-import { clearHighlightPkgCounters, clearMessageCounters } from "./viewer-package-parser.js";
+import { clearHighlightPkgCounters, clearSelectedMessageCounters } from "./viewer-package-parser.js";
 
 
 let refreshTimer = null;
@@ -15,7 +15,7 @@ let localFileObj    = null;
 
 export function clearAllLogData() {
   clearHighlightPkgCounters();
-  clearMessageCounters();
+  clearSelectedMessageCounters();
   clearLogBox();
   clearRawLog();
   lastFileSize = 0;
