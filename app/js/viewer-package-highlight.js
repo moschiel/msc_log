@@ -1,5 +1,5 @@
 import { util } from "./utils.js";
-import { tailSplitWithPendingCC33, LOG_HEADER_EXAMPLE, detectCC33Packages
+import { tailSplitWithPendingCC33, LOG_HEADER_EXAMPLE, detectCC33Packages, LOG_HEADER_SIZE
 } from "./viewer-package-parser.js";
 import { getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket 
 } from "./viewer-render-log.js";
@@ -33,7 +33,7 @@ export function highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIn
     // 'classPkgGroup' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
     const classPkgGroup = `pkg-${hlPkgCounter}`;
-    const headerLen = LOG_HEADER_EXAMPLE.length;
+    const headerLen = LOG_HEADER_SIZE;
     const total = lineIndexes.length;
 
     // @ts-ignore
@@ -118,7 +118,7 @@ export function getHexFromPackageClassGroup(classPkgGroup) {
         const elements = document.getElementsByClassName(classPkgGroup);
         const lines = elements[0].textContent.split("\n");
         for (const line of lines) {
-            frameStr += line.slice(LOG_HEADER_EXAMPLE.length);
+            frameStr += line.slice(LOG_HEADER_SIZE);
         }
         return frameStr;
     }

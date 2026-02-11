@@ -1,76 +1,81 @@
-/* Estilos para destacar pacotes CC33 Online no LOG */
+:root {
+  /* Texto */
+  --hl-text-default: black;
+
+  /* Backgrounds (light mode) */
+  --hl-bg-ok: #8ee7a7;
+  --hl-bg-offline: lightgrey;
+  --hl-bg-err: rgb(224, 122, 122);
+
+  /* Bordas */
+  --hl-border-color: black;
+  --hl-border-width: 1px;
+}
+
+/* ========================= */
+/* PACOTES */
+/* ========================= */
+
+/* Destaca pacotes OK / ONLINE */
 .hl-pkg-ok {
-  background: #8ee7a7;
-  color: black;
+  background: var(--hl-bg-ok);
+  color: var(--hl-text-default);
 }
 
-/* Destaca Pacotes gerados quando nao tinha sinal */
+/* Destaca pacotes OFFLINE */
 .hl-pkg-offline {
-  background: lightgrey;
-  color: black;
+  background: var(--hl-bg-offline);
+  color: var(--hl-text-default);
 }
 
-/* Destaca pacotes CC33 com erros no LOG*/
+/* Destaca pacotes com ERRO no parseamento */
 .hl-pkg-err {
-  background: rgb(224, 122, 122);
-  color: black;
+  background: var(--hl-bg-err);
+  color: var(--hl-text-default);
 }
 
-/* bordas dos pacotes */
+/* ========================= */
+/* BORDAS */
+/* ========================= */
+
 .hl-border-top {
-  border-top: 1px solid black;
+  border-top: var(--hl-border-width) solid var(--hl-border-color);
 }
 
 .hl-border-bottom {
-  border-bottom: 1px solid black;
+  border-bottom: var(--hl-border-width) solid var(--hl-border-color);
 }
 
 .hl-border-sides {
-  border-left: 1px solid black;
-  border-right: 1px solid black;
+  border-left: var(--hl-border-width) solid var(--hl-border-color);
+  border-right: var(--hl-border-width) solid var(--hl-border-color);
 }
+
+/* ========================= */
+/* INTERAÇÃO */
+/* ========================= */
 
 .hl-pkg-ok:hover,
 .hl-pkg-offline:hover {
   cursor: pointer;
 }
 
+/* ========================= */
+/* DARK MODE */
+/* ========================= */
+
 @media (prefers-color-scheme: dark) {
+  :root {
+    --hl-bg-ok: rgba(46, 204, 113, 0.22);
+    --hl-bg-offline: rgba(210, 220, 235, 0.28);
+    --hl-bg-err: rgba(231, 76, 60, 0.25);
 
-  /* OK / ONLINE */
-  .hl-pkg-ok {
-    background: #1f7a3f;
-    /* verde escuro */
-    color: #e8f5ec;
-    /* texto claro */
+    --hl-text-default: #e8f5ec;
+    --hl-border-color: rgba(255, 255, 255, 0.35);
   }
 
-  /* OFFLINE */
-  .hl-pkg-offline {
-    background: #5a5a5a;
-    /* cinza médio (bem visível) */
-    color: #ffffff;
-  }
-
-  /* ERRO */
+  /* Ajuste fino opcional se quiser textos diferentes */
   .hl-pkg-err {
-    background: #7a1f1f;
-    /* vermelho escuro */
-    color: #fdeaea;
-  }
-
-
-  /* Bordas (em vez de preto) */
-  .hl-border-top {
-    border-top: 1px solid rgba(255, 255, 255, 0.35);
-  }
-
-  .hl-border-bottom {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-  }
-
-  .hl-border-sides {
-    border-left: 1px solid rgba(255, 255, 255, 0.35);
-    border-right: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffd6d6;
   }
 }

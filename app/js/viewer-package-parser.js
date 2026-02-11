@@ -6,6 +6,7 @@ import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
+export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 
 // highlight package counters
 let hlPkgCounter = 0;
@@ -50,7 +51,7 @@ export function clearMessageCounters() {
  */
 export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: null }) {
     const lines = text.split(/\r?\n/);
-    const headerLen = LOG_HEADER_EXAMPLE.length;
+    const headerLen = LOG_HEADER_SIZE;
 
     let messageDataTable = { headers: [], rows: [] };
 
@@ -270,7 +271,7 @@ export function showParsedPackageOnTable(headers, rows, pkgIndex = null) {
 
 
 const splitTailUtils = {
-    getPayload: (line) => (line.length > LOG_HEADER_EXAMPLE.length ? line.slice(LOG_HEADER_EXAMPLE.length) : ""),
+    getPayload: (line) => (line.length > LOG_HEADER_SIZE ? line.slice(LOG_HEADER_SIZE) : ""),
     isHexPrefixNonEmpty: (s) => s.length > 0 && /^[0-9a-fA-F]+$/.test(s),
     isHexOnlyNonEmpty: (s) => s.length > 0 && util.isHexOnly(s),
     isFrameishLine: (line) => {
@@ -321,7 +322,7 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
     // se a ultima linha não for header parcial ou linha frameish, 
     // o before é tudo antes da última linha, e o rest é a última linha
     if (splitTailUtils.startsWithHeader(lastLine) === false || 
-       (lastLine.length > LOG_HEADER_EXAMPLE.length && splitTailUtils.isFrameishLine(lastLine) === false)) {
+       (lastLine.length > LOG_HEADER_SIZE && splitTailUtils.isFrameishLine(lastLine) === false)) {
         return { 
             before: lines.slice(0, lastIdx).join("\n"), 
             rest: lastLine // sempre vai ter pelo menos a última linha no rest
