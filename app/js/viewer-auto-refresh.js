@@ -54,6 +54,11 @@ async function readRemoteTailChunk() {
     throw new Error(`HTTP ${resp.status}`);
   }
 
+  if(fileSize === lastFileSize) {
+    // nao tem conteudo novo, retorna vazio
+    return { tailText: "" };
+  }
+
   if (fileSize !== null && lastFileSize === 0) {
     clearAllLogData(); // lendo arquivo do inicio, limpa tudo para garantir
     lastFileSize = fileSize;
@@ -98,6 +103,11 @@ async function readLocalTailChunk() {
 
   const size = file.size;
 
+  if (size === lastFileSize) {
+    // nao tem conteudo novo, retorna vazio
+    return { tailText: "" };
+  }
+
   if (size < lastFileSize) {
     // Ué, o arquivo diminuiu? 
     // alguem deve ter editado o conteudo do arquivo manualmente, 
@@ -127,12 +137,10 @@ async function readLocalTailChunk() {
  */
 export async function tailRefreshNow() {
   try {
-    const isLocal = new URLSearchParams(location.search).get("local") === "1";
-
-    const { tailText } = isLocal
+    const { tailText } = util.isLocalFile()
       ? await readLocalTailChunk()
       : await readRemoteTailChunk();
-    
+
     if (tailText.length === 0) return;
     
     // Atualiza raw log
@@ -166,7 +174,7 @@ function startTailAutoRefresh() {
     if (util.isToogleButtonPressed(ui.btnTailAutoRefresh)) {
       tailRefreshNow();
     }
-  }, 3000);
+  }, util.isLocalFile() ? 1000 : 3000);
 }
 
 function stopTailAutoRefresh() {

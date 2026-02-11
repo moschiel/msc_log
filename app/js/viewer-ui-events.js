@@ -55,6 +55,8 @@ if (ui.btnPickLocalFile) {
 
             if (!handle) return; // nenhum arquivo selecionado
 
+            //util.saveLastFileHandle(handle); // salva handle do arquivo selecionado para próxima vez que carregar a página
+
             clearAllLogData();
             setLocalFileHandle(handle);
 
@@ -69,7 +71,6 @@ if (ui.btnPickLocalFile) {
             }
         }
     });
-
 }
 
 ui.btnTailAutoRefresh.addEventListener("click", () => {

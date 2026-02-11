@@ -30,6 +30,12 @@
  * @property {(el: Element, pressed: boolean)=>void} setToogleButton
  * @property {(el: Element)=>boolean} toogleButton
  * @property {(el: Element)=>boolean} isToogleButtonPressed
+ * 
+ * @property {()=>Promise<IDBDatabase>} openDB
+ * @property {(handle: *)=>Promise<void>} saveLastFileHandle
+ * @property {()=>Promise<*|null>} loadLastFileHandle
+ * 
+ * @property {()=>boolean} isLocalFile
  */
 
 /** @type {Util} */
@@ -220,7 +226,7 @@ export const util = {
     AddRows(table, rows) {
       /** @type {HTMLTableSectionElement|null} */
       const tbody = table.querySelector("tbody");
-      
+
       if (!tbody) {
         console.warn("Tabela não possui <tbody>");
         return;
@@ -356,4 +362,92 @@ export const util = {
   isToogleButtonPressed(el) {
     return el.classList.contains("is-pressed");
   },
+
+  /**
+ * Abre (ou cria) o banco IndexedDB usado para persistir handles
+ * de arquivos locais (File System Access API).
+ *
+ * Estrutura esperada do banco:
+ * - Database: "local-files-db"
+ * - ObjectStore: "handles"
+ *
+ * @returns {Promise<IDBDatabase>}
+ * Retorna uma Promise resolvida com a instância do IDBDatabase aberta.
+ *
+ * @throws {DOMException}
+ * Rejeita a Promise caso ocorra erro ao abrir ou criar o banco.
+ */
+  openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open("local-files-db", 1);
+
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("handles")) {
+          db.createObjectStore("handles");
+        }
+      };
+
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  },
+
+  /**
+ * Salva no IndexedDB o último arquivo local selecionado pelo usuário.
+ *
+ * O objeto salvo é o FileSystemFileHandle retornado pela
+ * File System Access API (showOpenFilePicker).
+ *
+ * Observações importantes:
+ * - O handle NÃO é um caminho de arquivo.
+ * - O handle só será reutilizável se o navegador mantiver a permissão.
+ * - Caso a permissão expire, o handle ainda pode existir, mas
+ *   exigirá nova confirmação do usuário.
+ *
+ * @param {*} handle
+ * Handle do arquivo local (FileSystemFileHandle).
+ *
+ * @returns {Promise<void>}
+ * Promise resolvida quando o handle for persistido.
+ *
+ * @throws {DOMException}
+ * Rejeita a Promise se ocorrer erro de escrita no IndexedDB.
+ */
+  async saveLastFileHandle(handle) {
+    const db = await this.openDB();
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").put(handle, "last");
+  },
+
+  /**
+ * Recupera do IndexedDB o último FileSystemFileHandle salvo.
+ *
+ * O handle retornado pode ou não possuir permissão de leitura ativa.
+ * É responsabilidade do chamador verificar a permissão usando
+ * `handle.queryPermission()` ou `handle.requestPermission()`
+ * antes de tentar acessar o arquivo.
+ *
+ * @returns {Promise<*|null>}
+ * Promise resolvida com o FileSystemFileHandle salvo,
+ * ou `null` se nenhum handle estiver armazenado.
+ *
+ * @throws {DOMException}
+ * Rejeita a Promise se ocorrer erro ao acessar o IndexedDB.
+ */
+  async loadLastFileHandle() {
+    const db = await this.openDB();
+    const tx = db.transaction("handles", "readonly");
+    return tx.objectStore("handles").get("last");
+  },
+
+  /**
+   * Verifica se a fonte de dados atual é um arquivo local.
+   * @returns {boolean}
+   * Retorna `true` se o log está sendo lido de um arquivo local, `false` caso contrário.
+   */
+  isLocalFile() {
+    return new URLSearchParams(location.search).get("local") === "1";
+  }
+
 };

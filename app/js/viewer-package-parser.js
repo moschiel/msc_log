@@ -51,7 +51,7 @@ export function clearMessageCounters() {
 export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: null }) {
     const lines = text.split(/\r?\n/);
     const headerLen = LOG_HEADER_EXAMPLE.length;
-    
+
     let messageDataTable = { headers: [], rows: [] };
 
     let isCollectingFrame = false;
@@ -60,36 +60,36 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
     function flushPackage() {
         if (lineIndexes.length === 0) return;
 
-        if(opt.highlight) hlPkgCounter++;
+        if (opt.highlight) hlPkgCounter++;
 
         const total = lineIndexes.length;
-        
+
         try {
             let frameStr = "";
             for (let i = 0; i < total; i++) {
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const {parseOk, connState, messages} = parseCC33Package(util.hexToBuffer(frameStr), "validate");
+            const { parseOk, connState, messages } = parseCC33Package(util.hexToBuffer(frameStr), "validate");
 
             for (const msg of messages) {
-                if((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
-                 ||(msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
+                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
+                    || (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
                     lineIndexes = []; // reset linhas
-                    if(opt.highlight) hlPkgCounter--; // remove esse pacote da contagem
+                    if (opt.highlight) hlPkgCounter--; // remove esse pacote da contagem
                     return; // pula pacote
                 }
 
                 if (opt.searchMsgID === msg.id) {
-                    const {isImplemented, rows} = parseMessage(
-                        msg.id, 
-                        msg.data, 
+                    const { isImplemented, rows } = parseMessage(
+                        msg.id,
+                        msg.data,
                         "nv", // Collect parameters Name and Value
                         "h" // Data horizontal orientation
                     );
 
-                    if(isImplemented) {
-                        if(listMsgCounter == 0) {
+                    if (isImplemented) {
+                        if (listMsgCounter == 0) {
                             messageDataTable.headers = rows[0]; // parameters names
                         } else {
                             messageDataTable.rows.push(rows[1]); // parameters values
@@ -99,19 +99,19 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 }
             }
 
-            if(parseOk && connState === "Offline")
-                if(opt.highlight) hlOfflinePkgCounter++;
+            if (parseOk && connState === "Offline")
+                if (opt.highlight) hlOfflinePkgCounter++;
 
             if (opt.highlight)
                 highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes);
-                
+
 
         } catch (e) {
             console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             if (opt.highlight) hlErrPkgCounter++;
             if (opt.highlight)
                 highlightPackage(hlPkgCounter, false, null, lines, lineIndexes);
-        } 
+        }
 
         // reset
         lineIndexes = [];
@@ -154,14 +154,12 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
     // se o texto acabou no meio de um pacote, fecha ele também
     if (isCollectingFrame) {
-        // comentado, pois se o texto terminou no meio de um pacote, 
-        // nao da pra dizer se esta ok ou com erro
-        //flushPackage();  
+        flushPackage();  
     }
 
-    if(opt.highlight) 
+    if (opt.highlight)
         console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
-    
+
     return {
         htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : text,
         messageDataTable: opt.searchMsgID ? messageDataTable : null
@@ -219,7 +217,7 @@ export function parseCC33Package(u8buf, processMode) {
     br.add_row_u16("Index do Pacote");
     br.add_row_u8("Tipo de Serviço", (v) => {
         let ackType = "";
-        switch(v & 0x03) {
+        switch (v & 0x03) {
             case 0x00: ackType = "No ACK requested"; break;
             case 0x01: ackType = "ACK requested"; break;
             case 0x02: ackType = "ACK message"; break;
@@ -241,7 +239,7 @@ export function parseCC33Package(u8buf, processMode) {
         msgSize = (msgSize & 0x7FFF);
 
         const msgData = br.read_bytes("msgData", msgSize);
-        messages.push({id: msgId, size: msgSize, data: msgData});
+        messages.push({ id: msgId, size: msgSize, data: msgData });
         br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
     }
 
@@ -249,12 +247,12 @@ export function parseCC33Package(u8buf, processMode) {
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
 
     return {
-        parseOk: true, 
+        parseOk: true,
         connState,
-        headers: ["Name", "Size", "Value"], 
+        headers: ["Name", "Size", "Value"],
         rows: br.rows,
         messages
-    };  
+    };
 }
 
 /**
@@ -263,125 +261,89 @@ export function parseCC33Package(u8buf, processMode) {
  * @param {Array<Array>} rows 
  * @param {Number|string|null} pkgIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
-export function showParsedPackageOnTable(headers, rows, pkgIndex=null) {
+export function showParsedPackageOnTable(headers, rows, pkgIndex = null) {
     util.Table.Create(ui.parsedPackageTable, headers, rows);
     openFloatingWindow(ui.windowParsedPackage, {
         title: pkgIndex !== null ? `Package #${pkgIndex}` : "Package #?"
     });
 }
 
+
+const splitTailUtils = {
+    getPayload: (line) => (line.length > LOG_HEADER_EXAMPLE.length ? line.slice(LOG_HEADER_EXAMPLE.length) : ""),
+    isHexPrefixNonEmpty: (s) => s.length > 0 && /^[0-9a-fA-F]+$/.test(s),
+    isHexOnlyNonEmpty: (s) => s.length > 0 && util.isHexOnly(s),
+    isFrameishLine: (line) => {
+        const p = splitTailUtils.getPayload(line);
+        // hex-only (linha “completa”) ou hex-prefix (corte no meio)
+        return splitTailUtils.isHexOnlyNonEmpty(p) || splitTailUtils.isHexPrefixNonEmpty(p);
+    },
+    startsWithHeader: (line) => {
+        if(line.length > 0  && line[0]  !== '[') return false;
+        if(line.length > 16 && line[16] !== ']') return false;
+        if(line.length > 17 && line[17] !== '[') return false;
+        if(line.length > 28 && line[28] !== ']') return false;
+        if(line.length > 29 && line[29] !== '[') return false;
+        if(line.length > 33 && line[33] !== ']') return false;
+        if(line.length > 34 && line[34] !== '[') return false;
+        if(line.length > 39 && line[39] !== ']') return false;
+        if(line.length > 40 && line[40] !== ':') return false;
+        if(line.length > 41 && line[41] !== ' ') return false;
+        return true;
+    },
+    startsWithCC33: (line) => {
+        const p = splitTailUtils.getPayload(line);
+        return p.length >= 4 && p.slice(0, 4).toUpperCase() === "CC33";
+    }
+};
+
 /**
  * Parseia o Log, o dividindo em duas partes:
  *  - before: texto seguro (não termina em pacote/linha parcial)
  *  - rest: pedaço final que deve ser guardado (pacote CC33 incompleto e/ou linha parcial)
  *
- * Regras:
- * - Pacote começa numa linha cujo payload (após header) começa com "CC33".
- * - Continuação de pacote: payload é somente hex (util.isHexOnly) ou prefixo hex (corte no meio).
- * - Se o chunk termina com header parcial (len < headerLen) ou só header (len == headerLen),
- *   essa última "linha" SEMPRE vai para o rest (pra não perder o começo do header).
- * - Se o chunk termina em linha com payload:
- *   - se a última linha é hex-only ou hex-prefix, tenta subir e achar um CC33.
- *   - se achar, rest começa no CC33; senão, rest = "".
- *
  * @param {string} textChunk
  * @returns {{ before: string, rest: string }}
  */
 function splitTailIfEndsWithIncompleteCC33(textChunk) {
-  if (!textChunk) return { before: "", rest: "" };
-  const headerLen = LOG_HEADER_EXAMPLE.length;
+    if (!textChunk) return { before: "", rest: "" };
 
-  const lines = textChunk.split(/\r?\n/);
+    const lines = textChunk.split(/\r?\n/);
+    const lastIdx = lines.length - 1;
+    const lastLine = lines[lastIdx];
 
-  const getPayload = (line) => (line.length > headerLen ? line.slice(headerLen) : "");
-  const isHexPrefixNonEmpty = (s) => s.length > 0 && /^[0-9a-fA-F]+$/.test(s);
-  const isHexOnlyNonEmpty = (s) => s.length > 0 && util.isHexOnly(s);
-
-  const isFrameishLine = (line) => {
-    const p = getPayload(line);
-    // hex-only (linha “completa”) ou hex-prefix (corte no meio)
-    return isHexOnlyNonEmpty(p) || isHexPrefixNonEmpty(p);
-  };
-
-  //header example: "[20251104-100340][0314593089][DBG][NET ]: "
-  const startsWithHeader = (line) => {
-    if(line.length > 0 && line[0] !== '[') return false;
-    /* se quiser verificar o resto, só descomentar
-    if(line.length > 16 && line[16] !== ']') return false;
-    if(line.length > 17 && line[17] !== '[') return false;
-    if(line.length > 28 && line[28] !== ']') return false;
-    if(line.length > 29 && line[29] !== '[') return false;
-    if(line.length > 33 && line[33] !== ']') return false;
-    if(line.length > 34 && line[34] !== '[') return false;
-    if(line.length > 39 && line[39] !== ']') return false;
-    if(line.length > 40 && line[40] !== ':') return false;
-    if(line.length > 41 && line[41] !== ' ') return false;*/
-    return true;
-  }
-
-  const startsWithCC33 = (line) => {
-    const p = getPayload(line);
-    return p.length >= 4 && p.slice(0, 4).toUpperCase() === "CC33";
-  };
-
-  const lastIdx = lines.length - 1;
-  const lastLine = lines[lastIdx];
-
-  // Caso A) terminou no meio do header OU exatamente no header => guardar última linha no rest
-  if (lastLine.length <= headerLen && startsWithHeader(lastLine)) {
+    // só tem essa linha, a ultima linha sempre será rest
     if (lastIdx === 0) {
-      return { before: "", rest: lastLine };
+        return { before: "", rest: textChunk };
     }
 
-    // Se antes dessa linha parcial existe um pacote CC33 "em andamento", rest deve incluir desde o CC33
-    let startIdx = -1;
+    // tem mais de uma linha, 
+    // se a ultima linha não for header parcial ou linha frameish, 
+    // o before é tudo antes da última linha, e o rest é a última linha
+    if (splitTailUtils.startsWithHeader(lastLine) === false || 
+       (lastLine.length > LOG_HEADER_EXAMPLE.length && splitTailUtils.isFrameishLine(lastLine) === false)) {
+        return { 
+            before: lines.slice(0, lastIdx).join("\n"), 
+            rest: lastLine // sempre vai ter pelo menos a última linha no rest
+        };
+    }
+
+    // tem mais de uma linha
+    // apartir da penultima linha vai subindo enquanto for linha "frameish"
+    // se encontrar uma linha não frameish, o before é a linha encontrada e as anteriores, 
+    // e o rest começa na próxima linha.
     for (let i = lastIdx - 1; i >= 0; i--) {
-      if (!isFrameishLine(lines[i])) break;
-      if (startsWithCC33(lines[i])) { startIdx = i; break; }
+        if (!splitTailUtils.isFrameishLine(lines[i])) {
+            return {
+                before: lines.slice(0, i + 1).join("\n"),
+                rest: lines.slice(i + 1).join("\n") // sempre vai ter pelo menos a última linha no rest
+            };
+        }
     }
 
-    if (startIdx !== -1) {
-      return {
-        before: lines.slice(0, startIdx).join("\n"),
-        rest: lines.slice(startIdx).join("\n") // inclui a linha parcial do header
-      };
-    }
-
-    // Não dá pra afirmar que é CC33, mas a última linha é parcial e precisa ser guardada
-    return {
-      before: lines.slice(0, lastIdx).join("\n"),
-      rest: lastLine
-    };
-  }
-
-  // Caso B) última linha tem payload (len > headerLen)
-  if (!isFrameishLine(lastLine)) {
-    return { before: textChunk, rest: "" };
-  }
-
-  // Se a última linha já começa com CC33 => resto só a partir dela
-  if (startsWithCC33(lastLine)) {
-    return {
-      before: lines.slice(0, lastIdx).join("\n"),
-      rest: lastLine
-    };
-  }
-
-  // Senão, sobe procurando CC33, mas só enquanto as linhas forem "frameish"
-  let startIdx = -1;
-  for (let i = lastIdx; i >= 0; i--) {
-    if (!isFrameishLine(lines[i])) break;
-    if (startsWithCC33(lines[i])) { startIdx = i; break; }
-  }
-
-  if (startIdx === -1) {
-    return { before: textChunk, rest: "" };
-  }
-
-  return {
-    before: lines.slice(0, startIdx).join("\n"),
-    rest: lines.slice(startIdx).join("\n")
-  };
+    // se chegou aqui, todas as linhas antes da última são frameish, 
+    // logo não são seguras, tudo será tratado como rest
+    return { before: "", rest: textChunk };
 }
 
 /**
@@ -394,9 +356,14 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
  * @returns {{ safeText: string, pendingText: string }}
  */
 export function tailSplitWithPendingCC33(pendingText, chunk) {
-  const combined = (pendingText || "") + (chunk || "");
-  const { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
-  return { safeText: before || "", pendingText: rest || "" };
+    const combined = (pendingText || "") + (chunk || "");
+    let { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
+
+    // garante que o rest comece com newline, para não juntar com a última linha do before
+    if (rest.startsWith("\n") === false)
+        rest = "\n" + rest;
+
+    return { safeText: before || "", pendingText: rest || "" };
 }
 
 const PKG_ANALYZE_KEY = "pkg-analyze-config";
