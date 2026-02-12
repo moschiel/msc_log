@@ -276,7 +276,7 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
     return {
         parseOk: true,
         pkgIndex,
-        isReceived: (pkgIndex === 0), 
+        isReceived: (pkgIndex === 0), // essa logica serve pra tudo ?
         connState,
         rows: br.rows,
         messages
