@@ -5,8 +5,8 @@ import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
 import { initModal, getModal } from "./modal.js";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
-    hlMessagesCount,
-    hideAllListMessageOptionsExceptFirst,
+    hlMessagesCountStatistics,
+    hideAllListMessageOptions,
     hideListMessagePane
 } from "./viewer-message-parser.js";
 import {
@@ -117,7 +117,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         ui.selListMessage.selectedIndex = 0;
         ui.selListMessage.disabled = true;
         hideListMessagePane();
-        hideAllListMessageOptionsExceptFirst();
+        hideAllListMessageOptions();
     }
 });
 
@@ -127,7 +127,7 @@ ui.selListMessage.addEventListener("change", () => {
 
     const searchMsgID = ui.selListMessage.value;
     if (searchMsgID !== "none") {
-        // um ID de mensagem foi acabou de ser selecionado,
+        // um ID de mensagem acabou de ser selecionado,
         // reprocessa TODO o log 
         // renderizando as mensagens do ID selecionado na tabela
         ui.selListMessage.classList.add("is-selected");
@@ -145,7 +145,7 @@ ui.selListMessage.addEventListener("change", () => {
 ui.btnStatistics.addEventListener("click", () => {
     let contentHtml = "";
     if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
-        const sorted = [...hlMessagesCount]
+        const sorted = [...hlMessagesCountStatistics]
             .sort((a, b) => a.count - b.count); //contagem descrescente
             //.sort((a, b) => b.count - a.count); //contagem crescente
         
@@ -229,13 +229,13 @@ ui.logBox.addEventListener("click", e => {
     if (!classPkgGroup.startsWith("pkg-")) return;
 
     let frameStr = getHexFromPackageClassGroup(classPkgGroup);
-    const { parseOk, headers, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect");
+    const { parseOk, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect", "nsv", "v");
 
     if (!parseOk) return;
 
     // Cria tabela do pacote
     const pkgIndex = classPkgGroup.replace("pkg-", "");
-    showParsedPackageOnTable(headers, rows, pkgIndex);
+    showParsedPackageOnTable(["Name, Size, Value"], rows, pkgIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {

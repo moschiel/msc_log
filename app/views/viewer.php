@@ -98,6 +98,7 @@ Botão ▦ deve estar ativo.
                 <!-- <label for="selListMessage">Listar:</label> -->
                 <select disabled name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
+                    <option value="all">Todos os Pacotes</option>
                 </select>
             </div>
 

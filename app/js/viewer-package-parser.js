@@ -1,7 +1,7 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import { highlightPackage } from "./viewer-package-highlight.js";
-import { parseMessage, getMsgName, hlMessagesCount, clearMessageCounter, updateMessageCounter, getTmEventOptionId } from "./viewer-message-parser.js";
+import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
 
@@ -62,7 +62,13 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages } = parseCC33Package(util.hexToBuffer(frameStr), "validate");
+            const { parseOk, connState, messages, rows } = 
+                parseCC33Package(
+                    util.hexToBuffer(frameStr), 
+                    opt.searchMsgID === "all" ? "collect" : "validate", 
+                    "nv", 
+                    "h"
+                );
 
             for (const msg of messages) {
 
@@ -73,7 +79,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                     return; // pula pacote
                 }
                 
-                if (opt.highlight) updateMessageCounter(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+                if (opt.highlight) updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
 
                 const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
                 if (opt.searchMsgID === matchOptionID) {
@@ -91,6 +97,13 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                         messageDataTable.rows.push(rows[1]); // parameters values
                     }
                 }
+            }
+
+            if (parseOk && opt.searchMsgID === "all") {
+                if (messageDataTable.headers.length === 0) {
+                    messageDataTable.headers = rows[0]; // parameters names
+                }
+                messageDataTable.rows.push(rows[1]); // parameters values
             }
 
             if (parseOk && connState === "Offline")
@@ -153,7 +166,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
     if (opt.highlight) {
         //console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
-        //console.log("Quantidade de cada mensagem", hlMessagesCount);
+        //console.log("Quantidade de cada mensagem", hlMessagesCountStatistics);
     }
 
     return {
@@ -170,18 +183,20 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
  * 
  * @param {Uint8Array} u8buf
  * @param {"validate" | "collect"} processMode
+ * @param {"nsv" | "nv" } dataMode
+ * @param {"v" | "h"} dataOrientation
  * @returns {{ 
  *  parseOk: boolean, 
  *  connState: "Online" | "Offline", 
  *  rows: Array<Array>, 
- *  messages: Array<{id: Number, size: Number, data: Uint8Array}>, 
- *  headers: Array<string> }}
+ *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
+ * }}
  */
-export function parseCC33Package(u8buf, processMode) {
+export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) {
     const br = createBinaryReader(u8buf, {
         processMode,
-        dataMode: "nsv", /* name, size, value */
-        dataOrientation: "v"
+        dataMode,
+        dataOrientation
     });
 
     const start = br.read_u16("frame incial", false);
@@ -203,9 +218,15 @@ export function parseCC33Package(u8buf, processMode) {
 
     // ESN (se provider)
     if (option === 3) {
-        br.add_row_hex_u16("Sei lá", false);
-        const esnSize = br.add_row_u8("Tamanho do SN");
-        br.add_row_bytes_BCD("SerialNumber", esnSize);
+        if(dataOrientation === "v") {
+            br.add_row_hex_u16("Sei lá", false);
+            const esnSize = br.add_row_u8("Tamanho do SN");
+            br.add_row_bytes_BCD("SerialNumber", esnSize);
+        } else {
+            br.skip("Sei lá", 2);
+            const esnSize = br.read_u8("Tamanho do SN");
+            br.skip("Serial Number", esnSize);
+        }
     }
 
     // index / service type
@@ -226,6 +247,7 @@ export function parseCC33Package(u8buf, processMode) {
     // mensagens
     let newMsg = true;
     let messages = [];
+    let text = "";
     while (newMsg && (br.getOffset() < frameEnd)) {
         const msgId = br.read_u16("msgId", true);
 
@@ -236,8 +258,15 @@ export function parseCC33Package(u8buf, processMode) {
 
         const msgData = br.read_bytes("msgData", msgSize);
         messages.push({ id: msgId, size: msgSize, data: msgData });
-        br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
+
+        if(dataOrientation === "v")
+            br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
+        else
+            text += `${getMsgName(msgId)}, \r\n`;
     }
+
+    if(dataOrientation === "h")
+        br.add_row("Messages", "N/A", text);
 
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
@@ -245,7 +274,6 @@ export function parseCC33Package(u8buf, processMode) {
     return {
         parseOk: true,
         connState,
-        headers: ["Name", "Size", "Value"],
         rows: br.rows,
         messages
     };

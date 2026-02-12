@@ -145,17 +145,17 @@ export function showParsedMessageOnTable(implemented, msgID, headers, rows) {
     setSplitterPaneVisible(ui.parsedPackageSplitter, 2, true);
 }
 
-export let hlMessagesCount = []; // objeto que guarda contagem de cada mensagem por id
+export let hlMessagesCountStatistics = []; // objeto que guarda contagem de cada mensagem por id
 
 /**
  * Atualiza contador de mensagens por ID, 
  * cada chamada incrementa o contador do ID passado
  */
-export function updateMessageCounter(id, evId=null) {
+export function updateMessageCounterStatistics(id, evId=null) {
 
     let entry = evId ? 
-        hlMessagesCount.find(m => m.id === id && m.evId === evId) : 
-        hlMessagesCount.find(m => m.id === id);
+        hlMessagesCountStatistics.find(m => m.id === id && m.evId === evId) : 
+        hlMessagesCountStatistics.find(m => m.id === id);
 
     if (!entry) {
         // Nova mensagem inserida
@@ -167,7 +167,7 @@ export function updateMessageCounter(id, evId=null) {
 
         if(evId) entry["evId"] = evId;
 
-        hlMessagesCount.push(entry);
+        hlMessagesCountStatistics.push(entry);
         revealMessageOption(evId ? getTmEventOptionId(evId) : id);
     } else {
         // Incrementa contador da mensagem já existente
@@ -184,8 +184,8 @@ export function getTmEventOptionId(evId) {
 }
 
 export function clearMessageCounter() {
-    hlMessagesCount = [];
-    hideAllListMessageOptionsExceptFirst();
+    hlMessagesCountStatistics = [];
+    hideAllListMessageOptions();
 }
 
 /**
@@ -231,11 +231,15 @@ function revealMessageOption(id) {
     }
 }
 
-export function hideAllListMessageOptionsExceptFirst() {
+/**
+ * Esconde todas as opcoes de mensagens
+ * Deixa visivel apenas "none" e "all"
+ */
+export function hideAllListMessageOptions() {
     const options = ui.selListMessage.querySelectorAll("option");
 
     options.forEach((opt, index) => {
-        if (index > 0) {
+        if (index > 1) {
             opt.classList.add("hidden");
         }
     });
