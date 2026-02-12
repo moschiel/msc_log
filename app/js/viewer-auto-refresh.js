@@ -146,8 +146,8 @@ export async function tailRefreshNow() {
     setRawLog(getRawLog() + tailText);
 
     const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
-    const searchMsgID = Number(ui.selListMessage.value);
-    if (highlight || !isNaN(searchMsgID)) {
+    const searchMsgID = ui.selListMessage.value;
+    if (highlight || searchMsgID != "none") {
       // Se highlight de pacote ou pesquisa de mensagem estiver ativo, 
       // processa o tail recebido para renderizar o novo conteudo de acordo com as opções.
       processLogChunkAndRender("append", tailText, { highlight, searchMsgID });

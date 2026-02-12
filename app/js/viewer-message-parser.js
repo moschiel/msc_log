@@ -13,17 +13,17 @@ export const msgsList = new Map([
     [0x1101, { description: "Extended Position", listSupport: true }],
     [0x1121, { description: "MSC830 aditional Data", listSupport: true }],
     [0x1122, { description: "MSC530  aditional Data" }],
-    [0x1130, { description: "Risk Rules Data" }],
+    [0x1130, { description: "Risk Rules Data", listSupport: true }],
     [0x1140, { description: "Login Event" }],
     [0x1200, { description: "Data Terminal Msg", listSupport: true }],
     [0x1210, { description: "Data Terminal Auth" }],
-    [0x1300, { description: "Report Configurations" }],
-    [0x1310, { description: "Report Context" }],
+    [0x1300, { description: "Report Configurations", listSupport: true }],
+    [0x1310, { description: "Report Context", listSupport: true }],
     [0x1400, { description: "Telemetry Data", listSupport: true }],
     [0x1401, { description: "Telemetry Delta" }],
-    [0x1402, { description: "Telemetry Events" }],
+    [0x1402, { description: "TM Event" }],
     [0x1403, { description: "Black Box Delta" }],
-    [0x1404, { description: "Black Box PKG" }],
+    [0x1404, { description: "Black Box PKG", listSupport: true }],
     [0x1405, { description: "Telemetry Delta V2", listSupport: true }],
     [0x1406, { description: "G Force Event" }],
     [0x1407, { description: "Telemetry Delta V3" }],
@@ -33,7 +33,7 @@ export const msgsList = new Map([
     [0xFFFF, { description: "ACK/NACK Response" }],
     [0x2001, { description: "RESET" }],
     [0x200A, { description: "REQUEST POSITION" }],
-    [0x2005, { description: "ACTUATORS" }],
+    [0x2005, { description: "ACTUATORS", listSupport: true }],
     [0x2004, { description: "SECURITY ACTUATORS" }],
     [0x2003, { description: "CYCLIC ACTUATORS" }],
     [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: true }],
@@ -44,9 +44,9 @@ export const msgsList = new Map([
     [0x2012, { description: "RESET ALARM - CLEAR" }],
     [0x2013, { description: "RESET ALARM - KEEP" }],
     [0x2015, { description: "SET TPMS TEST TIMEOUT" }],
-    [0x3000, { description: "SET CONFIGURATIONS" }],
-    [0x3100, { description: "READ CONFIGURATIONS" }],
-    [0x3200, { description: "READ CONTEXT INFO" }],
+    [0x3000, { description: "SET CONFIGURATIONS", listSupport: true }],
+    [0x3100, { description: "READ CONFIGURATIONS", listSupport: true }],
+    [0x3200, { description: "READ CONTEXT INFO", listSupport: true }],
     [0x201A, { description: "ENABLE RISK ANALYSIS" }],
     [0x201B, { description: "DISABLE RISK ANALYSIS" }],
     [0x201C, { description: "REQUEST BLACKBOX" }],
@@ -60,7 +60,7 @@ export const msgsList = new Map([
     [0x4002, { description: "EMBEDDED FILE - WRITE" }],
     [0x4003, { description: "EMBEDDED FILE - CLOSE" }],
     [0x4004, { description: "EMBEDDED FILE - DELETE" }],
-    [0x4010, { description: "EMBEDDED FILE - DNLD" }],
+    [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: true }],
     [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD" }],
     [0x200D, { description: "Embedded Actions Filter" }],
     [0x200E, { description: "Factory Reset" }]
@@ -107,19 +107,24 @@ const telemetryEventsList = new Map([
  * Retorna a descrição de uma mensagem pelo seu ID.
  *
  * @param {Number} id id da mensagem
+ * @param {Number|null} evId id de evento de telemetria
  * @returns {string} descrição da mensagem
  */
-export function getMsgName(id) {
+export function getMsgName(id, evId=null) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
     let ret = `0x${hex} - `;
 
     if (msgsList.has(id)) {
         ret += msgsList.get(id).description;
+        if(evId) {
+            ret += ` (${evId} - ${telemetryEventsList.get(evId)})`;
+        }
     }
 
     return ret;
 }
+
 
 /**
  * Preenche a tabela #parsedMessageTable com os parâmetros da mensagem parseada
@@ -146,24 +151,36 @@ export let hlMessagesCount = []; // objeto que guarda contagem de cada mensagem 
  * Atualiza contador de mensagens por ID, 
  * cada chamada incrementa o contador do ID passado
  */
-export function updateMessageCounter(id) {
-    let entry = hlMessagesCount.find(m => m.id === id);
+export function updateMessageCounter(id, evId=null) {
+
+    let entry = evId ? 
+        hlMessagesCount.find(m => m.id === id && m.evId === evId) : 
+        hlMessagesCount.find(m => m.id === id);
 
     if (!entry) {
         // Nova mensagem inserida
         entry = {
             id,
-            description: getMsgName(id),
+            description: getMsgName(id, evId),
             count: 1
         };
+
+        if(evId) entry["evId"] = evId;
+
         hlMessagesCount.push(entry);
-        revealMessageOption(id);
+        revealMessageOption(evId ? getTmEventOptionId(evId) : id);
     } else {
         // Incrementa contador da mensagem já existente
         entry.count++;
     }
 
     return entry;
+}
+
+// Xunxo para diferenciar eventos de telemetria de diferentes tipos
+export function getTmEventOptionId(evId) {
+    //return (0x1402 >> 8) + evId;
+    return `${0x1402}-${evId}`;
 }
 
 export function clearMessageCounter() {
@@ -180,15 +197,27 @@ export function clearMessageCounter() {
 export function initSelectMessageIDOptions() {
     for (const [id, info] of msgsList) {
         if (info.listSupport) {
+            if (id === 0x1402) // Eventos de Telemetria
+                continue; 
+
             const opt = document.createElement("option");
             const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
 
-            // @ts-ignore
-            opt.value = id;
+            opt.value = String(id);
             opt.textContent = `${idHex} - ${info.description}`;
             opt.classList.add("hidden");
             ui.selListMessage.appendChild(opt);
         }
+    }
+
+    // Eventos de Telemetria 0x1402
+    for (const [evId, description] of telemetryEventsList) {
+        const opt = document.createElement("option");
+
+        opt.value = `${getTmEventOptionId(evId)}`;
+        opt.textContent = getMsgName(0x1402, evId);
+        opt.classList.add("hidden");
+        ui.selListMessage.appendChild(opt);
     }
 }
 
@@ -286,13 +315,22 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Login ID 2");
             br.add_row_u32("RFU");
             const gzCount = br.add_row_u8("Geozones Count");
+            
+            let text = "";
             for (let i = 0; i < gzCount; i++) {
                 const group = br.read_u8(`Geozone Group[${i}]`);
                 const id = br.read_u32(`Geozone ID[${i}]`);
                 const gzId = (id & 0x00FFFFFF) >>> 0;
                 const flags = (id >>> 24) & 0xFF;
-                br.add_row(`GZ[${i}]`, 5, `Group=${group}, ID=${gzId}, Flags=${flags}`);
+                if(dataOrientation === "v")
+                    br.add_row(`GZ[${i}]`, 5, `Group=${group}, ID=${gzId}, Flags=${flags}`);
+                else // "h"
+                    text += `{ Group=${group}, ID=${gzId}, Flags=${flags} }, \r\n`;
             }
+
+            if(dataOrientation === "h")
+                br.add_row("Geozones", gzCount * 5, text);
+            
             break;
         }
 
@@ -312,14 +350,14 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Flags", true, (flags) => {
                 let text = `Raw: ${br.hex_u32(flags)}, \r\n`;
                 text += "Bits:  \r\n";
-                text += `   Odom Accum: ${(flags & 0x00000001) ? "1" : "0"},\r\n`;
-                text += `   Flag Cal [Avail: ${(flags & 0x00000002) ? "1" : "0"}, Val: ${(flags & 0x00000004) ? "1" : "0"}],\r\n`;
-                text += `   Clutch [Avail: ${(flags & 0x00000008) ? "1" : "0"}, Val: ${(flags & 0x00000010) ? "1" : "0"}],\r\n`;
-                text += `   Brake [Avail: ${(flags & 0x00000020) ? "1" : "0"}, Val: ${(flags & 0x00000040) ? "1" : "0"}],\r\n`;
-                text += `   Parking Brake [Avail :${(flags & 0x00000080) ? "1" : "0"}, Val :${(flags & 0x00000100) ? "1" : "0"}],\r\n`;
-                text += `   Retarder [Avail: ${(flags & 0x00000200) ? "1" : "0"}, Val: ${(flags & 0x00000400) ? "1" : "0"}],\r\n`;
-                text += `   Wiper: ${(flags & 0x00000800) ? "1" : "0"},\r\n`;
-                text += `   Rain: ${(flags & 0x00001000) ? "1" : "0"},\r\n`;
+                text += `   Odom Accum: ${(flags & 0x00000001) ? "1" : "0"}, \r\n`;
+                text += `   Flag Cal [Avail: ${(flags & 0x00000002) ? "1" : "0"}, Val: ${(flags & 0x00000004) ? "1" : "0"}], \r\n`;
+                text += `   Clutch [Avail: ${(flags & 0x00000008) ? "1" : "0"}, Val: ${(flags & 0x00000010) ? "1" : "0"}], \r\n`;
+                text += `   Brake [Avail: ${(flags & 0x00000020) ? "1" : "0"}, Val: ${(flags & 0x00000040) ? "1" : "0"}], \r\n`;
+                text += `   Parking Brake [Avail :${(flags & 0x00000080) ? "1" : "0"}, Val :${(flags & 0x00000100) ? "1" : "0"}], \r\n`;
+                text += `   Retarder [Avail: ${(flags & 0x00000200) ? "1" : "0"}, Val: ${(flags & 0x00000400) ? "1" : "0"}], \r\n`;
+                text += `   Wiper: ${(flags & 0x00000800) ? "1" : "0"}, \r\n`;
+                text += `   Rain: ${(flags & 0x00001000) ? "1" : "0"}, \r\n`;
                 return text;
             });
 
@@ -385,21 +423,34 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
 
         case 0x1300:
         case 0x3000: {
+            let text = "";
             while (br.getOffset() < br.getLength()) {
                 const id = br.read_bytes("config id", 3);
                 const size = br.read_u8("config size");
                 const value = br.read_bytes("config value", size);
-                br.add_row(util.bufferToHex(id), size, util.bufferToHex(value));
+                if(dataOrientation === "v")
+                    br.add_row(util.bufferToHex(id), size, util.bufferToHex(value));
+                else
+                    text += `{ ID: ${util.bufferToHex(id)}, Value: 0x${util.bufferToHex(value)} }, \r\n`;
             }
+            if(dataOrientation === "h")
+                br.add_row("Configurações", "N/A", text);
             break;
         }
 
         case 0x1310: {
+            let text = "";
             while (br.getOffset() < br.getLength()) {
                 const id = br.read_u16("context id");
-                const val = br.read_u32("context value");
-                br.add_row(String(id), 4, val.toString(16).toUpperCase().padStart(8, "0"));
+                const value = br.read_u32("context value");
+                if (dataOrientation === "v")
+                    br.add_row(String(id), 4, value.toString(16).toUpperCase().padStart(8, "0"));
+                else
+                    text += `{ ID: ${id}, Value: ${br.hex_u32(value)} }, \r\n`;
             }
+
+            if (dataOrientation === "h")
+                br.add_row("Contexto", "N/A", text);
             break;
         }
 
@@ -413,7 +464,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 } else {
                     id = String(br.read_u16("context_id"));
                 }
-                value += id + "\n"
+                value += id + ",\r\n"   
             }
 
             br.add_row("IDs Solicitados", br.getLength(), value);
@@ -521,7 +572,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("GPS flags", (v) => {
                 let text = `Raw: ${br.hex_u8(v)}, \r\n`;
                 text += `Bits: \r\n`;
-                text += `   satellites: ${v & 0x1F} (5 bits),\r\n`;
+                text += `   satellites: ${v & 0x1F} (5 bits), \r\n`;
 
                 let statusAntena = "";
                 let valAntena = (v >> 5) & 0x03;
@@ -532,8 +583,8 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                     case 3: statusAntena = "Unknown"; break;
                 }
 
-                text += `   antenna: ${valAntena}, ${statusAntena} (2 bits),\r\n`;
-                text += `   fix: ${(v >> 7) & 0x01} (1 bit),\r\n`;
+                text += `   antenna: ${valAntena}, ${statusAntena} (2 bits), \r\n`;
+                text += `   fix: ${(v >> 7) & 0x01} (1 bit), \r\n`;
                 return text;
             });
 
@@ -546,19 +597,19 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u16("TM available", true, (v) => {
                 let text = `Raw: ${br.hex_u16(v)}, \r\n`;
                 text += `Bits: \r\n`;
-                text += `   speed: ${(v & 0x0001)},\r\n`;
-                text += `   rpm: ${(v & 0x0002) === 0 ? 0 : 1},\r\n`;
-                text += `   odometer: ${(v & 0x0004) === 0 ? 0 : 1},\r\n`;
-                text += `   fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1},\r\n`;
-                text += `   total fuel: ${(v & 0x0010) === 0 ? 0 : 1},\r\n`;
-                text += `   level tank: ${(v & 0x0020) === 0 ? 0 : 1},\r\n`;
-                text += `   brake: ${(v & 0x0040) === 0 ? 0 : 1},\r\n`;
-                text += `   parking brake: ${(v & 0x0080) === 0 ? 0 : 1},\r\n`;
+                text += `   speed: ${(v & 0x0001)}, \r\n`;
+                text += `   rpm: ${(v & 0x0002) === 0 ? 0 : 1}, \r\n`;
+                text += `   odometer: ${(v & 0x0004) === 0 ? 0 : 1}, \r\n`;
+                text += `   fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1}, \r\n`;
+                text += `   total fuel: ${(v & 0x0010) === 0 ? 0 : 1}, \r\n`;
+                text += `   level tank: ${(v & 0x0020) === 0 ? 0 : 1}, \r\n`;
+                text += `   brake: ${(v & 0x0040) === 0 ? 0 : 1}, \r\n`;
+                text += `   parking brake: ${(v & 0x0080) === 0 ? 0 : 1}, \r\n`;
 
-                text += `   clutch: ${(v & 0x0100) === 0 ? 0 : 1},\r\n`;
-                text += `   retarder: ${(v & 0x0200) === 0 ? 0 : 1},\r\n`;
-                text += `   gears: ${(v & 0x0400) === 0 ? 0 : 1},\r\n`;
-                text += `   reserved: ${(v & 0xF800) >> 11} (5 bits)\r\n`;
+                text += `   clutch: ${(v & 0x0100) === 0 ? 0 : 1}, \r\n`;
+                text += `   retarder: ${(v & 0x0200) === 0 ? 0 : 1}, \r\n`;
+                text += `   gears: ${(v & 0x0400) === 0 ? 0 : 1}, \r\n`;
+                text += `   reserved: ${(v & 0xF800) >> 11} (5 bits) \r\n`;
                 return text;
             });
 
@@ -566,14 +617,14 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("Module Enabled", (v) => {
                 let text = `Raw: ${br.hex_u8(v)} \r\n`;
                 text += `Bits: \r\n`;
-                text += `   ISV: ${(v & 0x01) === 0 ? 0 : 1},\r\n`;
-                text += `   Telemetry: ${(v & 0x02) === 0 ? 0 : 1},\r\n`;
-                text += `   Data Terminal: ${(v & 0x04) === 0 ? 0 : 1},\r\n`;
-                text += `   Satellital: ${(v & 0x08) === 0 ? 0 : 1},\r\n`;
-                text += `   Drive Time: ${(v & 0x10) === 0 ? 0 : 1},\r\n`;
-                text += `   Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1},\r\n`;
-                text += `   RFU1: ${(v & 0x40) === 0 ? 0 : 1},\r\n`;
-                text += `   RFU2: ${(v & 0x80) === 0 ? 0 : 1}\r\n`;
+                text += `   ISV: ${(v & 0x01) === 0 ? 0 : 1}, \r\n`;
+                text += `   Telemetry: ${(v & 0x02) === 0 ? 0 : 1}, \r\n`;
+                text += `   Data Terminal: ${(v & 0x04) === 0 ? 0 : 1}, \r\n`;
+                text += `   Satellital: ${(v & 0x08) === 0 ? 0 : 1}, \r\n`;
+                text += `   Drive Time: ${(v & 0x10) === 0 ? 0 : 1}, \r\n`;
+                text += `   Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1}, \r\n`;
+                text += `   RFU1: ${(v & 0x40) === 0 ? 0 : 1}, \r\n`;
+                text += `   RFU2: ${(v & 0x80) === 0 ? 0 : 1} \r\n`;
                 return text;
             });
 
@@ -581,6 +632,40 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 br.add_row_bytes_hex("SecondsPayload", br.getLength() - br.getOffset());
             }
 
+            break;
+        }
+
+        case 0x2005: {
+            const mask = br.add_row_hex_u16("Mask");
+            const state = br.add_row_hex_u16("State");
+            let text = "";
+            for (let bit = 0; bit < 16; bit++) {
+                if (mask & (1 << bit)) {
+                    const value = ((state >> bit) & 1) === 0 ? "OFF" : "ON";
+                    text += `Saída ${bit + 1}: ${value}, \r\n`;
+                }
+            }
+            br.add_row("Comando", "N/A", text);    
+            break;
+        }
+
+        case 0x1130: {
+            const total = br.add_row_u8("Quantidade de Ações Disparadas");
+            let text = "";
+            for(let i=0; i<total; i++) {
+                const ruleId = br.read_u16(`Rule ID (index ${i})`);
+                const violationId = br.read_u16(`Violation ID (index ${i})`);
+                br.skip("RFU", 6);
+
+                if (dataOrientation === "v")
+                    br.add_row(`Ação[${i}]`, 10, `RuleID: ${ruleId}, ViolationID: ${violationId}`);
+                else
+                    text += `{ RuleID: ${ruleId}, ViolationID: ${violationId} }, \r\n`;
+            }
+
+            if(dataOrientation === "h")
+                br.add_row("Ações Disparadas", total * 10, text);
+            
             break;
         }
 

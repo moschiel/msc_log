@@ -100,10 +100,10 @@ function scrollLogBoxToBottomIfNeeded() {
  * @param {string} textContent
  * @param {{
  *   highlight?: boolean,
- *   searchMsgID?: number,      // se definido, preenche tabela
+ *   searchMsgID?: string,      // se definido, preenche tabela
  * }} opts
  */
-export function processLogChunkAndRender(mode, textContent, opts = { highlight: false, searchMsgID: NaN }) {
+export function processLogChunkAndRender(mode, textContent, opts = { highlight: false, searchMsgID: null }) {
 
     // separa o texto bruto em parte segura + parte pendente (CC33)
     // onde a parte pendente é o TAIL do texto que pode ter terminado com um pacote CC33 incompleto
@@ -121,7 +121,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         // - lista de mensagens de um determinado ID (se solicitado)
         const parsed = detectCC33Packages(escaped, {
             highlight: opts.highlight,
-            searchMsgID: !isNaN(opts.searchMsgID) ? opts.searchMsgID : undefined
+            searchMsgID: opts.searchMsgID
         });
 
         // renderiza no logBox (área visível do log) o texto com highlight dos pacotes (se solicitado)
@@ -130,7 +130,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         }
 
         // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
-        if (!isNaN(opts.searchMsgID)) {
+        if (opts.searchMsgID && opts.searchMsgID !== "none") {
             // mesmo se vier mode "append", forçamos criacao se tabela não tem tHead
             if (mode === "set" || ui.listMessageTable.tHead === null)
                 util.Table.Create(ui.listMessageTable, parsed.messageDataTable.headers, parsed.messageDataTable.rows);

@@ -1,7 +1,7 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import { highlightPackage } from "./viewer-package-highlight.js";
-import { parseMessage, getMsgName, hlMessagesCount, clearMessageCounter, updateMessageCounter } from "./viewer-message-parser.js";
+import { parseMessage, getMsgName, hlMessagesCount, clearMessageCounter, updateMessageCounter, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
 
@@ -31,7 +31,7 @@ export function clearHighlightPkgCounters() {
  * @param {string} text,
  * @param {{
  *   highlight?: boolean,
- *   searchMsgID?: Number
+ *   searchMsgID?: string
  * }} [opt]
  * @returns {{
  * htmlWithPackagesHighlight: string,
@@ -65,7 +65,6 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             const { parseOk, connState, messages } = parseCC33Package(util.hexToBuffer(frameStr), "validate");
 
             for (const msg of messages) {
-                if (opt.highlight) updateMessageCounter(msg.id);
 
                 if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
                     || (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
@@ -73,8 +72,11 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                     if (opt.highlight) hlPkgCounter--; // remove esse pacote da contagem
                     return; // pula pacote
                 }
+                
+                if (opt.highlight) updateMessageCounter(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
 
-                if (opt.searchMsgID === msg.id) {
+                const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
+                if (opt.searchMsgID === matchOptionID) {
                     const { isImplemented, rows } = parseMessage(
                         msg.id,
                         msg.data,
@@ -99,7 +101,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
 
         } catch (e) {
-            console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
+            //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             if (opt.highlight) hlErrPkgCounter++;
             if (opt.highlight)
                 highlightPackage(hlPkgCounter, false, null, lines, lineIndexes);
@@ -146,12 +148,12 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
     // se o texto acabou no meio de um pacote, fecha ele também
     if (isCollectingFrame) {
-        flushPackage();  
+        flushPackage();
     }
 
     if (opt.highlight) {
-        console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
-        console.log("Quantidade de cada mensagem", hlMessagesCount);
+        //console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
+        //console.log("Quantidade de cada mensagem", hlMessagesCount);
     }
 
     return {
@@ -314,10 +316,10 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
     // tem mais de uma linha, 
     // se a ultima linha não for header parcial ou linha frameish, 
     // o before é tudo antes da última linha, e o rest é a última linha
-    if (splitTailUtils.startsWithHeader(lastLine) === false || 
-       (lastLine.length > LOG_HEADER_SIZE && splitTailUtils.isFrameishLine(lastLine) === false)) {
-        return { 
-            before: lines.slice(0, lastIdx).join("\n"), 
+    if (splitTailUtils.startsWithHeader(lastLine) === false ||
+        (lastLine.length > LOG_HEADER_SIZE && splitTailUtils.isFrameishLine(lastLine) === false)) {
+        return {
+            before: lines.slice(0, lastIdx).join("\n"),
             rest: lastLine // sempre vai ter pelo menos a última linha no rest
         };
     }

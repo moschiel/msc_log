@@ -1,8 +1,12 @@
-/* Estilo dos Controles (CheckBoxes e Botoes) do container superior (Header da pagina) */
+/* Estilo dos Controles */
 .header-container {
     /* border: 3px solid yellow; */
     display: flex;
     gap: 16px;
     align-items: center;
     flex-wrap: wrap;
+}
+
+#selListMessage {
+    max-width: 250px;
 }

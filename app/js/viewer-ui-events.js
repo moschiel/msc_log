@@ -125,8 +125,8 @@ ui.btnHighlightPkg.addEventListener("click", () => {
 ui.selListMessage.addEventListener("change", () => {
     disableControlsForRender(true);
 
-    const searchMsgID = Number(ui.selListMessage.value);
-    if (!isNaN(searchMsgID)) {
+    const searchMsgID = ui.selListMessage.value;
+    if (searchMsgID !== "none") {
         // um ID de mensagem foi acabou de ser selecionado,
         // reprocessa TODO o log 
         // renderizando as mensagens do ID selecionado na tabela
@@ -146,7 +146,8 @@ ui.btnStatistics.addEventListener("click", () => {
     let contentHtml = "";
     if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
         const sorted = [...hlMessagesCount]
-            .sort((a, b) => b.count - a.count);
+            .sort((a, b) => a.count - b.count); //contagem descrescente
+            //.sort((a, b) => b.count - a.count); //contagem crescente
         
         if(sorted) {
             contentHtml = sorted.map(m => `
