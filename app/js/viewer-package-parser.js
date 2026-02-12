@@ -62,7 +62,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages, rows } = 
+            const { parseOk, isReceived, connState, messages, rows } = 
                 parseCC33Package(
                     util.hexToBuffer(frameStr), 
                     opt.searchMsgID === "all" ? "collect" : "validate", 
@@ -110,14 +110,14 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 if (opt.highlight) hlOfflinePkgCounter++;
 
             if (opt.highlight)
-                highlightPackage(hlPkgCounter, parseOk, connState, lines, lineIndexes);
+                highlightPackage(hlPkgCounter, parseOk, isReceived, connState, lines, lineIndexes);
 
 
         } catch (e) {
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
             if (opt.highlight) hlErrPkgCounter++;
             if (opt.highlight)
-                highlightPackage(hlPkgCounter, false, null, lines, lineIndexes);
+                highlightPackage(hlPkgCounter, false, null, null, lines, lineIndexes);
         }
 
         // reset
@@ -186,7 +186,9 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
  * @param {"nsv" | "nv" } dataMode
  * @param {"v" | "h"} dataOrientation
  * @returns {{ 
- *  parseOk: boolean, 
+ *  parseOk: boolean,
+ *  pkgIndex: number,
+ *  isReceived: boolean,
  *  connState: "Online" | "Offline", 
  *  rows: Array<Array>, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
@@ -231,7 +233,7 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
 
     // index / service type
     let connState;
-    br.add_row_u16("Index do Pacote");
+    const pkgIndex = br.add_row_u16("Index do Pacote");
     br.add_row_u8("Tipo de Serviço", (v) => {
         let ackType = "";
         switch (v & 0x03) {
@@ -273,6 +275,8 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
 
     return {
         parseOk: true,
+        pkgIndex,
+        isReceived: (pkgIndex === 0), 
         connState,
         rows: br.rows,
         messages

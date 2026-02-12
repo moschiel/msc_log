@@ -223,7 +223,7 @@ ui.btnPkgConfig.addEventListener("click", () => {
 let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
     if (!(e.target instanceof HTMLElement)) return;
-    if (!e.target.classList.contains('hl-pkg-ok')) return;
+    if (e.target.classList.contains('hl-pkg-err')) return;
 
     const classPkgGroup = e.target.classList[0];
     if (!classPkgGroup.startsWith("pkg-")) return;
@@ -235,7 +235,7 @@ ui.logBox.addEventListener("click", e => {
 
     // Cria tabela do pacote
     const pkgIndex = classPkgGroup.replace("pkg-", "");
-    showParsedPackageOnTable(["Name, Size, Value"], rows, pkgIndex);
+    showParsedPackageOnTable(["Name", "Size", "Value"], rows, pkgIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {
