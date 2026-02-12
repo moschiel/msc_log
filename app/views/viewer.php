@@ -80,8 +80,8 @@ function render_viewer($selectedFile, $isLocal) {
 
 Permite clicar nos pacotes p/ ver detalhes.
 
-🟢 Pacote Online Enviado
-⚪ Pacote Offline Enviado
+🟢 Pacote Enviado (Online)
+⚪ Pacote Enviado (Offline)
 🔵 Pacote Recebido
 🔴 Pacote com Erro
 
