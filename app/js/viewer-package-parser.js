@@ -264,11 +264,11 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
         if(dataOrientation === "v")
             br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
         else
-            text += `${getMsgName(msgId)}, \r\n`;
+            text += `[${getMsgName(msgId)}], `;
     }
 
     if(dataOrientation === "h")
-        br.add_row("Messages", "N/A", text);
+        br.add_row("Mensagens", "N/A", text);
 
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
     // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));

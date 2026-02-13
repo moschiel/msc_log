@@ -89,9 +89,7 @@ Permite clicar nos pacotes p/ ver detalhes.
                 <span class="toogle-btn-icon">▦</span>
             </button>
 
-            <div class="hint", data-hint="Listar Mensagens
-
-Lista todas as mensagens do ID selecionado.
+            <div class="hint", data-hint="Lista todas as mensagens do ID selecionado.
 
 Botão ▦ deve estar ativo.
 

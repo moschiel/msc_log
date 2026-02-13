@@ -44,7 +44,7 @@
   padding: 10px 14px;
   vertical-align: top;
   line-height: 1.35;
-  /* Texto longo não estoura layout */
+  /* Texto maior que o header, não faz a coluna aumentar, ao invez disso quebra o conteudo do texto */
   word-break: break-word;
 }
 

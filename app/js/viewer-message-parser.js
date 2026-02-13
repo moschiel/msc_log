@@ -8,7 +8,8 @@ import { createBinaryReader } from "./viewer-binary-reader.js";
  */
 export const msgsList = new Map([
     [0x0000, { description: "Keep Alive" }],
-    [0x1000, { description: "Reset INFO" }],
+
+    [0x1000, { description: "Reset INFO", listSupport: true }],
     [0x1100, { description: "Basic Position" }],
     [0x1101, { description: "Extended Position", listSupport: true }],
     [0x1121, { description: "MSC830 aditional Data", listSupport: true }],
@@ -30,23 +31,22 @@ export const msgsList = new Map([
     [0x1500, { description: "Accessory Report" }],
     [0x1501, { description: "Accessory Report V2" }],
     [0x1600, { description: "TPMS PKG" }],
-    [0xFFFF, { description: "ACK/NACK Response" }],
+
     [0x2001, { description: "RESET" }],
-    [0x200A, { description: "REQUEST POSITION" }],
-    [0x2005, { description: "ACTUATORS", listSupport: true }],
-    [0x2004, { description: "SECURITY ACTUATORS" }],
     [0x2003, { description: "CYCLIC ACTUATORS" }],
+    [0x2004, { description: "SECURITY ACTUATORS" }],
+    [0x2005, { description: "ACTUATORS", listSupport: true }],
+    [0x200A, { description: "REQUEST POSITION", listSupport: true }],
     [0x200B, { description: "TEXT MSG TO DATA TERMINAL", listSupport: true }],
     [0x200C, { description: "DATA TERMINAL AUDIO" }],
+    [0x200D, { description: "Embedded Actions Filter" }],
+    [0x200E, { description: "Factory Reset" }],
     [0x2010, { description: "SET ODOMETER" }],
     [0x2011, { description: "SET HOURMETER" }],
-    [0x2014, { description: "SET FUEL" }],
     [0x2012, { description: "RESET ALARM - CLEAR" }],
     [0x2013, { description: "RESET ALARM - KEEP" }],
+    [0x2014, { description: "SET FUEL" }],
     [0x2015, { description: "SET TPMS TEST TIMEOUT" }],
-    [0x3000, { description: "SET CONFIGURATIONS", listSupport: true }],
-    [0x3100, { description: "READ CONFIGURATIONS", listSupport: true }],
-    [0x3200, { description: "READ CONTEXT INFO", listSupport: true }],
     [0x201A, { description: "ENABLE RISK ANALYSIS" }],
     [0x201B, { description: "DISABLE RISK ANALYSIS" }],
     [0x201C, { description: "REQUEST BLACKBOX" }],
@@ -54,7 +54,13 @@ export const msgsList = new Map([
     [0x201E, { description: "FORCE MDM REPORT" }],
     [0x2020, { description: "REQUEST UPLOAD DIR" }],
     [0x2021, { description: "REQUEST UPLOAD LOG" }],
-    [0x2022, { description: "REQUEST TAIL LOG" }],
+    [0x2022, { description: "REQUEST TAIL LOG", listSupport: true }],
+    [0x2027, { description: "CANCEL UPLOAD REQUEST", listSupport: true }],
+
+    [0x3000, { description: "SET CONFIGURATIONS", listSupport: true }],
+    [0x3100, { description: "READ CONFIGURATIONS", listSupport: true }],
+    [0x3200, { description: "READ CONTEXT INFO", listSupport: true }],
+
     [0x4000, { description: "EMBEDDED FILE - GET" }],
     [0x4001, { description: "EMBEDDED FILE - CREATE" }],
     [0x4002, { description: "EMBEDDED FILE - WRITE" }],
@@ -62,9 +68,10 @@ export const msgsList = new Map([
     [0x4004, { description: "EMBEDDED FILE - DELETE" }],
     [0x4010, { description: "EMBEDDED FILE - DNLD", listSupport: true }],
     [0x4011, { description: "EMBEDDED FILE - CANCEL DNLD" }],
-    [0x200D, { description: "Embedded Actions Filter" }],
-    [0x200E, { description: "Factory Reset" }]
+
+    [0xFFFF, { description: "ACK/NACK Response" }]
 ]);
+
 
 /**
  * ID e descrição das eventos de telemetria, e se suportam listagem
@@ -110,14 +117,14 @@ const telemetryEventsList = new Map([
  * @param {Number|null} evId id de evento de telemetria
  * @returns {string} descrição da mensagem
  */
-export function getMsgName(id, evId=null) {
+export function getMsgName(id, evId = null) {
     // garante 16 bits e formato X4
     const hex = id.toString(16).toUpperCase().padStart(4, "0");
     let ret = `0x${hex} - `;
 
     if (msgsList.has(id)) {
         ret += msgsList.get(id).description;
-        if(evId) {
+        if (evId) {
             ret += ` (${evId} - ${telemetryEventsList.get(evId)})`;
         }
     }
@@ -151,10 +158,10 @@ export let hlMessagesCountStatistics = []; // objeto que guarda contagem de cada
  * Atualiza contador de mensagens por ID, 
  * cada chamada incrementa o contador do ID passado
  */
-export function updateMessageCounterStatistics(id, evId=null) {
+export function updateMessageCounterStatistics(id, evId = null) {
 
-    let entry = evId ? 
-        hlMessagesCountStatistics.find(m => m.id === id && m.evId === evId) : 
+    let entry = evId ?
+        hlMessagesCountStatistics.find(m => m.id === id && m.evId === evId) :
         hlMessagesCountStatistics.find(m => m.id === id);
 
     if (!entry) {
@@ -165,7 +172,7 @@ export function updateMessageCounterStatistics(id, evId=null) {
             count: 1
         };
 
-        if(evId) entry["evId"] = evId;
+        if (evId) entry["evId"] = evId;
 
         hlMessagesCountStatistics.push(entry);
         revealMessageOption(evId ? getTmEventOptionId(evId) : id);
@@ -198,7 +205,7 @@ export function initSelectMessageIDOptions() {
     for (const [id, info] of msgsList) {
         if (info.listSupport) {
             if (id === 0x1402) // Eventos de Telemetria
-                continue; 
+                continue;
 
             const opt = document.createElement("option");
             const idHex = "0x" + id.toString(16).toUpperCase().padStart(4, "0");
@@ -319,22 +326,22 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Login ID 2");
             br.add_row_u32("RFU");
             const gzCount = br.add_row_u8("Geozones Count");
-            
+
             let text = "";
             for (let i = 0; i < gzCount; i++) {
                 const group = br.read_u8(`Geozone Group[${i}]`);
                 const id = br.read_u32(`Geozone ID[${i}]`);
                 const gzId = (id & 0x00FFFFFF) >>> 0;
                 const flags = (id >>> 24) & 0xFF;
-                if(dataOrientation === "v")
+                if (dataOrientation === "v")
                     br.add_row(`GZ[${i}]`, 5, `Group=${group}, ID=${gzId}, Flags=${flags}`);
                 else // "h"
                     text += `{ Group=${group}, ID=${gzId}, Flags=${flags} }, \r\n`;
             }
 
-            if(dataOrientation === "h")
+            if (dataOrientation === "h")
                 br.add_row("Geozones", gzCount * 5, text);
-            
+
             break;
         }
 
@@ -351,19 +358,17 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u32("Time Ideling");
             br.add_row_u32("Total Fuel");
             br.add_row_u32("Odometer (m)");
-            br.add_row_u32("Flags", true, (flags) => {
-                let text = `Raw: ${br.hex_u32(flags)}, \r\n`;
-                text += "Bits:  \r\n";
-                text += `   Odom Accum: ${(flags & 0x00000001) ? "1" : "0"}, \r\n`;
-                text += `   Flag Cal [Avail: ${(flags & 0x00000002) ? "1" : "0"}, Val: ${(flags & 0x00000004) ? "1" : "0"}], \r\n`;
-                text += `   Clutch [Avail: ${(flags & 0x00000008) ? "1" : "0"}, Val: ${(flags & 0x00000010) ? "1" : "0"}], \r\n`;
-                text += `   Brake [Avail: ${(flags & 0x00000020) ? "1" : "0"}, Val: ${(flags & 0x00000040) ? "1" : "0"}], \r\n`;
-                text += `   Parking Brake [Avail :${(flags & 0x00000080) ? "1" : "0"}, Val :${(flags & 0x00000100) ? "1" : "0"}], \r\n`;
-                text += `   Retarder [Avail: ${(flags & 0x00000200) ? "1" : "0"}, Val: ${(flags & 0x00000400) ? "1" : "0"}], \r\n`;
-                text += `   Wiper: ${(flags & 0x00000800) ? "1" : "0"}, \r\n`;
-                text += `   Rain: ${(flags & 0x00001000) ? "1" : "0"}, \r\n`;
-                return text;
-            });
+
+            const flags = br.read_u32("Flags");
+            br.add_row("Odom Accum", "1 bit", (flags & 0x00000001) ? "1" : "0");
+            br.add_row("Flag Cal", "2 bits", `Avail: ${(flags & 0x00000002) ? "1" : "0"}, Val: ${(flags & 0x00000004) ? "1" : "0"}`);
+            br.add_row("Clutch", "2 bits", `Avail: ${(flags & 0x00000008) ? "1" : "0"}, Val: ${(flags & 0x00000010) ? "1" : "0"}`);
+            br.add_row("Brake", "2 bits", `Avail: ${(flags & 0x00000020) ? "1" : "0"}, Val: ${(flags & 0x00000040) ? "1" : "0"}`);
+            br.add_row("Parking Brake", "2 bits", `Avail: ${(flags & 0x00000080) ? "1" : "0"}, Val: ${(flags & 0x00000100) ? "1" : "0"}`);
+            br.add_row("Retarder", "2 bits", `Avail: ${(flags & 0x00000200) ? "1" : "0"}, Val: ${(flags & 0x00000400) ? "1" : "0"}`);
+            br.add_row("Wiper", "1 bit", (flags & 0x00000800) ? "1" : "0");
+            br.add_row("Rain", "1 bit", (flags & 0x00001000) ? "1" : "0");
+            br.add_row("RFU", "19 bits", `0x${((flags & 0xFFFFE000) >>> 13).toString(16).toUpperCase()}`);
 
             if (br.getLength() > br.getOffset()) {
                 br.add_row_i16("Arref Temp (°C)");
@@ -432,12 +437,12 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 const id = br.read_bytes("config id", 3);
                 const size = br.read_u8("config size");
                 const value = br.read_bytes("config value", size);
-                if(dataOrientation === "v")
+                if (dataOrientation === "v")
                     br.add_row(util.bufferToHex(id), size, util.bufferToHex(value));
                 else
                     text += `{ ID: ${util.bufferToHex(id)}, Value: 0x${util.bufferToHex(value)} }, \r\n`;
             }
-            if(dataOrientation === "h")
+            if (dataOrientation === "h")
                 br.add_row("Configurações", "N/A", text);
             break;
         }
@@ -468,7 +473,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 } else {
                     id = String(br.read_u16("context_id"));
                 }
-                value += id + ",\r\n"   
+                value += id + ", "
             }
 
             br.add_row("IDs Solicitados", br.getLength(), value);
@@ -573,24 +578,20 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_u8("GPS speed (km/h)");
             br.add_row_u8("altitude (m x10)");
             br.add_row_u8("course (degress x2)");
-            br.add_row_u8("GPS flags", (v) => {
-                let text = `Raw: ${br.hex_u8(v)}, \r\n`;
-                text += `Bits: \r\n`;
-                text += `   satellites: ${v & 0x1F} (5 bits), \r\n`;
 
-                let statusAntena = "";
-                let valAntena = (v >> 5) & 0x03;
-                switch (valAntena) {
-                    case 0: statusAntena = "Normal"; break;
-                    case 1: statusAntena = "Open"; break;
-                    case 2: statusAntena = "Short"; break;
-                    case 3: statusAntena = "Unknown"; break;
-                }
+            const gpsFlags = br.read_u8("GPS flags");
+            const antennaVal = (gpsFlags >> 5) & 0x03;
+            let antennaStatus = "";
+            switch (antennaVal) {
+                case 0: antennaStatus = "Normal"; break;
+                case 1: antennaStatus = "Open"; break;
+                case 2: antennaStatus = "Short"; break;
+                case 3: antennaStatus = "Unknown"; break;
+            }
+            br.add_row("Satellites", "5 bits", gpsFlags & 0x1F);
+            br.add_row("Antenna", "2 bits", `${antennaVal}, ${antennaStatus}`);
+            br.add_row("Fix", "1 bit", (gpsFlags >> 7) & 0x01);
 
-                text += `   antenna: ${valAntena}, ${statusAntena} (2 bits), \r\n`;
-                text += `   fix: ${(v >> 7) & 0x01} (1 bit), \r\n`;
-                return text;
-            });
 
             // Info IOs Events (bb_pck_io_events_t)
             br.add_row_hex_u8("dataAvailableMask");
@@ -598,39 +599,30 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             br.add_row_hex_u8("outputs");
 
             // Info available (bb_pck_available_t.telemetry)
-            br.add_row_u16("TM available", true, (v) => {
-                let text = `Raw: ${br.hex_u16(v)}, \r\n`;
-                text += `Bits: \r\n`;
-                text += `   speed: ${(v & 0x0001)}, \r\n`;
-                text += `   rpm: ${(v & 0x0002) === 0 ? 0 : 1}, \r\n`;
-                text += `   odometer: ${(v & 0x0004) === 0 ? 0 : 1}, \r\n`;
-                text += `   fuel (rate?): ${(v & 0x0008) === 0 ? 0 : 1}, \r\n`;
-                text += `   total fuel: ${(v & 0x0010) === 0 ? 0 : 1}, \r\n`;
-                text += `   level tank: ${(v & 0x0020) === 0 ? 0 : 1}, \r\n`;
-                text += `   brake: ${(v & 0x0040) === 0 ? 0 : 1}, \r\n`;
-                text += `   parking brake: ${(v & 0x0080) === 0 ? 0 : 1}, \r\n`;
+            const tmAvail = br.read_u16("TM available");
+            br.add_row("Avail Speed", "1 bit", (tmAvail & 0x0001) ? 1 : 0);
+            br.add_row("Avail RPM", "1 bit", (tmAvail & 0x0002) ? 1 : 0);
+            br.add_row("Avail Odom", "1 bit", (tmAvail & 0x0004) ? 1 : 0);
+            br.add_row("Avail FuelRate", "1 bit", (tmAvail & 0x0008) ? 1 : 0);
+            br.add_row("Avail TotalFuel", "1 bit", (tmAvail & 0x0010) ? 1 : 0);
+            br.add_row("Avail LevelTank", "1 bit", (tmAvail & 0x0020) ? 1 : 0);
+            br.add_row("Avail Brake", "1 bit", (tmAvail & 0x0040) ? 1 : 0);
+            br.add_row("Avail ParkBrake", "1 bit", (tmAvail & 0x0080) ? 1 : 0);
 
-                text += `   clutch: ${(v & 0x0100) === 0 ? 0 : 1}, \r\n`;
-                text += `   retarder: ${(v & 0x0200) === 0 ? 0 : 1}, \r\n`;
-                text += `   gears: ${(v & 0x0400) === 0 ? 0 : 1}, \r\n`;
-                text += `   reserved: ${(v & 0xF800) >> 11} (5 bits) \r\n`;
-                return text;
-            });
+            br.add_row("Avail Clutch", "1 bit", (tmAvail & 0x0100) ? 1 : 0);
+            br.add_row("Avail Retarder", "1 bit", (tmAvail & 0x0200) ? 1 : 0);
+            br.add_row("Avail Gears", "1 bit", (tmAvail & 0x0400) ? 1 : 0);
+            br.add_row("Avail RFU", "5 bits", (tmAvail & 0xF800) >> 11);
 
             // Info available (bb_pck_available_t.module)
-            br.add_row_u8("Module Enabled", (v) => {
-                let text = `Raw: ${br.hex_u8(v)} \r\n`;
-                text += `Bits: \r\n`;
-                text += `   ISV: ${(v & 0x01) === 0 ? 0 : 1}, \r\n`;
-                text += `   Telemetry: ${(v & 0x02) === 0 ? 0 : 1}, \r\n`;
-                text += `   Data Terminal: ${(v & 0x04) === 0 ? 0 : 1}, \r\n`;
-                text += `   Satellital: ${(v & 0x08) === 0 ? 0 : 1}, \r\n`;
-                text += `   Drive Time: ${(v & 0x10) === 0 ? 0 : 1}, \r\n`;
-                text += `   Rede de Acessorios: ${(v & 0x20) === 0 ? 0 : 1}, \r\n`;
-                text += `   RFU1: ${(v & 0x40) === 0 ? 0 : 1}, \r\n`;
-                text += `   RFU2: ${(v & 0x80) === 0 ? 0 : 1} \r\n`;
-                return text;
-            });
+            const moduleEnabled = br.read_u8("Module Enabled");
+            br.add_row("Enable ISV", "1 bit", (moduleEnabled & 0x01) ? 1 : 0);
+            br.add_row("Enable TM", "1 bit", (moduleEnabled & 0x02) ? 1 : 0);
+            br.add_row("Enable DT", "1 bit", (moduleEnabled & 0x04) ? 1 : 0);
+            br.add_row("Enable Sat", "1 bit", (moduleEnabled & 0x08) ? 1 : 0);
+            br.add_row("Enable DriveTime", "1 bit", (moduleEnabled & 0x10) ? 1 : 0);
+            br.add_row("Enable Acessorios", "1 bit", (moduleEnabled & 0x20) ? 1 : 0);
+            br.add_row("Enable RFU", "2 bits", (moduleEnabled & 0x40) ? 1 : 0);
 
             if (br.getLength() > br.getOffset()) {
                 br.add_row_bytes_hex("SecondsPayload", br.getLength() - br.getOffset());
@@ -646,17 +638,17 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             for (let bit = 0; bit < 16; bit++) {
                 if (mask & (1 << bit)) {
                     const value = ((state >> bit) & 1) === 0 ? "OFF" : "ON";
-                    text += `Saída ${bit + 1}: ${value}, \r\n`;
+                    text += `Saída ${bit + 1}: ${value}, `;
                 }
             }
-            br.add_row("Comando", "N/A", text);    
+            br.add_row("Comando", "N/A", text);
             break;
         }
 
         case 0x1130: {
             const total = br.add_row_u8("Quantidade de Ações Disparadas");
             let text = "";
-            for(let i=0; i<total; i++) {
+            for (let i = 0; i < total; i++) {
                 const ruleId = br.read_u16(`Rule ID (index ${i})`);
                 const violationId = br.read_u16(`Violation ID (index ${i})`);
                 br.skip("RFU", 6);
@@ -667,9 +659,41 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                     text += `{ RuleID: ${ruleId}, ViolationID: ${violationId} }, \r\n`;
             }
 
-            if(dataOrientation === "h")
+            if (dataOrientation === "h")
                 br.add_row("Ações Disparadas", total * 10, text);
-            
+
+            break;
+        }
+
+        case 0x200A: {
+            br.add_row_u8("Data", (v) => {
+                if (v === 0) return "0x00 - Padrão (envia pelo canal padrão: GSM)";
+                if (v === 1) return "0x01 - Força satelital";
+                return `${br.hex_u8(v)} - Desconhecido`;
+            });
+            break;
+        }
+
+        case 0x1000: {
+            const resetReason = br.read_u8("Reset Reason");
+            br.add_row("Low-power management reset", "1 bit", (resetReason & 0x01) ? 1 : 0);
+            br.add_row("Window watchdog reset", "1 bit", (resetReason & 0x02) ? 1 : 0);
+            br.add_row("Independent watchdog reset (VDD)", "1 bit", (resetReason & 0x04) ? 1 : 0);
+            br.add_row("Software reset", "1 bit", (resetReason & 0x08) ? 1 : 0);
+            br.add_row("POR/PDR reset", "1 bit", (resetReason & 0x10) ? 1 : 0);
+            br.add_row("Pin reset flag", "1 bit", (resetReason & 0x20) ? 1 : 0);
+            br.add_row("POR/PDR or BOR reset", "1 bit", (resetReason & 0x40) ? 1 : 0);
+            br.add_row("RFU", "1 bit", (resetReason & 0x80) ? 1 : 0);
+            br.add_row_u32("Reset Counter");
+            br.add_row_bytes_hex("Firmware Version", 4, (buf) => {
+                return `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}`;
+            });
+            break;
+        }
+
+        case 0x2022: {
+            br.add_row_u32("Timeout (s)");
+            br.add_row_cstring("Host:Port");
             break;
         }
 
