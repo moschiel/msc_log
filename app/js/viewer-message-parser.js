@@ -22,7 +22,7 @@ export const msgsList = new Map([
     [0x1310, { description: "Report Context", listSupport: true }],
     [0x1400, { description: "Telemetry Data", listSupport: true }],
     [0x1401, { description: "Telemetry Delta" }],
-    [0x1402, { description: "TM Event" }],
+    [0x1402, { description: "TM Event", listSupport: true }],
     [0x1403, { description: "Black Box Delta" }],
     [0x1404, { description: "Black Box PKG", listSupport: true }],
     [0x1405, { description: "Telemetry Delta V2", listSupport: true }],
