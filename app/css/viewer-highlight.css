@@ -11,6 +11,9 @@
   /* Bordas */
   --hl-border-color: black;
   --hl-border-width: 1px;
+  --hl-border-color-selected: #d4a017;
+  --hl-bg-selected: rgba(255, 200, 0, 0.15);
+
 }
 
 /* ========================= */
@@ -58,6 +61,12 @@
   border-right: var(--hl-border-width) solid var(--hl-border-color);
 }
 
+/* PACOTE SELECIONADO */
+.hl-pkg-selected {
+  border-color: var(--hl-border-color-selected);
+  border-width: 3px;
+}
+
 /* ========================= */
 /* INTERAÇÃO */
 /* ========================= */
@@ -81,6 +90,9 @@
 
     --hl-text-default: #e8f5ec;
     --hl-border-color: rgba(255, 255, 255, 0.35);
+    --hl-border-color-selected: rgba(255, 215, 0, 0.9);
+    --hl-bg-selected: rgba(255, 215, 0, 0.18);
+
   }
 
   /* Ajuste fino opcional se quiser textos diferentes */

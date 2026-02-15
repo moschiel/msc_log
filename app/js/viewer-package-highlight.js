@@ -141,21 +141,31 @@ export function getHexFromHighlightPackageClass(classPkgGroup) {
  * @param {number} pkgIndex 
  * @returns 
  */
-export function scrollToHighlightPackageIndex(pkgIndex) {
+export function scrollToHighlightedPackageIndex(pkgIndex) {
     const logBox = document.getElementById("logBox");
+    if (!logBox) return;
 
-    /** @type {HTMLElement|null} */
-    const el = logBox.querySelector(`.pkg-${pkgIndex}`);
-    if (!el) return;
+    const selector = `.pkg-${pkgIndex}`;
 
-    // posição relativa ao container
-    //const offset = el.offsetTop - logBox.offsetTop;
+    // 1️⃣ Pega todos
+    const all = logBox.querySelectorAll(selector);
+    if (!all.length) return;
 
-    // posição relativa ao container
-    const elRect = el.getBoundingClientRect();
+    // 2️⃣ Remove highlight anterior (opcional)
+    logBox.querySelectorAll(".hl-pkg-selected")
+          .forEach(el => el.classList.remove("hl-pkg-selected"));
+
+    // 3️⃣ Adiciona highlight em todos
+    all.forEach(el => el.classList.add("hl-pkg-selected"));
+
+    // 4️⃣ Scrolla até o primeiro
+    const first = all[0];
+
+    const elRect = first.getBoundingClientRect();
     const boxRect = logBox.getBoundingClientRect();
-    const offset = elRect.top - boxRect.top + logBox.scrollTop;''
-
+    // posição relativa ao container
+    const offset = elRect.top - boxRect.top + logBox.scrollTop;
+    
     logBox.scrollTo({
         //top: offset, // no topo tela
         top: offset - logBox.clientHeight / 2, // no centro da tela

@@ -19,7 +19,7 @@ import {
 import {
     clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, scrollToHighlightPackageIndex as scrollToHighlightPackage } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, scrollToHighlightedPackageIndex as scrollToHighlightPackage } from "./viewer-package-highlight.js";
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
