@@ -17,9 +17,9 @@ import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
 import {
-    clearHighlightPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
+    clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
-import { getHexFromPackageClassGroup } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, scrollToHighlightPackageIndex as scrollToHighlightPackage } from "./viewer-package-highlight.js";
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
@@ -89,9 +89,6 @@ ui.btnAutoScroll.addEventListener("click", () => {
 ui.btnHighlightPkg.addEventListener("click", () => {
     disableControlsForRender(true);
 
-    clearHighlightPkgCounters();
-    clearLogBox();
-
     util.toogleButton(ui.btnHighlightPkg);
     const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
     if (highlight) {
@@ -107,8 +104,6 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         setLogBoxPendingPacket("");
     }
     
-    disableControlsForRender(false);
-    
     if(highlight) {
         // analise de pacote ativada, libera o seletor de mensagem
         util.setVisible(ui.selListMessageContainer, true);
@@ -119,6 +114,8 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         hideListMessagePane();
         hideAllListMessageOptions();
     }
+
+    disableControlsForRender(false);
 });
 
 
@@ -195,12 +192,12 @@ ui.btnPkgConfig.addEventListener("click", () => {
     </div>
     <label>
         <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
-        Ignorar ACK (message ID 0xFFFF)
+        Ignora Pacote que só tem ACK (message ID 0xFFFF)
     </label>
     <br>
     <label>
         <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
-        Ignorar KEEP-ALIVE (message ID 0x0000)
+        Ignora Pacote que só tem KEEP-ALIVE (message ID 0x0000)
     </label>
 <div>`
     });
@@ -228,7 +225,7 @@ ui.logBox.addEventListener("click", e => {
     const classPkgGroup = e.target.classList[0];
     if (!classPkgGroup.startsWith("pkg-")) return;
 
-    let frameStr = getHexFromPackageClassGroup(classPkgGroup);
+    let frameStr = getHexFromHighlightPackageClass(classPkgGroup);
     const { parseOk, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect", "nsv", "v");
 
     if (!parseOk) return;
@@ -262,11 +259,11 @@ ui.logBox.addEventListener("click", e => {
     ui.parsedMessageTable.innerHTML = "O pacote atual não possui essa mensagem.";
 });
 
-ui.parsedPackageTable.addEventListener("click", (ev) => {
+ui.parsedPackageTable.addEventListener("click", (e) => {
     try {
-        if (!(ev.target instanceof HTMLElement)) return;
+        if (!(e.target instanceof HTMLElement)) return;
 
-        const tr = ev.target.closest("tr");
+        const tr = e.target.closest("tr");
         if (!tr) return;
 
         // se tiver <thead>, evita clicar no header
@@ -315,3 +312,21 @@ ui.parsedPackageTable.addEventListener("click", (ev) => {
         console.error(e.message);
     }
 }); 
+
+ui.listMessageTable.addEventListener("click", (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+
+    // se tiver <thead>, evita clicar no header
+    if (tr.closest("thead")) return;
+
+    const tds = Array.from(tr.cells);
+    if (tds.length < 1) return;
+
+    const pkgIndex = tds[0].textContent.trim();
+    if (Number.isNaN(pkgIndex)) return;
+
+    scrollToHighlightPackage(Number(pkgIndex));
+})

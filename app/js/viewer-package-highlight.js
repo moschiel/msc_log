@@ -12,14 +12,14 @@ const PKG_HIGHLIGHT_VERSION = "V1";
  
 * seta direto no vetor lines de acordo com os indexes passados
 * 
-* @param {number} hlPkgCounter numero do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
+* @param {number} pkgCounter numero do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
 * @param {boolean} parseOk se o parse do pacote foi bem sucedido ou nao (pacote com erro de formato, etc)
 * @param {boolean} isReceived indica se o pacote foi recebido pelo equipamento ao invez de enviado.
 * @param {"Online" | "Offline" | null} connState estado da conexao no momento do pacote (Online, Offline, etc)
 * @param {Array<string>} lines array de linhas do log,
 * @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
 */
-export function highlightPackage(hlPkgCounter, parseOk, isReceived, connState, lines, lineIndexes) {
+export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
@@ -33,7 +33,7 @@ export function highlightPackage(hlPkgCounter, parseOk, isReceived, connState, l
 
     // 'classPkgGroup' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
-    const classPkgGroup = `pkg-${hlPkgCounter}`;
+    const classPkgGroup = `pkg-${pkgCounter}`;
     const headerLen = LOG_HEADER_SIZE;
     const total = lineIndexes.length;
 
@@ -107,12 +107,12 @@ export function highlightPackage(hlPkgCounter, parseOk, isReceived, connState, l
 
 
 /**
- * Recupera o frame hexadecimal completo de um pacote CC33 que está no LogBox, 
+ * Recupera o frame hexadecimal completo de um pacote CC33 que está destacado no LogBox, 
  * a partir do nome da classe do grupo do pacote.
  * @param {string} classPkgGroup 
  * @returns 
  */
-export function getHexFromPackageClassGroup(classPkgGroup) {
+export function getHexFromHighlightPackageClass(classPkgGroup) {
     // @ts-ignore
     if (PKG_HIGHLIGHT_VERSION === "V2") {
         let frameStr = "";
@@ -134,4 +134,31 @@ export function getHexFromPackageClassGroup(classPkgGroup) {
         }
         return frameStr;
     }
+}
+
+/**
+ * 
+ * @param {number} pkgIndex 
+ * @returns 
+ */
+export function scrollToHighlightPackageIndex(pkgIndex) {
+    const logBox = document.getElementById("logBox");
+
+    /** @type {HTMLElement|null} */
+    const el = logBox.querySelector(`.pkg-${pkgIndex}`);
+    if (!el) return;
+
+    // posição relativa ao container
+    //const offset = el.offsetTop - logBox.offsetTop;
+
+    // posição relativa ao container
+    const elRect = el.getBoundingClientRect();
+    const boxRect = logBox.getBoundingClientRect();
+    const offset = elRect.top - boxRect.top + logBox.scrollTop;''
+
+    logBox.scrollTo({
+        //top: offset, // no topo tela
+        top: offset - logBox.clientHeight / 2, // no centro da tela
+        behavior: "smooth"
+    });
 }

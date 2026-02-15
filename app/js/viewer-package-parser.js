@@ -9,17 +9,19 @@ export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 
 // highlight package counters
-export let hlPkgCounter = 0;
-export let hlOfflinePkgCounter = 0;
-export let hlErrPkgCounter = 0;
+export let pkgCounter = 0;
+export let OnlinePkgCounter = 0;
+export let OfflinePkgCounter = 0;
+export let ErrorPkgCounter = 0;
 
 /** 
-* Reseta os contadores usados para highlight de pacotes.
+* Reseta os contadores de pacotes.
 */
-export function clearHighlightPkgCounters() {
-    hlPkgCounter = 0;
-    hlOfflinePkgCounter = 0;
-    hlErrPkgCounter = 0;
+export function clearPkgCounters() {
+    pkgCounter = 0;
+    OnlinePkgCounter = 0;
+    OfflinePkgCounter = 0;
+    ErrorPkgCounter = 0;
     clearMessageCounter();
 }
 
@@ -52,7 +54,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
     function flushPackage() {
         if (lineIndexes.length === 0) return;
 
-        if (opt.highlight) hlPkgCounter++;
+        pkgCounter++;
 
         const total = lineIndexes.length;
 
@@ -71,16 +73,24 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 );
 
             for (const msg of messages) {
-
-                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1")
-                    || (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
-                    lineIndexes = []; // reset linhas
-                    if (opt.highlight) hlPkgCounter--; // remove esse pacote da contagem
-                    return; // pula pacote
+                
+                // verifica se tem que ignorar esse pacote
+                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1") || 
+                    (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
+                    
+                    if(messages.length === 1) {
+                        // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
+                        // Ignora esse pacote
+                        lineIndexes = []; // reset linhas
+                        pkgCounter--; // remove esse pacote da contagem
+                        return;
+                    }
                 }
                 
-                if (opt.highlight) updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+                // atualiza contador de mensagens por ID
+                updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
 
+                // verifica se deve retornar os dados parseados dessa mensagem
                 const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
                 if (opt.searchMsgID === matchOptionID) {
                     const { isImplemented, rows } = parseMessage(
@@ -92,32 +102,40 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
                     if (isImplemented) {
                         if (messageDataTable.headers.length === 0) {
+                            rows[0].unshift("Index"); //adiciona header "index" no inicio do array
                             messageDataTable.headers = rows[0]; // parameters names
                         }
+                        rows[1].unshift(pkgCounter); // insere no inicio da row o classPkgGroup desses dados
                         messageDataTable.rows.push(rows[1]); // parameters values
                     }
                 }
             }
 
+            // verifica se deve rotornar os dados parseados desse pacote
             if (parseOk && opt.searchMsgID === "all") {
                 if (messageDataTable.headers.length === 0) {
+                    rows[0].unshift("Index"); //adiciona header "classPkgGroup" no inicio do array
                     messageDataTable.headers = rows[0]; // parameters names
                 }
+                rows[1].unshift(pkgCounter); // insere no inicio da row o classPkgGroup desses dados
                 messageDataTable.rows.push(rows[1]); // parameters values
             }
 
-            if (parseOk && connState === "Offline")
-                if (opt.highlight) hlOfflinePkgCounter++;
+            if (parseOk) {
+                if(connState === "Online")
+                    OfflinePkgCounter++;
+                if(connState === "Offline")
+                    OnlinePkgCounter++;
+            }
 
             if (opt.highlight)
-                highlightPackage(hlPkgCounter, parseOk, isReceived, connState, lines, lineIndexes);
-
+                highlightPackage(pkgCounter, parseOk, isReceived, connState, lines, lineIndexes);
 
         } catch (e) {
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
-            if (opt.highlight) hlErrPkgCounter++;
+            ErrorPkgCounter++;
             if (opt.highlight)
-                highlightPackage(hlPkgCounter, false, null, null, lines, lineIndexes);
+                highlightPackage(pkgCounter, false, null, null, lines, lineIndexes);
         }
 
         // reset
@@ -165,7 +183,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
     }
 
     if (opt.highlight) {
-        //console.log(`Quantidade Total de Pacotes: ${hlPkgCounter}\r\nPacotes Offline: ${hlOfflinePkgCounter}\r\nPacotes com erro: ${hlErrPkgCounter}`);
+        //console.log(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${OfflinePkgCounter}\r\nPacotes com erro: ${ErrorPkgCounter}`);
         //console.log("Quantidade de cada mensagem", hlMessagesCountStatistics);
     }
 

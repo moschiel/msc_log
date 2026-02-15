@@ -1,6 +1,6 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { detectCC33Packages, tailSplitWithPendingCC33 } from "./viewer-package-parser.js";
+import { clearPkgCounters, detectCC33Packages, tailSplitWithPendingCC33 } from "./viewer-package-parser.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 
 let rawTextLog = "";
@@ -104,7 +104,13 @@ function scrollLogBoxToBottomIfNeeded() {
  * }} opts
  */
 export function processLogChunkAndRender(mode, textContent, opts = { highlight: false, searchMsgID: null }) {
-
+    if(mode === "set") {
+        clearPkgCounters();
+        if(opts.highlight) {
+            clearLogBox();
+        }
+    }
+    
     // separa o texto bruto em parte segura + parte pendente (CC33)
     // onde a parte pendente é o TAIL do texto que pode ter terminado com um pacote CC33 incompleto
     // essa parte pendente fica armazenada no logBox para uso futuro aguardando o pacote completar,
