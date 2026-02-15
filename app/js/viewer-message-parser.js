@@ -285,7 +285,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
     switch (msgID) {
         case 0x1101: {
             br.add_row_u8("Protocol Version");
-            br.add_row_u32_timestamp("Position Timestamp");
+            br.add_row_u32_timestamp("Timestamp");
             br.add_row_i32_coord("Latitude");
             br.add_row_i32_coord("Longitude");
             br.add_row_u8("GPS Fix");

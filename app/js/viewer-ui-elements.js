@@ -11,6 +11,7 @@
  * @property {HTMLButtonElement} btnTailAutoRefresh
  * @property {HTMLButtonElement} btnAutoScroll
  * @property {HTMLButtonElement} btnHighlightPkg
+ * @property {HTMLDivElement} selListMessageContainer
  * @property {HTMLSelectElement} selListMessage
  * @property {HTMLButtonElement} btnPkgConfig
  * @property {HTMLButtonElement} btnStatistics
@@ -49,6 +50,10 @@ export const ui = {
 
   btnHighlightPkg: /** @type {HTMLButtonElement} */ (
     document.getElementById("btnHighlightPkg")
+  ),
+
+  selListMessageContainer: /** @type {HTMLDivElement} */ (
+    document.getElementById("selListMessageContainer")
   ),
 
   selListMessage: /** @type {HTMLSelectElement} */ (

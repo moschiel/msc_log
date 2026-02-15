@@ -106,16 +106,16 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         writeLogBox("set", "text", getRawLog());
         setLogBoxPendingPacket("");
     }
-
+    
     disableControlsForRender(false);
-
+    
     if(highlight) {
         // analise de pacote ativada, libera o seletor de mensagem
-        ui.selListMessage.disabled = false;
+        util.setVisible(ui.selListMessageContainer, true);
     } else {
         // analise de pacote inativa, bloquea o uso do seletor de mensagens
+        util.setVisible(ui.selListMessageContainer, false);
         ui.selListMessage.selectedIndex = 0;
-        ui.selListMessage.disabled = true;
         hideListMessagePane();
         hideAllListMessageOptions();
     }

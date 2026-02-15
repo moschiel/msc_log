@@ -7,6 +7,14 @@
     flex-wrap: wrap;
 }
 
+
+#selListMessageContainer {
+    margin: 0px;
+    padding: 0px;
+}
+
 #selListMessage {
     max-width: 250px;
+    height: 30px;
+    padding: 0px 10px 0px 8px;
 }
