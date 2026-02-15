@@ -19,7 +19,7 @@ import {
 import {
     clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, scrollToHighlightedPackageIndex as scrollToHighlightPackage } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, scrollToHighlightedPackage } from "./viewer-package-highlight.js";
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
@@ -222,17 +222,17 @@ ui.logBox.addEventListener("click", e => {
     if (!(e.target instanceof HTMLElement)) return;
     if (e.target.classList.contains('hl-pkg-err')) return;
 
-    const classPkgGroup = e.target.classList[0];
-    if (!classPkgGroup.startsWith("pkg-")) return;
+    const pkgClassName = e.target.classList[0];
+    if (!pkgClassName.startsWith("pkg-")) return;
 
-    let frameStr = getHexFromHighlightPackageClass(classPkgGroup);
+    let frameStr = getHexFromHighlightPackageClass(pkgClassName);
     const { parseOk, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect", "nsv", "v");
 
     if (!parseOk) return;
 
     // Cria tabela do pacote
-    const pkgIndex = classPkgGroup.replace("pkg-", "");
-    showParsedPackageOnTable(["Name", "Size", "Value"], rows, pkgIndex);
+    const pkgClassIndex = pkgClassName.replace("pkg-", "");
+    showParsedPackageOnTable(["Name", "Size", "Value"], rows, pkgClassIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {
@@ -325,8 +325,8 @@ ui.listMessageTable.addEventListener("click", (e) => {
     const tds = Array.from(tr.cells);
     if (tds.length < 1) return;
 
-    const pkgIndex = tds[0].textContent.trim();
-    if (Number.isNaN(pkgIndex)) return;
+    const pkgClassIndex = tds[0].textContent.trim();
+    if (Number.isNaN(pkgClassIndex)) return;
 
-    scrollToHighlightPackage(Number(pkgIndex));
+    scrollToHighlightedPackage(Number(pkgClassIndex));
 })

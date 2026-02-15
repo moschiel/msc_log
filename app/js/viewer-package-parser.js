@@ -105,7 +105,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                             rows[0].unshift("Index"); //adiciona header "index" no inicio do array
                             messageDataTable.headers = rows[0]; // parameters names
                         }
-                        rows[1].unshift(pkgCounter); // insere no inicio da row o classPkgGroup desses dados
+                        rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
                         messageDataTable.rows.push(rows[1]); // parameters values
                     }
                 }
@@ -114,10 +114,10 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             // verifica se deve rotornar os dados parseados desse pacote
             if (parseOk && opt.searchMsgID === "all") {
                 if (messageDataTable.headers.length === 0) {
-                    rows[0].unshift("Index"); //adiciona header "classPkgGroup" no inicio do array
+                    rows[0].unshift("Index"); //adiciona header "pkgClassName" no inicio do array
                     messageDataTable.headers = rows[0]; // parameters names
                 }
-                rows[1].unshift(pkgCounter); // insere no inicio da row o classPkgGroup desses dados
+                rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
                 messageDataTable.rows.push(rows[1]); // parameters values
             }
 
@@ -305,12 +305,12 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
  * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
  * @param {Array<string>} headers 
  * @param {Array<Array>} rows 
- * @param {Number|string|null} pkgIndex Índice do pacote (opcional, para mostrar no título da janela)
+ * @param {Number|string|null} pkgClassIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
-export function showParsedPackageOnTable(headers, rows, pkgIndex = null) {
+export function showParsedPackageOnTable(headers, rows, pkgClassIndex = null) {
     util.Table.Create(ui.parsedPackageTable, headers, rows);
     openFloatingWindow(ui.windowParsedPackage, {
-        title: pkgIndex !== null ? `Package #${pkgIndex}` : "Package #?"
+        title: pkgClassIndex !== null ? `Package #${pkgClassIndex}` : "Package #?"
     });
 }
 

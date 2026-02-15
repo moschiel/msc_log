@@ -31,9 +31,9 @@ export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lin
         classPkgStatus = "hl-pkg-err";
     }
 
-    // 'classPkgGroup' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
+    // 'pkgClassName' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
-    const classPkgGroup = `pkg-${pkgCounter}`;
+    const pkgClassName = `pkg-${pkgCounter}`;
     const headerLen = LOG_HEADER_SIZE;
     const total = lineIndexes.length;
 
@@ -45,10 +45,10 @@ export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lin
         const lastIdx = lineIndexes[total - 1];
         if (total === 1) {
             //se tem só uma linha, abre e fecha o span nessa linha
-            lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}</span>`;
+            lines[firstIdx] = `<span class="${pkgClassName} ${classPkgStatus}">${lines[firstIdx]}</span>`;
         } else if (total > 1) {
             // abre span na primeira linha
-            lines[firstIdx] = `<span class="${classPkgGroup} ${classPkgStatus}">${lines[firstIdx]}`;
+            lines[firstIdx] = `<span class="${pkgClassName} ${classPkgStatus}">${lines[firstIdx]}`;
             // fecha na ultima
             lines[lastIdx] += "</span>";
         }
@@ -90,14 +90,14 @@ export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lin
                 const endHexPart = hexPart.slice(hexPart.length - diffSize);
 
                 const spanEndHexPart =
-                    `<span class="${classPkgGroup} pkg-right-part hl-border-bottom">${endHexPart}</span>`;
+                    `<span class="${pkgClassName} pkg-right-part hl-border-bottom">${endHexPart}</span>`;
 
                 newLine =
-                    `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">` +
+                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} ${classBorder}">` +
                     `${startHexPart}${spanEndHexPart}</span>`;
             } else {
                 newLine =
-                    `${headerPart}<span class="${classPkgGroup} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
+                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
             }
 
             lines[idx] = newLine; // ✅ troca direto no array (O(1))
@@ -109,14 +109,14 @@ export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lin
 /**
  * Recupera o frame hexadecimal completo de um pacote CC33 que está destacado no LogBox, 
  * a partir do nome da classe do grupo do pacote.
- * @param {string} classPkgGroup 
+ * @param {string} pkgClassName 
  * @returns 
  */
-export function getHexFromHighlightPackageClass(classPkgGroup) {
+export function getHexFromHighlightPackageClass(pkgClassName) {
     // @ts-ignore
     if (PKG_HIGHLIGHT_VERSION === "V2") {
         let frameStr = "";
-        const elements = document.getElementsByClassName(classPkgGroup);
+        const elements = document.getElementsByClassName(pkgClassName);
         const lines = elements[0].textContent.split("\n");
         for (const line of lines) {
             frameStr += line.slice(LOG_HEADER_SIZE);
@@ -126,7 +126,7 @@ export function getHexFromHighlightPackageClass(classPkgGroup) {
     else //V1 
     {
         let frameStr = "";
-        const elements = document.getElementsByClassName(classPkgGroup);
+        const elements = document.getElementsByClassName(pkgClassName);
         for (const el of elements) {
             if (el.classList.contains('pkg-right-part'))
                 continue;
@@ -137,15 +137,17 @@ export function getHexFromHighlightPackageClass(classPkgGroup) {
 }
 
 /**
+ * Scrolla para um pacote destacado no log, de acordo com seu index.
+ * O pacote tambem terá seu estilo alterado (bordas amareladas).
  * 
- * @param {number} pkgIndex 
+ * @param {number} pkgClassIndex 
  * @returns 
  */
-export function scrollToHighlightedPackageIndex(pkgIndex) {
+export function scrollToHighlightedPackage(pkgClassIndex) {
     const logBox = document.getElementById("logBox");
     if (!logBox) return;
 
-    const selector = `.pkg-${pkgIndex}`;
+    const selector = `.pkg-${pkgClassIndex}`;
 
     // 1️⃣ Pega todos
     const all = logBox.querySelectorAll(selector);
