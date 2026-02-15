@@ -5,7 +5,7 @@
   /* Backgrounds (light mode) */
   --hl-bg-online: #8ee7a7;
   --hl-bg-offline: lightgrey;
-  --hl-bg-command: rgb(52, 182, 238);
+  --hl-bg-incomming: rgb(52, 182, 238);
   --hl-bg-err: rgb(224, 122, 122);
 
   /* Bordas */
@@ -33,8 +33,8 @@
 }
 
 /* Destaca pacotes recebidos */
-.hl-pkg-received {
-  background: var(--hl-bg-command);
+.hl-pkg-incomming {
+  background: var(--hl-bg-incomming);
   color: var(--hl-text-default);
 }
 
@@ -73,7 +73,7 @@
 
 .hl-pkg-online:hover,
 .hl-pkg-offline:hover,
-.hl-pkg-received:hover {
+.hl-pkg-incomming:hover {
   cursor: pointer;
 }
 
@@ -85,7 +85,7 @@
   :root {
     --hl-bg-online: rgba(46, 204, 113, 0.42);
     --hl-bg-offline: rgba(210, 220, 235, 0.48);
-    --hl-bg-command: rgba(52, 182, 238, 0.55);
+    --hl-bg-incomming: rgba(52, 182, 238, 0.55);
     --hl-bg-err: rgba(231, 76, 60, 0.25);
 
     --hl-text-default: #e8f5ec;

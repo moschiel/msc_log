@@ -1,5 +1,5 @@
 import { util } from "./utils.js";
-import { tailSplitWithPendingCC33, LOG_HEADER_EXAMPLE, detectCC33Packages, LOG_HEADER_SIZE
+import { tailSplitWithPendingPkg, LOG_HEADER_EXAMPLE, detectPackages, LOG_HEADER_SIZE
 } from "./viewer-package-parser.js";
 import { getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket 
 } from "./viewer-render-log.js";
@@ -8,23 +8,23 @@ const PKG_HIGHLIGHT_VERSION = "V1";
 
 
 /** 
-* Aplica estilos nas linhas do log que são compostas de pacotes CC33
+* Aplica estilos nas linhas do log que são compostas de pacotes
  
 * seta direto no vetor lines de acordo com os indexes passados
 * 
 * @param {number} pkgCounter numero do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
 * @param {boolean} parseOk se o parse do pacote foi bem sucedido ou nao (pacote com erro de formato, etc)
-* @param {boolean} isReceived indica se o pacote foi recebido pelo equipamento ao invez de enviado.
+* @param {boolean} isIncommingPkg indica se o pacote foi recebido pelo equipamento ao invez de enviado.
 * @param {"Online" | "Offline" | null} connState estado da conexao no momento do pacote (Online, Offline, etc)
 * @param {Array<string>} lines array de linhas do log,
 * @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
 */
-export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lines, lineIndexes) {
+export function highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
-        if(isReceived)
-            classPkgStatus = "hl-pkg-received";
+        if(isIncommingPkg)
+            classPkgStatus = "hl-pkg-incomming";
         else
             classPkgStatus = connState === "Online" ? "hl-pkg-online" : "hl-pkg-offline";
     } else {
@@ -107,7 +107,7 @@ export function highlightPackage(pkgCounter, parseOk, isReceived, connState, lin
 
 
 /**
- * Recupera o frame hexadecimal completo de um pacote CC33 que está destacado no LogBox, 
+ * Recupera o frame hexadecimal completo de um pacote que está destacado no LogBox, 
  * a partir do nome da classe do grupo do pacote.
  * @param {string} pkgClassName 
  * @returns 

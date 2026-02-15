@@ -26,7 +26,7 @@ export function clearPkgCounters() {
 }
 
 /**
- * Detecta pacotes CC33 no texto para:
+ * Detecta pacotes no texto para:
  * - retornar o texto convertido para HTML, aplicando CSS de highlight nesses pacotes.
  * - ou retornar todas as mensagens de um ID específico.
  * 
@@ -42,13 +42,14 @@ export function clearPkgCounters() {
  *  rows: Array<Array>
  * }}}
  */
-export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: null }) {
+export function detectPackages(text, opt = { highlight: false, searchMsgID: null }) {
     const lines = text.split(/\r?\n/);
     const headerLen = LOG_HEADER_SIZE;
 
     let messageDataTable = { headers: [], rows: [] };
 
     let isCollectingFrame = false;
+    let isIncommingPkg = false;
     let lineIndexes = [];         // guarda os índices das linhas que pertencem ao pacote
 
     function flushPackage() {
@@ -64,9 +65,10 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, isReceived, connState, messages, rows } = 
-                parseCC33Package(
+            const { parseOk, connState, messages, rows } = 
+                parsePackage(
                     util.hexToBuffer(frameStr), 
+                    isIncommingPkg,
                     opt.searchMsgID === "all" ? "collect" : "validate", 
                     "nv", 
                     "h"
@@ -111,17 +113,18 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
                 }
             }
 
-            // verifica se deve rotornar os dados parseados desse pacote
-            if (parseOk && opt.searchMsgID === "all") {
-                if (messageDataTable.headers.length === 0) {
-                    rows[0].unshift("Index"); //adiciona header "pkgClassName" no inicio do array
-                    messageDataTable.headers = rows[0]; // parameters names
-                }
-                rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
-                messageDataTable.rows.push(rows[1]); // parameters values
-            }
-
             if (parseOk) {
+                // verifica se deve rotornar os dados parseados desse pacote
+                if (opt.searchMsgID === "all") {
+                    if (messageDataTable.headers.length === 0) {
+                        rows[0].unshift("Index"); //adiciona header "pkgClassName" no inicio do array
+                        messageDataTable.headers = rows[0]; // parameters names
+                    }
+                    rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
+                    messageDataTable.rows.push(rows[1]); // parameters values
+                }
+
+                // atualiza contadores
                 if(connState === "Online")
                     OfflinePkgCounter++;
                 if(connState === "Offline")
@@ -129,7 +132,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             }
 
             if (opt.highlight)
-                highlightPackage(pkgCounter, parseOk, isReceived, connState, lines, lineIndexes);
+                highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState, lines, lineIndexes);
 
         } catch (e) {
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
@@ -154,17 +157,21 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
             continue;
         }
 
-        const substrFrame = line.slice(headerLen);
+        // string after log header
+        const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
-                //Encontrou inicio do frame, inicia a coleta das linhas seguintes
+            //if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
+            if(substr.startsWith("Sent Buffer:") || substr.startsWith("Incoming Package:")) {
+                // Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 isCollectingFrame = true;
+                isIncommingPkg = substr.startsWith("Incoming Package:");
                 lineIndexes = [];
+                continue; // Inicia coleta nas linhas seguintes
             }
         } else {
             // está coletando: se não for hex, termina pacote
-            if (!util.isHexOnly(substrFrame)) {
+            if (!util.isHexOnly(substr)) {
                 // Terminou de coletar linhas desse pacote
                 isCollectingFrame = false;
                 flushPackage();
@@ -195,7 +202,7 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
 
 
 /**
- * Parsea o pacote CC33, retornando:
+ * Parsea o pacote, retornando:
  * - os dados do pacote em formato tabular (headers e rows),
  * - e as mensagens contidas no pacote (messages)
  * 
@@ -206,23 +213,29 @@ export function detectCC33Packages(text, opt = { highlight: false, searchMsgID: 
  * @returns {{ 
  *  parseOk: boolean,
  *  pkgIndex: number,
- *  isReceived: boolean,
  *  connState: "Online" | "Offline", 
  *  rows: Array<Array>, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
  * }}
  */
-export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) {
+export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataOrientation) {
     const br = createBinaryReader(u8buf, {
         processMode,
         dataMode,
         dataOrientation
-    });
+    })
 
-    const start = br.read_u16("frame incial", false);
-    if (start !== 0xCC33) throw new Error("Frame inicial invalido");
+    let pkgSize = 0;
 
-    const pkgSize = br.add_row_u16("Tamanho do pacote");
+    if(isIncommingPkg) {
+        pkgSize = br.getLength();
+        br.add_row("Tamanho do pacote", 2, br.getLength());
+    } else {
+        const start = br.read_u16("frame inicial", false);
+        if (start !== 0xCC33) throw new Error("Frame inicial invalido");
+        
+        pkgSize = br.add_row_u16("Tamanho do pacote");    
+    }
 
     const frameEnd = br.getOffset() + pkgSize;
     if (frameEnd > br.getLength()) {
@@ -294,7 +307,6 @@ export function parseCC33Package(u8buf, processMode, dataMode, dataOrientation) 
     return {
         parseOk: true,
         pkgIndex,
-        isReceived: (pkgIndex === 0), // essa logica serve pra tudo ?
         connState,
         rows: br.rows,
         messages
@@ -346,12 +358,12 @@ const splitTailUtils = {
 /**
  * Parseia o Log, o dividindo em duas partes:
  *  - before: texto seguro (não termina em pacote/linha parcial)
- *  - rest: pedaço final que deve ser guardado (pacote CC33 incompleto e/ou linha parcial)
+ *  - rest: pedaço final que deve ser guardado (pacote incompleto e/ou linha parcial)
  *
  * @param {string} textChunk
  * @returns {{ before: string, rest: string }}
  */
-function splitTailIfEndsWithIncompleteCC33(textChunk) {
+function splitTailIfEndsWithIncompletePkg(textChunk) {
     if (!textChunk) return { before: "", rest: "" };
 
     const lines = textChunk.split(/\r?\n/);
@@ -395,15 +407,15 @@ function splitTailIfEndsWithIncompleteCC33(textChunk) {
 /**
  * Divide o chunk de texto recebido em: 
  * - parte segura (sem frames incompletos) 
- * - parte pendente (final do log pode ter um pacote CC33 incompleto que pode chegar a qualquer momento)
+ * - parte pendente (final do log pode ter um pacote incompleto que pode chegar a qualquer momento)
  * 
  * @param {string} pendingText
  * @param {string} chunk
  * @returns {{ safeText: string, pendingText: string }}
  */
-export function tailSplitWithPendingCC33(pendingText, chunk) {
+export function tailSplitWithPendingPkg(pendingText, chunk) {
     const combined = (pendingText || "") + (chunk || "");
-    let { before, rest } = splitTailIfEndsWithIncompleteCC33(combined);
+    let { before, rest } = splitTailIfEndsWithIncompletePkg(combined);
 
     // garante que o rest comece com newline, para não juntar com a última linha do before
     if (rest.startsWith("\n") === false)

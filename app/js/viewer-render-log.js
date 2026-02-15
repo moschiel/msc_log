@@ -1,6 +1,6 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { clearPkgCounters, detectCC33Packages, tailSplitWithPendingCC33 } from "./viewer-package-parser.js";
+import { clearPkgCounters, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 
 let rawTextLog = "";
@@ -47,10 +47,10 @@ export function clearLogBox() {
  * @param {"set" | "append"} mode
  * @param {"text" | "html"} type
  * @param {string} content
- * @param {boolean} [isPendingCC33Content=false] se true, escreve na parte do log reservada p/ texto pendente de pacote (CC33)
+ * @param {boolean} [isPendingPkgContent=false] se true, escreve na parte do log reservada p/ texto pendente de pacote
  */
-export function writeLogBox(mode, type, content, isPendingCC33Content = false) {
-    const el = isPendingCC33Content ? ui.logPendingPacketContent : ui.logContent;
+export function writeLogBox(mode, type, content, isPendingPkgContent = false) {
+    const el = isPendingPkgContent ? ui.logPendingPacketContent : ui.logContent;
 
     if(mode === "set") 
     {
@@ -71,7 +71,7 @@ export function writeLogBox(mode, type, content, isPendingCC33Content = false) {
 }
 
 /**
- * Seta o conteudo pendente de completar um pacote CC33 no logBox (área visível do log).
+ * Seta o conteudo pendente de completar um pacote no logBox (área visível do log).
  * @param {string} content
  */
 export function setLogBoxPendingPacket(content) {
@@ -79,7 +79,7 @@ export function setLogBoxPendingPacket(content) {
 }
 
 /**
- * Recupera o conteudo pendente de completar um pacote CC33 no logBox (área visível do log).
+ * Recupera o conteudo pendente de completar um pacote no logBox (área visível do log).
  * @returns {string}
  */
 export function getLogBoxPendingPacket() {
@@ -93,7 +93,7 @@ function scrollLogBoxToBottomIfNeeded() {
 
 /**
  * Processa um pedaço (chunk) do log, para:
- * - renderizar o log com highlight de pacotes CC33 (se solicitado)
+ * - renderizar o log com highlight de pacotes (se solicitado)
  * - renderizar na tabela de mensagens, as mensagens encontradas de um ID específico (se solicitado) 
  *
  * @param {"set" | "append"} mode
@@ -111,21 +111,21 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         }
     }
     
-    // separa o texto bruto em parte segura + parte pendente (CC33)
-    // onde a parte pendente é o TAIL do texto que pode ter terminado com um pacote CC33 incompleto
+    // separa o texto bruto em parte segura + parte pendente (pacote incompleto)
+    // onde a parte pendente é o TAIL do texto que pode ter terminado com um pacote incompleto
     // essa parte pendente fica armazenada no logBox para uso futuro aguardando o pacote completar,
     // ja a parte segura contem pacotes completos que podem ser processados.
     const { safeText, pendingText } =
-        tailSplitWithPendingCC33(getLogBoxPendingPacket(), textContent);
+        tailSplitWithPendingPkg(getLogBoxPendingPacket(), textContent);
 
     if (safeText && safeText.length > 0) {
         // escapa HTML 
         const escaped = util.escapeHtml(safeText);
 
-        // detecta os pacotes CC33 no texto, retornando:
+        // detecta os pacotes no texto, retornando:
         // - HTML com highlight (se solicitado)
         // - lista de mensagens de um determinado ID (se solicitado)
-        const parsed = detectCC33Packages(escaped, {
+        const parsed = detectPackages(escaped, {
             highlight: opts.highlight,
             searchMsgID: opts.searchMsgID
         });
@@ -150,7 +150,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         }
     }
 
-    // atualiza pending do logBox (área visível do log) com o texto pendente de completar um pacote CC33
+    // atualiza pending do logBox (área visível do log) com o texto pendente de completar um pacote
     setLogBoxPendingPacket(pendingText || "");
 }
 

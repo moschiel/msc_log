@@ -17,7 +17,7 @@ import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
 import {
-    clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parseCC33Package, showParsedPackageOnTable
+    clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
 import { getHexFromHighlightPackageClass, scrollToHighlightedPackage } from "./viewer-package-highlight.js";
 
@@ -94,7 +94,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
     if (highlight) {
         // hihglight acabou de ser ativado
         // reprocessa TODO o log 
-        // renderizando com highlight nos pacotes CC33 encontradas
+        // renderizando com highlight nos pacotes encontradas
         processLogChunkAndRender("set", getRawLog(), { highlight });
     }
     else {
@@ -226,7 +226,8 @@ ui.logBox.addEventListener("click", e => {
     if (!pkgClassName.startsWith("pkg-")) return;
 
     let frameStr = getHexFromHighlightPackageClass(pkgClassName);
-    const { parseOk, rows, messages } = parseCC33Package(util.hexToBuffer(frameStr), "collect", "nsv", "v");
+    const isIncommingPkg = e.target.classList.contains("hl-pkg-incomming");
+    const { parseOk, rows, messages } = parsePackage(util.hexToBuffer(frameStr), isIncommingPkg, "collect", "nsv", "v");
 
     if (!parseOk) return;
 
