@@ -1,71 +1,114 @@
+:root {
+  /* ===== Table (light) ===== */
+  --tbl-font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --tbl-font-size: 14px;
+  --tbl-radius: 10px;
+
+  /* Texto */
+  --tbl-text: #1f2937;
+  --tbl-text-strong: #111827;
+
+  /* Superfícies */
+  --tbl-bg: #ffffff;
+  --tbl-head-bg: #f3f4f6;
+  --tbl-row-odd-bg: #ffffff;
+  --tbl-row-even-bg: #f9fafb;
+
+  /* Interação */
+  --tbl-row-hover-bg: #eef6ff;
+
+  /* Seleção */
+  --tbl-row-selected-bg: #dbeafe;
+  --tbl-row-selected-outline: #3b82f6;
+
+  /* Linhas / bordas */
+  --tbl-border-outer: #e5e7eb;
+  --tbl-border-row: #e5e7eb;
+
+  /* Spacing */
+  --tbl-head-pad-y: 12px;
+  --tbl-head-pad-x: 14px;
+  --tbl-cell-pad-y: 10px;
+  --tbl-cell-pad-x: 14px;
+
+  /* Badge */
+  --badge-radius: 999px;
+  --badge-font-size: 12px;
+  --badge-font-weight: 600;
+  --badge-line-height: 1.6;
+  --badge-pad-y: 2px;
+  --badge-pad-x: 8px;
+
+  --badge-ok-bg:   #ecfdf3;
+  --badge-ok-text: #047857;
+  --badge-ok-border:#a7f3d0;
+
+  --badge-warn-bg:   #fffbeb;
+  --badge-warn-text: #b45309;
+  --badge-warn-border:#fcd34d;
+
+  --badge-err-bg:   #fef2f2;
+  --badge-err-text: #b91c1c;
+  --badge-err-border:#fecaca;
+}
+
 /* OPCIONAL: container que scrolla a tabela */
 .table-scroll {
   height: 100%;
   overflow: auto;
-  /* border: 2px solid red; */
 }
 
 /* ===== TABELA LIMPA / LEGÍVEL ===== */
 .table-clean {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: 14px;
-  color: #1f2937; /* cinza escuro */
-  background: #ffffff;
-  border: 1px solid #e5e7eb; /* borda externa suave */
-  border-radius: 10px;
+  font-family: var(--tbl-font-family);
+  font-size: var(--tbl-font-size);
+  color: var(--tbl-text);
+  background: var(--tbl-bg);
+  border: 1px solid var(--tbl-border-outer);
+  border-radius: var(--tbl-radius);
   border-collapse: separate;  /* sticky costuma ser mais confiável assim */
   border-spacing: 0;
-  /* width: 100%; */
 }
 
 .table-clean thead th {
   text-align: left;
   font-weight: 600;
-  padding: 12px 14px;
-  background: #f3f4f6; /* cinza claro */
-  color: #111827;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--tbl-head-pad-y) var(--tbl-head-pad-x);
+  background: var(--tbl-head-bg);
+  color: var(--tbl-text-strong);
+  border-bottom: 1px solid var(--tbl-border-row);
   white-space: nowrap;
 }
 
-/* linhas pares */
-.table-clean tbody tr:nth-child(even) {
-  background: #f9fafb;
-}
-
-/* linhas ímpares */
-.table-clean tbody tr:nth-child(odd) {
-  background: #ffffff;
-}
+/* Zebra */
+.table-clean tbody tr:nth-child(odd)  { background: var(--tbl-row-odd-bg); }
+.table-clean tbody tr:nth-child(even) { background: var(--tbl-row-even-bg); }
 
 /* Corpo */
 .table-clean td {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 10px 14px;
+  border-bottom: 1px solid var(--tbl-border-row);
+  padding: var(--tbl-cell-pad-y) var(--tbl-cell-pad-x);
   vertical-align: top;
   line-height: 1.35;
-  /* Texto maior que o header, não faz a coluna aumentar, ao invez disso quebra o conteudo do texto */
   word-break: break-word;
 }
 
 /* Hover */
 .table-clean tbody tr:hover {
-  background: #eef6ff;
+  background: var(--tbl-row-hover-bg);
 }
 
 /* row selecionada */
 .table-clean tbody tr.is-selected {
-  background: #dbeafe !important; /* azul bem claro */
-  outline: 1px solid #3b82f6;
+  background: var(--tbl-row-selected-bg) !important;
+  outline: 1px solid var(--tbl-row-selected-outline);
 }
-
 
 /* Colunas numéricas alinhadas à direita (use class="num" no td/th) */
 .table-clean .num {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-
 
 /* ===== OPCIONAL: HEADER FIXO (coloque a tabela dentro .table-scroll) ===== */
 .table-sticky thead th {
@@ -77,57 +120,52 @@
 /* ===== OPCIONAL: CÉLULA "BADGE" (use class="badge ok|warn|err") ===== */
 .badge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.6;
+  padding: var(--badge-pad-y) var(--badge-pad-x);
+  border-radius: var(--badge-radius);
+  font-size: var(--badge-font-size);
+  font-weight: var(--badge-font-weight);
+  line-height: var(--badge-line-height);
 }
 
-.badge.ok   { background: #ecfdf3; color: #047857; border: 1px solid #a7f3d0; }
-.badge.warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-.badge.err  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.badge.ok {
+  background: var(--badge-ok-bg);
+  color: var(--badge-ok-text);
+  border: 1px solid var(--badge-ok-border);
+}
+.badge.warn {
+  background: var(--badge-warn-bg);
+  color: var(--badge-warn-text);
+  border: 1px solid var(--badge-warn-border);
+}
+.badge.err {
+  background: var(--badge-err-bg);
+  color: var(--badge-err-text);
+  border: 1px solid var(--badge-err-border);
+}
 
 /* Windows Dark mode */
 @media (prefers-color-scheme: dark) {
+  :root {
+    /* ===== Table (dark) ===== */
+    --tbl-text: #e5e7eb;
+    --tbl-text-strong: #f3f4f6;
+
+    --tbl-bg: #1e1e1e;
+    --tbl-head-bg: #252526;
+
+    --tbl-row-odd-bg: #1f1f1f;
+    --tbl-row-even-bg: #252525;
+
+    --tbl-row-hover-bg: #2d2d2d;
+
+    --tbl-row-selected-bg: #1e3a5f;
+    --tbl-row-selected-outline: #60a5fa;
+
+    --tbl-border-outer: #2a2a2a;
+    --tbl-border-row: #2f2f2f;
+  }
+
   .table-scroll {
     scrollbar-color: #3a3a3a #1e1e1e; /* thumb | track */
   }
-
-  .table-clean {
-    color: #e5e7eb;              /* texto principal */
-    background: #1e1e1e;         /* fundo padrão Windows dark */
-    border: 1px solid #2a2a2a;   /* borda externa suave */
-  }
-
-  /* ===== CABEÇALHO ===== */
-  .table-clean thead th {
-    background: #252526;         /* header levemente mais claro */
-    color: #f3f4f6;
-    border-bottom: 1px solid #2f2f2f;
-  }
-
-  .table-clean tbody tr:nth-child(odd) {
-    background: #1f1f1f;
-  }
-
-  .table-clean tbody tr:nth-child(even) {
-    background: #252525;
-  }
-  
-  .table-clean tbody tr:hover {
-    background: #2d2d2d; /* cinza escuro com bom contraste */
-  }
-
-  /* row selecionada */
-  .table-clean tbody tr.is-selected {
-    background: #1e3a5f !important; /* azul bem claro */
-    outline: 1px solid #60a5fa;
-  }
-
-
-  .table-clean td {
-    border-bottom: 1px solid #2f2f2f;
-  }
 }
-
