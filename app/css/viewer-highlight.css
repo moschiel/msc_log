@@ -11,7 +11,7 @@
   /* Bordas */
   --hl-border-color: black;
   --hl-border-width: 1px;
-  --hl-border-color-selected: #d4a017;
+  --hl-border-color-selected: #7807f9;
   --hl-bg-selected: rgba(255, 200, 0, 0.15);
 
 }
@@ -56,6 +56,14 @@
   border-bottom: var(--hl-border-width) solid var(--hl-border-color);
 }
 
+.hl-border-left {
+  border-left: var(--hl-border-width) solid var(--hl-border-color);
+}
+
+.hl-border-right {
+  border-right: var(--hl-border-width) solid var(--hl-border-color);
+}
+
 .hl-border-sides {
   border-left: var(--hl-border-width) solid var(--hl-border-color);
   border-right: var(--hl-border-width) solid var(--hl-border-color);
@@ -90,7 +98,7 @@
 
     --hl-text-default: #e8f5ec;
     --hl-border-color: rgba(255, 255, 255, 0.35);
-    --hl-border-color-selected: rgba(255, 215, 0, 0.9);
+    --hl-border-color-selected: #60a5fa; /*rgba(255, 215, 0, 0.9);*/
     --hl-bg-selected: rgba(255, 215, 0, 0.18);
 
   }

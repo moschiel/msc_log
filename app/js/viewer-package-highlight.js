@@ -90,10 +90,10 @@ export function highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState,
                 const endHexPart = hexPart.slice(hexPart.length - diffSize);
 
                 const spanEndHexPart =
-                    `<span class="${pkgClassName} pkg-right-part hl-border-bottom">${endHexPart}</span>`;
+                    `<span class="${pkgClassName} pkg-right-part hl-border-bottom hl-border-right">${endHexPart}</span>`;
 
                 newLine =
-                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} ${classBorder}">` +
+                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} hl-border-left">` +
                     `${startHexPart}${spanEndHexPart}</span>`;
             } else {
                 newLine =
