@@ -65,7 +65,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages, rows } = 
+            const { parseOk, connState, messages, rows, pkgIndex } = 
                 parsePackage(
                     util.hexToBuffer(frameStr), 
                     isIncommingPkg,
@@ -104,10 +104,10 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
                     if (isImplemented) {
                         if (messageDataTable.headers.length === 0) {
-                            rows[0].unshift("Index"); //adiciona header "index" no inicio do array
+                            rows[0].unshift("Index do Log", "Index do Pacote", "Connection"); //adiciona header extra inicio do array
                             messageDataTable.headers = rows[0]; // parameters names
                         }
-                        rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
+                        rows[1].unshift(pkgCounter, pkgIndex, connState); // insere no inicio da row o pkgClassName e o pkgIndex desses dados
                         messageDataTable.rows.push(rows[1]); // parameters values
                     }
                 }
@@ -117,10 +117,10 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
                     if (messageDataTable.headers.length === 0) {
-                        rows[0].unshift("Index"); //adiciona header "pkgClassName" no inicio do array
+                        rows[0].unshift("Index do Log", "Connection"); //adiciona header "pkgClassName" no inicio do array
                         messageDataTable.headers = rows[0]; // parameters names
                     }
-                    rows[1].unshift(pkgCounter); // insere no inicio da row o pkgClassName desses dados
+                    rows[1].unshift(pkgCounter, connState); // insere no inicio da row o pkgClassName desses dados
                     messageDataTable.rows.push(rows[1]); // parameters values
                 }
 

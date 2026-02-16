@@ -67,7 +67,9 @@ export function writeLogBox(mode, type, content, isPendingPkgContent = false) {
             el.insertAdjacentHTML("beforeend", content);
     }
 
-    scrollLogBoxToBottomIfNeeded();
+    // scroll LogBox to bottom if needed
+    if (util.isToogleButtonPressed(ui.btnAutoScroll))
+        ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }
 
 /**
@@ -84,11 +86,6 @@ export function setLogBoxPendingPacket(content) {
  */
 export function getLogBoxPendingPacket() {
     return ui.logPendingPacketContent.textContent;
-}
-
-function scrollLogBoxToBottomIfNeeded() {
-    if (util.isToogleButtonPressed(ui.btnAutoScroll))
-        ui.logBox.scrollTop = ui.logBox.scrollHeight;
 }
 
 /**
