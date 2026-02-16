@@ -48,12 +48,17 @@
   word-break: break-word;
 }
 
-
-
 /* Hover */
 .table-clean tbody tr:hover {
   background: #eef6ff;
 }
+
+/* row selecionada */
+.table-clean tbody tr.is-selected {
+  background: #dbeafe !important; /* azul bem claro */
+  outline: 1px solid #3b82f6;
+}
+
 
 /* Colunas numéricas alinhadas à direita (use class="num" no td/th) */
 .table-clean .num {
@@ -110,9 +115,16 @@
     background: #252525;
   }
   
-  .table-clean tbody tr:hover td {
+  .table-clean tbody tr:hover {
     background: #2d2d2d; /* cinza escuro com bom contraste */
   }
+
+  /* row selecionada */
+  .table-clean tbody tr.is-selected {
+    background: #1e3a5f !important; /* azul bem claro */
+    outline: 1px solid #60a5fa;
+  }
+
 
   .table-clean td {
     border-bottom: 1px solid #2f2f2f;

@@ -200,6 +200,10 @@ select {
   cursor: pointer;
 }
 
+select > option {
+  background: #eee;
+}
+
 /* hover */
 select:hover {
   background: #e0e0e0;

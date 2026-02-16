@@ -327,7 +327,16 @@ ui.listMessageTable.addEventListener("click", (e) => {
     if (tds.length < 1) return;
 
     const pkgClassIndex = tds[0].textContent.trim();
-    if (Number.isNaN(pkgClassIndex)) return;
+    if (Number.isNaN(pkgClassIndex)) return;    
+
+    // remove seleção da row anterior
+    const prevSelected = ui.listMessageTable.querySelector("tbody tr.is-selected");
+    if (prevSelected) {
+        prevSelected.classList.remove("is-selected");
+    }
+
+    // adiciona estilo de selecao na row atual
+    tr.classList.add("is-selected");
 
     scrollToHighlightedPackage(Number(pkgClassIndex));
 })
