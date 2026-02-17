@@ -7,9 +7,10 @@ table {
     width: 100%;
 }
 
-th, td {
-  /* padding: 10px 14px; */
-  padding: 5px 7px !important;
+th,
+td {
+    /* padding: 10px 14px; */
+    padding: 5px 7px !important;
 }
 
 #parsedPackageTable td:nth-child(1),
@@ -26,16 +27,18 @@ th, td {
 
 #parsedPackageTable td,
 #parsedMessageTable td {
-  white-space: pre-wrap;   /* respeita \n e \r\n, fazendo pular linha */
-  word-break: break-word;  /* evita estourar a célula */
+    white-space: pre-wrap;
+    /* respeita \n e \r\n, fazendo pular linha */
+    word-break: break-word;
+    /* evita estourar a célula */
 }
 
 #listMessageTable {
     margin: 12px;
     /* impede que o conteudo de uma celula quebre em multiplas linhas */
     /* white-space: nowrap;  */
-    /* respeita \r\n quebrando a linha, mas se nao houver e o texto for maior que o width da coluna, expande o tamanho da coluna para não quebrar */ 
-    white-space: pre;     
+    /* respeita \r\n quebrando a linha, mas se nao houver e o texto for maior que o width da coluna, expande o tamanho da coluna para não quebrar */
+    white-space: pre;
     /* respeita \r\n quebrando a linha, e também quebra linha se o texto for maior que o width da coluna */
     /* white-space: pre-wrap; */
 }
@@ -43,12 +46,43 @@ th, td {
 /* Esconde as 2 primeiras colunas ("Index" e "Created Timestamp") */
 #listMessageTable th:nth-child(-n+2),
 #listMessageTable td:nth-child(-n+2) {
-  display: none;
+    display: none;
+}
+
+/* A terceita e quarta coluna ("Created At" e "Logged At") estilo indicando que são clicáveis */
+#listMessageTable td:nth-child(3),
+#listMessageTable td:nth-child(4) {
+    white-space: nowrap;
+    color: #1e40af;
+    /* azul discreto */
+    cursor: pointer;
+    transition: color 0.15s ease;
+    /* text-decoration: underline; */
+}
+
+/* Hover  */
+#listMessageTable td:nth-child(3):hover,
+#listMessageTable td:nth-child(4):hover {
+    color: #2563eb;
+    /* azul um pouco mais vivo */
+    /* font-weight: 800; */
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
     .table-scroll {
         background: rgb(30, 30, 30);
+    }
+
+    #listMessageTable td:nth-child(3),
+    #listMessageTable td:nth-child(4) {
+        color: #93c5fd;
+        /* azul claro que destaca no fundo escuro */
+    }
+
+    #listMessageTable td:nth-child(3):hover,
+    #listMessageTable td:nth-child(4):hover {
+        color: #bfdbfe;
+        /* ainda mais claro no hover */
     }
 }

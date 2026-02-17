@@ -315,28 +315,48 @@ ui.parsedPackageTable.addEventListener("click", (e) => {
 }); 
 
 ui.listMessageTable.addEventListener("click", (e) => {
-    if (!(e.target instanceof HTMLElement)) return;
+  if (!(e.target instanceof HTMLElement)) return;
 
-    const tr = e.target.closest("tr");
-    if (!tr) return;
+  const tr = e.target.closest("tr");
+  if (!tr) return;
 
-    // se tiver <thead>, evita clicar no header
-    if (tr.closest("thead")) return;
+  // se tiver <thead>, evita clicar no header
+  if (tr.closest("thead")) return;
 
-    const tds = Array.from(tr.cells);
-    if (tds.length < 1) return;
+  const table = ui.listMessageTable;
 
-    const pkgClassIndex = tds[0].textContent.trim();
-    if (Number.isNaN(pkgClassIndex)) return;    
+  // encontra o índice da coluna "Logged At"
+  const headers = Array.from(table.querySelectorAll("thead th"));
+  const loggedAtIndex = headers.findIndex(th =>
+    th.textContent.trim() === "Logged At"
+  );
 
-    // remove seleção da row anterior
-    const prevSelected = ui.listMessageTable.querySelector("tbody tr.is-selected");
-    if (prevSelected) {
-        prevSelected.classList.remove("is-selected");
-    }
+  if (loggedAtIndex === -1) return;
 
-    // adiciona estilo de selecao na row atual
-    tr.classList.add("is-selected");
+  // verifica se o clique foi na coluna correta
+  const clickedCell = e.target.closest("td");
+  if (!clickedCell) return;
 
-    scrollToHighlightedPackage(Number(pkgClassIndex));
-})
+  const clickedIndex = Array.from(tr.cells).indexOf(clickedCell);
+
+  if (clickedIndex !== loggedAtIndex) return;
+
+  // ---- segue fluxo normal ----
+
+  const tds = Array.from(tr.cells);
+  if (tds.length < 1) return;
+
+  const pkgClassIndex = Number(tds[0].textContent.trim());
+  if (Number.isNaN(pkgClassIndex)) return;
+
+  // remove seleção anterior
+  const prevSelected = table.querySelector("tbody tr.is-selected");
+  if (prevSelected) {
+    prevSelected.classList.remove("is-selected");
+  }
+
+  // adiciona estilo de selecao na row atual
+  tr.classList.add("is-selected");
+
+  scrollToHighlightedPackage(pkgClassIndex);
+});
