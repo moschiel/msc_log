@@ -38,7 +38,12 @@ th, td {
     white-space: pre;     
     /* respeita \r\n quebrando a linha, e também quebra linha se o texto for maior que o width da coluna */
     /* white-space: pre-wrap; */
-    
+}
+
+/* Esconde as 2 primeiras colunas ("Index" e "Created Timestamp") */
+#listMessageTable th:nth-child(-n+2),
+#listMessageTable td:nth-child(-n+2) {
+  display: none;
 }
 
 /* Dark mode */

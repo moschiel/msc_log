@@ -140,13 +140,13 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
                     ui.listMessageTable, 
                     parsed.messageDataTable.headers, 
                     parsed.messageDataTable.rows,
-                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true }
+                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
                 );
             else if (mode === "append") 
                 util.Table.AddRows(
                     ui.listMessageTable, 
                     parsed.messageDataTable.rows,
-                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true }
+                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
                 );
 
             // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final

@@ -13,7 +13,7 @@ export let pkgCounter = 0;
 export let OnlinePkgCounter = 0;
 export let OfflinePkgCounter = 0;
 export let ErrorPkgCounter = 0;
-/** @type {{ Ticket: number, Timestamp: number }[]} */
+/** @type {{ ticket: number, timestamp: number }[]} */
 let pkgsCreatedAt = [];
 
 
@@ -67,8 +67,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
     function appendMessageDataTable(rows, connState, pkgTicket, isError = false) {
         // Coleta timestamp da data de criação, se não existir, força o timestamp da data de criação ser igual a data do log
         // Isso é necessário para conseguir ordenar a tabela com base no timestamp da criação
-        const pkgCreated = pkgsCreatedAt.find(p => p.Ticket === pkgTicket);
-        const pkgCreatedTimestamp = pkgCreated !== undefined ? pkgCreated.Timestamp : pkgLoggedTimestamp;
+        const pkgCreated = pkgsCreatedAt.find(p => p.ticket === pkgTicket);
+        const pkgCreatedTimestamp = pkgCreated !== undefined ? pkgCreated.timestamp : pkgLoggedTimestamp;
         
         // Converte timestamp para 'human readable'
         const createdAtDate = pkgCreated !== undefined ? util.epochSecondsToString(pkgCreatedTimestamp) : "";
@@ -77,8 +77,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         if (isError) {
             messageDataTable.rows.push([
                 pkgCounter, 
-                pkgCreatedTimestamp, 
-                pkgLoggedTimestamp, 
+                pkgCreatedTimestamp,  
                 createdAtDate, 
                 loggedAtDate, 
                 "🔴", 
@@ -89,8 +88,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 // insere colunas extras no inicio do header
                 rows[0].unshift(
                     "Index", 
-                    "Created TS", 
-                    "Logged TS", 
+                    "Created Timestamp", 
                     "Created At", 
                     "Logged At", 
                     "Status", 
@@ -104,7 +102,6 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             rows[1].unshift(
                 pkgCounter, 
                 pkgCreatedTimestamp, 
-                pkgLoggedTimestamp, 
                 createdAtDate, 
                 loggedAtDate, 
                 type, 
@@ -211,11 +208,11 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            if (substr.startsWith("New Package Ticket: ")) {
-                pkgsCreatedAt.push({
-                    Ticket: util.logExtractPkgTicket(substr),
-                    Timestamp: util.logExtractTimestampSeconds(line)
-                });
+            if (substr.startsWith("Write Position TIME: ") || substr.startsWith("Read Position TICKET: ")) {
+                const pkgCreationInfo = util.logExtractPkgTicketAndTime(substr);
+                const exists = pkgsCreatedAt.some(p => p.ticket === pkgCreationInfo.ticket);
+                if(exists === false)
+                    pkgsCreatedAt.push(pkgCreationInfo);
             }
 
             const isSentPkg = substr.startsWith("Sent Buffer:");
@@ -224,7 +221,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             //if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
             if (isSentPkg || isIncommingPkg) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
-                pkgLoggedTimestamp = util.logExtractTimestampSeconds(line);
+                pkgLoggedTimestamp = util.logExtractTimestampFromHeader(line);
                 isCollectingFrame = true;
                 lineIndexes = [];
                 continue; // Inicia coleta nas linhas seguintes
