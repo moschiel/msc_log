@@ -1,6 +1,6 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { clearPkgCounters, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js";
+import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 
 let rawTextLog = "";
@@ -102,7 +102,7 @@ export function getLogBoxPendingPacket() {
  */
 export function processLogChunkAndRender(mode, textContent, opts = { highlight: false, searchMsgID: null }) {
     if(mode === "set") {
-        clearPkgCounters();
+        clearPkgInfo();
         if(opts.highlight) {
             clearLogBox();
         }
@@ -136,9 +136,18 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         if (opts.searchMsgID && opts.searchMsgID !== "none") {
             // mesmo se vier mode "append", forçamos criacao se tabela não tem tHead
             if (mode === "set" || ui.listMessageTable.tHead === null)
-                util.Table.Create(ui.listMessageTable, parsed.messageDataTable.headers, parsed.messageDataTable.rows);
+                util.Table.Create(
+                    ui.listMessageTable, 
+                    parsed.messageDataTable.headers, 
+                    parsed.messageDataTable.rows,
+                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true }
+                );
             else if (mode === "append") 
-                util.Table.AddRows(ui.listMessageTable, parsed.messageDataTable.rows);
+                util.Table.AddRows(
+                    ui.listMessageTable, 
+                    parsed.messageDataTable.rows,
+                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true }
+                );
 
             // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final
             if (util.isToogleButtonPressed(ui.btnAutoScroll)) {

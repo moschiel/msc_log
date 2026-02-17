@@ -18,14 +18,15 @@ let pkgsCreatedAt = [];
 
 
 /** 
-* Reseta os contadores de pacotes.
+* Reseta informacoes de pacotes em RAM e da tabela de pacotes/mensagens.
 */
-export function clearPkgCounters() {
+export function clearPkgInfo() {
     pkgCounter = 0;
     OnlinePkgCounter = 0;
     OfflinePkgCounter = 0;
     ErrorPkgCounter = 0;
     pkgsCreatedAt = [];
+    ui.listMessageTable.innerHTML = "";
     clearMessageCounter();
 }
 
@@ -54,29 +55,61 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
     let isCollectingFrame = false;
     let isIncommingPkg = false;
-    let pkgCreatedTimestamp = 0; // timestamp de quando o pacote foi gerado
     let pkgLoggedTimestamp = 0;  // timestamp de quando o pacote foi impresso no LOG
     let lineIndexes = []; // guarda os índices das linhas que pertencem ao pacote
 
     /**
      * @param {any[]} rows
-     * @param {string} createdAtDate
-     * @param {string} loggedAtDate
      * @param {"Online" | "Offline"} connState
      * @param {number|string} pkgTicket
      * @param {boolean} isError
      */
-    function appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket, isError = false) {
+    function appendMessageDataTable(rows, connState, pkgTicket, isError = false) {
+        // Coleta timestamp da data de criação, se não existir, força o timestamp da data de criação ser igual a data do log
+        // Isso é necessário para conseguir ordenar a tabela com base no timestamp da criação
+        const pkgCreated = pkgsCreatedAt.find(p => p.Ticket === pkgTicket);
+        const pkgCreatedTimestamp = pkgCreated !== undefined ? pkgCreated.Timestamp : pkgLoggedTimestamp;
+        
+        // Converte timestamp para 'human readable'
+        const createdAtDate = pkgCreated !== undefined ? util.epochSecondsToString(pkgCreatedTimestamp) : "";
+        const loggedAtDate = util.epochSecondsToString(pkgLoggedTimestamp);
+
         if (isError) {
-            messageDataTable.rows.push([pkgCounter, createdAtDate, loggedAtDate, "🔴", pkgTicket]); // parameters values
+            messageDataTable.rows.push([
+                pkgCounter, 
+                pkgCreatedTimestamp, 
+                pkgLoggedTimestamp, 
+                createdAtDate, 
+                loggedAtDate, 
+                "🔴", 
+                pkgTicket
+            ]); // parameters values
         } else {
             if (messageDataTable.headers.length === 0) {
-                rows[0].unshift("Index", "Created At", "Logged At", "Status", "Ticket"); // insere colunas extras no inicio do header
+                // insere colunas extras no inicio do header
+                rows[0].unshift(
+                    "Index", 
+                    "Created TS", 
+                    "Logged TS", 
+                    "Created At", 
+                    "Logged At", 
+                    "Status", 
+                    "Ticket"
+                );
                 messageDataTable.headers = rows[0]; // parameters names
             }
     
+            // insere dados extras no inicio da row
             const type = isIncommingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
-            rows[1].unshift(pkgCounter, createdAtDate, loggedAtDate, type, pkgTicket); // insere dados extras no inicio da row
+            rows[1].unshift(
+                pkgCounter, 
+                pkgCreatedTimestamp, 
+                pkgLoggedTimestamp, 
+                createdAtDate, 
+                loggedAtDate, 
+                type, 
+                pkgTicket
+            ); 
             messageDataTable.rows.push(rows[1]); // parameters values
         }
     }
@@ -86,8 +119,6 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
         pkgCounter++;
         const total = lineIndexes.length;
-        const loggedAtDate = util.epochSecondsToString(pkgLoggedTimestamp);
-
         try {
             let frameStr = "";
             for (let i = 0; i < total; i++) {
@@ -102,9 +133,6 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "nv",
                     "h"
                 );
-
-            const pkgCreated = pkgsCreatedAt.find(p => p.Ticket === pkgTicket);
-            const createdAtDate = pkgCreated !== undefined ? util.epochSecondsToString(pkgCreated.Timestamp) : "";
 
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
@@ -134,7 +162,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     );
 
                     if (isImplemented) {
-                        appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket);
+                        appendMessageDataTable(rows, connState, pkgTicket);
                     }
                 }
             }
@@ -142,7 +170,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             if (parseOk) {
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
-                    appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket);
+                    appendMessageDataTable(rows, connState, pkgTicket);
                 }
 
                 // atualiza contadores de status de conexao
@@ -159,7 +187,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             if (opt.highlight)
                 highlightPackage(pkgCounter, false, null, null, lines, lineIndexes);
             if (opt.searchMsgID && opt.searchMsgID !== "--")
-                appendMessageDataTable(null, "", loggedAtDate, null, "", true);
+                appendMessageDataTable(null, null, "", true);
 
         }
 

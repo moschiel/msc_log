@@ -1,8 +1,18 @@
 /**
+ * @typedef {"asc" | "desc"} SortDirection
+ */
+
+/**
+ * @typedef {Object} TableSortOptions
+ * @property {number} [sortColumnIndex] Índice da coluna usada para ordenação
+ * @property {SortDirection} [sortDirection="asc"] Direção da ordenação
+ * @property {boolean} [numeric=true] Se true, compara como número
+ */
+
+/**
  * @typedef {Object} TableHelper
- * @property {(table: HTMLTableElement, headers: string[], rows: Array<Array>)=>void} Create
- * @property {(table: HTMLTableElement, row: Array)=>void} AddRow
- * @property {(table: HTMLTableElement, rows: Array)=>void} AddRows
+ * @property {(table: HTMLTableElement, headers: string[], rows: Array<Array>, options?: TableSortOptions)=>void} Create
+ * @property {(table: HTMLTableElement, rows: Array<Array>, options?: TableSortOptions)=>void} AddRows
  */
 
 /**
@@ -164,9 +174,21 @@ export const util = {
      * @param {HTMLTableElement} table
      * @param {string[]} headers
      * @param {Array<Array>} rows
+     * @param {{
+     *   sortColumnIndex?: number,
+     *   sortDirection?: "asc" | "desc",
+     *   numeric?: boolean
+     * }} [options]
      * @returns {void}
      */
-    Create(table, headers, rows) {
+    Create(table, headers, rows, options = {}) {
+
+      const {
+        sortColumnIndex,
+        sortDirection = "asc",
+        numeric = true
+      } = options;
+
       table.innerHTML = "";
 
       const thead = document.createElement("thead");
@@ -183,25 +205,61 @@ export const util = {
 
       const tbody = document.createElement("tbody");
 
-      rows.forEach((row) => {
+      let data = rows;
+
+      // Se for para ordenar na criação
+      if (typeof sortColumnIndex === "number") {
+        data = [...rows].sort((a, b) => {
+          let aVal = a[sortColumnIndex];
+          let bVal = b[sortColumnIndex];
+
+          if (numeric) {
+            aVal = Number(aVal);
+            bVal = Number(bVal);
+            return sortDirection === "asc"
+              ? aVal - bVal
+              : bVal - aVal;
+          }
+
+          return sortDirection === "asc"
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
+        });
+      }
+
+      data.forEach((row) => {
         const tr = document.createElement("tr");
+
         row.forEach((cell) => {
           const td = document.createElement("td");
           td.textContent = String(cell);
           tr.appendChild(td);
         });
+
         tbody.appendChild(tr);
       });
 
       table.appendChild(tbody);
     },
 
+
     /**
-     * @param {HTMLTableElement} table
-     * @param {Array} row
-     * @returns {void}
-     */
-    AddRow(table, row) {
+ * @param {HTMLTableElement} table
+ * @param {Array<Array>} rows
+ * @param {{
+ *   sortColumnIndex?: number,
+ *   sortDirection?: "asc" | "desc",
+ *   numeric?: boolean
+ * }} [options]
+ * @return {void}
+ */
+    AddRows(table, rows, options = {}) {
+      const {
+        sortColumnIndex,
+        sortDirection = "asc",
+        numeric = true
+      } = options;
+
       /** @type {HTMLTableSectionElement|null} */
       const tbody = table.querySelector("tbody");
 
@@ -210,41 +268,91 @@ export const util = {
         return;
       }
 
-      const tr = document.createElement("tr");
-
-      row.forEach((cell) => {
-        const td = document.createElement("td");
-        td.textContent = String(cell);
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
-    },
-
-    /**
-     * @param {HTMLTableElement} table
-     * @param {Array<Array>} rows
-     * @return {void}
-     */
-    AddRows(table, rows) {
-      /** @type {HTMLTableSectionElement|null} */
-      const tbody = table.querySelector("tbody");
-
-      if (!tbody) {
-        console.warn("Tabela não possui <tbody>");
+      // Sem ordenação → append normal
+      if (typeof sortColumnIndex !== "number") {
+        rows.forEach((row) => {
+          const tr = _createRow(row);
+          tbody.appendChild(tr);
+        });
         return;
       }
+
+      const isAsc = (sortDirection === "asc");
 
       rows.forEach((row) => {
-        const tr = document.createElement("tr");
-        row.forEach((cell) => {
-          const td = document.createElement("td");
-          td.textContent = String(cell);
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
+        const tr = _createRow(row);
+
+        const newValueRaw = row[sortColumnIndex];
+        const newKey = numeric ? Number(newValueRaw) : String(newValueRaw);
+
+        const existingRows = tbody.rows;
+        const n = existingRows.length;
+
+        // Tabela vazia
+        if (n === 0) {
+          tbody.appendChild(tr);
+          return;
+        }
+
+        // Fast path:
+        // ASC: se >= last → append
+        // DESC: se <= first → insert no início
+        if (numeric) {
+          const firstKey = Number(existingRows[0].children[sortColumnIndex].textContent);
+          const lastKey = Number(existingRows[n - 1].children[sortColumnIndex].textContent);
+
+          if (isAsc) {
+            // @ts-ignore
+            if (newKey >= lastKey) {
+              tbody.appendChild(tr);
+              return;
+            }
+          } else {
+            // @ts-ignore
+            if (newKey <= firstKey) {
+              tbody.insertBefore(tr, existingRows[0]);
+              return;
+            }
+          }
+        } else {
+          const firstKey = String(existingRows[0].children[sortColumnIndex].textContent).trim();
+          const lastKey = String(existingRows[n - 1].children[sortColumnIndex].textContent).trim();
+
+          if (isAsc) {
+            if (String(newKey) >= lastKey) {
+              tbody.appendChild(tr);
+              return;
+            }
+          } else {
+            if (String(newKey) <= firstKey) {
+              tbody.insertBefore(tr, existingRows[0]);
+              return;
+            }
+          }
+        }
+
+        // Slow path (precisa achar posição)
+        let inserted = false;
+
+        for (let i = 0; i < n; i++) {
+          const cellText = existingRows[i].children[sortColumnIndex].textContent;
+          const existingKey = numeric ? Number(cellText) : String(cellText).trim();
+
+          const shouldInsert = isAsc
+            ? newKey < existingKey
+            : newKey > existingKey;
+
+          if (shouldInsert) {
+            tbody.insertBefore(tr, existingRows[i]);
+            inserted = true;
+            break;
+          }
+        }
+
+        if (!inserted) tbody.appendChild(tr);
       });
     }
+
   },
 
   // ======== Log Utils ========
@@ -486,3 +594,13 @@ export const util = {
   }
 
 };
+
+function _createRow(row) {
+  const tr = document.createElement("tr");
+  row.forEach((cell) => {
+    const td = document.createElement("td");
+    td.textContent = String(cell);
+    tr.appendChild(td);
+  });
+  return tr;
+}

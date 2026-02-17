@@ -17,7 +17,7 @@ import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
 } from "./viewer-render-log.js";
 import {
-    clearPkgCounters, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
+    clearPkgInfo, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
 import { getHexFromHighlightPackageClass, scrollToHighlightedPackage } from "./viewer-package-highlight.js";
 
