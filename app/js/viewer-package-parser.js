@@ -62,24 +62,37 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
      * @param {any[]} rows
      * @param {string} createdAtDate
      * @param {string} loggedAtDate
-     * @param {string} connState
+     * @param {"Online" | "Offline"} connState
      * @param {number} pkgTicket
+     * @param {boolean} isError
      */
-    function appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket) {
-        if (messageDataTable.headers.length === 0) {
-            rows[0].unshift("Index", "Created At", "Logged At", "Connection", "Ticket"); // insere colunas extras no inicio do header
-            messageDataTable.headers = rows[0]; // parameters names
+    function appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket, isError = false) {
+        if (isError) {
+            if (messageDataTable.headers.length === 0) {
+                messageDataTable.headers = ["Index", "Logged At"]; // parameters names
+            }
+            messageDataTable.rows.push(pkgCounter, loggedAtDate); // parameters values
         }
-        rows[1].unshift(pkgCounter, createdAtDate, loggedAtDate, connState, pkgTicket); // insere dados extras no inicio da row
-        messageDataTable.rows.push(rows[1]); // parameters values
+        else 
+        {
+            if (messageDataTable.headers.length === 0) {
+                rows[0].unshift("Index", "Created At", "Logged At", "Type", "Ticket"); // insere colunas extras no inicio do header
+                messageDataTable.headers = rows[0]; // parameters names
+            }
+    
+            const type = isIncommingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
+    
+            rows[1].unshift(pkgCounter, createdAtDate, loggedAtDate, type, pkgTicket); // insere dados extras no inicio da row
+            messageDataTable.rows.push(rows[1]); // parameters values
+        }
     }
 
     function flushPackage() {
         if (lineIndexes.length === 0) return;
 
         pkgCounter++;
-
         const total = lineIndexes.length;
+        const loggedAtDate = util.epochSecondsToString(pkgLoggedTimestamp);
 
         try {
             let frameStr = "";
@@ -87,25 +100,24 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages, rows, pkgTicket } = 
+            const { parseOk, connState, messages, rows, pkgTicket } =
                 parsePackage(
-                    util.hexToBuffer(frameStr), 
+                    util.hexToBuffer(frameStr),
                     isIncommingPkg,
-                    opt.searchMsgID === "all" ? "collect" : "validate", 
-                    "nv", 
+                    opt.searchMsgID === "all" ? "collect" : "validate",
+                    "nv",
                     "h"
                 );
 
             const pkgCreated = pkgsCreatedAt.find(p => p.Ticket === pkgTicket);
             const createdAtDate = pkgCreated !== undefined ? util.epochSecondsToString(pkgCreated.Timestamp) : "";
-            const loggedAtDate = util.epochSecondsToString(pkgLoggedTimestamp);
 
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
-                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1") || 
+                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1") ||
                     (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
-                    
-                    if(messages.length === 1) {
+
+                    if (messages.length === 1) {
                         // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
                         // Ignora esse pacote
                         lineIndexes = []; // reset linhas
@@ -113,7 +125,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                         return;
                     }
                 }
-                
+
                 // atualiza contador de mensagens por ID
                 updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
 
@@ -140,8 +152,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 }
 
                 // atualiza contadores de status de conexao
-                if(connState === "Online") OfflinePkgCounter++;
-                else if(connState === "Offline") OnlinePkgCounter++;
+                if (connState === "Online") OfflinePkgCounter++;
+                else if (connState === "Offline") OnlinePkgCounter++;
             }
 
             if (opt.highlight)
@@ -152,6 +164,9 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             ErrorPkgCounter++;
             if (opt.highlight)
                 highlightPackage(pkgCounter, false, null, null, lines, lineIndexes);
+            if (opt.searchMsgID === "errors")
+                appendMessageDataTable([], null, loggedAtDate, null, null, true);
+
         }
 
         // reset
@@ -174,7 +189,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            if(substr.startsWith("New Package Ticket: ")) {
+            if (substr.startsWith("New Package Ticket: ")) {
                 pkgsCreatedAt.push({
                     Ticket: util.logExtractPkgTicket(substr),
                     Timestamp: util.logExtractTimestampSeconds(line)
@@ -183,9 +198,9 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
             const isSentPkg = substr.startsWith("Sent Buffer:");
             isIncommingPkg = substr.startsWith("Incoming Package:");
-            
+
             //if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
-            if(isSentPkg || isIncommingPkg) {
+            if (isSentPkg || isIncommingPkg) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 pkgLoggedTimestamp = util.logExtractTimestampSeconds(line);
                 isCollectingFrame = true;
@@ -250,14 +265,14 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     let pkgSize = 0;
 
-    if(isIncommingPkg) {
+    if (isIncommingPkg) {
         pkgSize = br.getLength();
         br.add_row("Tamanho do pacote", 2, br.getLength());
     } else {
         const start = br.read_u16("frame inicial", false);
         if (start !== 0xCC33) throw new Error("Frame inicial invalido");
-        
-        pkgSize = br.add_row_u16("Tamanho do pacote");    
+
+        pkgSize = br.add_row_u16("Tamanho do pacote");
     }
 
     const frameEnd = br.getOffset() + pkgSize;
@@ -274,7 +289,7 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     // ESN (se provider)
     if (option === 3) {
-        if(dataOrientation === "v") {
+        if (dataOrientation === "v") {
             br.add_row_hex_u16("Sei lá", false);
             const esnSize = br.add_row_u8("Tamanho do SN");
             br.add_row_bytes_BCD("SerialNumber", esnSize);
@@ -315,13 +330,13 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
         const msgData = br.read_bytes("msgData", msgSize);
         messages.push({ id: msgId, size: msgSize, data: msgData });
 
-        if(dataOrientation === "v")
+        if (dataOrientation === "v")
             br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
         else
             text += `[${getMsgName(msgId)}], `;
     }
 
-    if(dataOrientation === "h")
+    if (dataOrientation === "h")
         br.add_row("Mensagens", "N/A", text);
 
     // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
@@ -360,16 +375,16 @@ const splitTailUtils = {
         return splitTailUtils.isHexOnlyNonEmpty(p) || splitTailUtils.isHexPrefixNonEmpty(p);
     },
     startsWithHeader: (line) => {
-        if(line.length > 0  && line[0]  !== '[') return false;
-        if(line.length > 16 && line[16] !== ']') return false;
-        if(line.length > 17 && line[17] !== '[') return false;
-        if(line.length > 28 && line[28] !== ']') return false;
-        if(line.length > 29 && line[29] !== '[') return false;
-        if(line.length > 33 && line[33] !== ']') return false;
-        if(line.length > 34 && line[34] !== '[') return false;
-        if(line.length > 39 && line[39] !== ']') return false;
-        if(line.length > 40 && line[40] !== ':') return false;
-        if(line.length > 41 && line[41] !== ' ') return false;
+        if (line.length > 0 && line[0] !== '[') return false;
+        if (line.length > 16 && line[16] !== ']') return false;
+        if (line.length > 17 && line[17] !== '[') return false;
+        if (line.length > 28 && line[28] !== ']') return false;
+        if (line.length > 29 && line[29] !== '[') return false;
+        if (line.length > 33 && line[33] !== ']') return false;
+        if (line.length > 34 && line[34] !== '[') return false;
+        if (line.length > 39 && line[39] !== ']') return false;
+        if (line.length > 40 && line[40] !== ':') return false;
+        if (line.length > 41 && line[41] !== ' ') return false;
         return true;
     },
     startsWithCC33: (line) => {
