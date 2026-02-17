@@ -12,14 +12,14 @@ const PKG_HIGHLIGHT_VERSION = "V1";
  
 * seta direto no vetor lines de acordo com os indexes passados
 * 
-* @param {number} pkgCounter numero do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
+* @param {number} pkgIndex index do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
 * @param {boolean} parseOk se o parse do pacote foi bem sucedido ou nao (pacote com erro de formato, etc)
 * @param {boolean} isIncommingPkg indica se o pacote foi recebido pelo equipamento ao invez de enviado.
 * @param {"Online" | "Offline" | null} connState estado da conexao no momento do pacote (Online, Offline, etc)
 * @param {Array<string>} lines array de linhas do log,
 * @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
 */
-export function highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState, lines, lineIndexes) {
+export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
@@ -33,7 +33,7 @@ export function highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState,
 
     // 'pkgClassName' sera incluida em todas linhas (tags span) que pertencam a um mesmo pacote
     // assim em outros modulos, via className podemos recuperar todo os elementos "span" de um pacote especifico
-    const pkgClassName = `pkg-${pkgCounter}`;
+    const pkgClassName = `pkg-${pkgIndex}`;
     const headerLen = LOG_HEADER_SIZE;
     const total = lineIndexes.length;
 

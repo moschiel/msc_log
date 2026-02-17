@@ -13,6 +13,9 @@ export let pkgCounter = 0;
 export let OnlinePkgCounter = 0;
 export let OfflinePkgCounter = 0;
 export let ErrorPkgCounter = 0;
+/** @type {{ Ticket: number, Timestamp: number }[]} */
+let pkgsCreatedAt = [];
+
 
 /** 
 * Reseta os contadores de pacotes.
@@ -22,6 +25,7 @@ export function clearPkgCounters() {
     OnlinePkgCounter = 0;
     OfflinePkgCounter = 0;
     ErrorPkgCounter = 0;
+    pkgsCreatedAt = [];
     clearMessageCounter();
 }
 
@@ -50,7 +54,25 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
     let isCollectingFrame = false;
     let isIncommingPkg = false;
-    let lineIndexes = [];         // guarda os índices das linhas que pertencem ao pacote
+    let pkgCreatedTimestamp = 0; // timestamp de quando o pacote foi gerado
+    let pkgLoggedTimestamp = 0;  // timestamp de quando o pacote foi impresso no LOG
+    let lineIndexes = []; // guarda os índices das linhas que pertencem ao pacote
+
+    /**
+     * @param {any[]} rows
+     * @param {string} createdAtDate
+     * @param {string} loggedAtDate
+     * @param {string} connState
+     * @param {number} pkgTicket
+     */
+    function appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket) {
+        if (messageDataTable.headers.length === 0) {
+            rows[0].unshift("Index", "Created At", "Logged At", "Connection", "Ticket"); // insere colunas extras no inicio do header
+            messageDataTable.headers = rows[0]; // parameters names
+        }
+        rows[1].unshift(pkgCounter, createdAtDate, loggedAtDate, connState, pkgTicket); // insere dados extras no inicio da row
+        messageDataTable.rows.push(rows[1]); // parameters values
+    }
 
     function flushPackage() {
         if (lineIndexes.length === 0) return;
@@ -65,7 +87,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages, rows, pkgIndex } = 
+            const { parseOk, connState, messages, rows, pkgTicket } = 
                 parsePackage(
                     util.hexToBuffer(frameStr), 
                     isIncommingPkg,
@@ -74,8 +96,11 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "h"
                 );
 
+            const pkgCreated = pkgsCreatedAt.find(p => p.Ticket === pkgTicket);
+            const createdAtDate = pkgCreated !== undefined ? util.epochSecondsToString(pkgCreated.Timestamp) : "";
+            const loggedAtDate = util.epochSecondsToString(pkgLoggedTimestamp);
+
             for (const msg of messages) {
-                
                 // verifica se tem que ignorar esse pacote
                 if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1") || 
                     (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
@@ -103,12 +128,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     );
 
                     if (isImplemented) {
-                        if (messageDataTable.headers.length === 0) {
-                            rows[0].unshift("Index do Log", "Index do Pacote", "Connection"); //adiciona header extra inicio do array
-                            messageDataTable.headers = rows[0]; // parameters names
-                        }
-                        rows[1].unshift(pkgCounter, pkgIndex, connState); // insere no inicio da row o pkgClassName e o pkgIndex desses dados
-                        messageDataTable.rows.push(rows[1]); // parameters values
+                        appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket);
                     }
                 }
             }
@@ -116,19 +136,12 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             if (parseOk) {
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
-                    if (messageDataTable.headers.length === 0) {
-                        rows[0].unshift("Index do Log", "Connection"); //adiciona header "pkgClassName" no inicio do array
-                        messageDataTable.headers = rows[0]; // parameters names
-                    }
-                    rows[1].unshift(pkgCounter, connState); // insere no inicio da row o pkgClassName desses dados
-                    messageDataTable.rows.push(rows[1]); // parameters values
+                    appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket);
                 }
 
-                // atualiza contadores
-                if(connState === "Online")
-                    OfflinePkgCounter++;
-                if(connState === "Offline")
-                    OnlinePkgCounter++;
+                // atualiza contadores de status de conexao
+                if(connState === "Online") OfflinePkgCounter++;
+                else if(connState === "Offline") OnlinePkgCounter++;
             }
 
             if (opt.highlight)
@@ -161,11 +174,21 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
+            if(substr.startsWith("New Package Ticket: ")) {
+                pkgsCreatedAt.push({
+                    Ticket: util.logExtractPkgTicket(substr),
+                    Timestamp: util.logExtractTimestampSeconds(line)
+                });
+            }
+
+            const isSentPkg = substr.startsWith("Sent Buffer:");
+            isIncommingPkg = substr.startsWith("Incoming Package:");
+            
             //if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
-            if(substr.startsWith("Sent Buffer:") || substr.startsWith("Incoming Package:")) {
+            if(isSentPkg || isIncommingPkg) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
+                pkgLoggedTimestamp = util.logExtractTimestampSeconds(line);
                 isCollectingFrame = true;
-                isIncommingPkg = substr.startsWith("Incoming Package:");
                 lineIndexes = [];
                 continue; // Inicia coleta nas linhas seguintes
             }
@@ -212,7 +235,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
  * @param {"v" | "h"} dataOrientation
  * @returns {{ 
  *  parseOk: boolean,
- *  pkgIndex: number,
+ *  pkgTicket: number,
  *  connState: "Online" | "Offline", 
  *  rows: Array<Array>, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
@@ -264,7 +287,7 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     // index / service type
     let connState;
-    const pkgIndex = br.add_row_u16("Index do Pacote");
+    const pkgTicket = br.add_row_u16("Index do Pacote");
     br.add_row_u8("Tipo de Serviço", (v) => {
         let ackType = "";
         switch (v & 0x03) {
@@ -306,7 +329,7 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     return {
         parseOk: true,
-        pkgIndex,
+        pkgTicket,
         connState,
         rows: br.rows,
         messages

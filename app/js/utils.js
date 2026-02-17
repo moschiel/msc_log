@@ -17,6 +17,9 @@
  *
  * @property {TableHelper} Table
  *
+ * @property {(line: string)=>number} logExtractTimestampSeconds
+ * @property {(line: string)=>number} logExtractPkgTicket
+ * 
  * @property {(sec: number)=>string} epochSecondsToString
  *
  * @property {(data: Uint8Array)=>string} getAsciiStringAll
@@ -244,8 +247,40 @@ export const util = {
     }
   },
 
-  // ======== Time ========
+  // ======== Log Utils ========
 
+  /** Extrai o ticket do pacote */
+  logExtractPkgTicket(str) {
+    const match = str.match(/ticket:\s*(\d+)/i);
+    return match ? Number(match[1]) : null;
+  },
+
+  /**
+   * Extrai o timestamp (em milisegundos) de uma linha do log.
+   *
+   * @param {string} line
+   * @returns {number}
+   */
+  logExtractTimestampSeconds(line) {
+    const match = line.match(/^\[(\d{8}-\d{6})\]/);
+    if (!match) return null;
+
+    const ts = match[1];
+
+    const year = +ts.slice(0, 4);
+    const month = +ts.slice(4, 6);
+    const day = +ts.slice(6, 8);
+    const hour = +ts.slice(9, 11);
+    const min = +ts.slice(11, 13);
+    const sec = +ts.slice(13, 15);
+
+    return Math.floor(
+      Date.UTC(year, month - 1, day, hour, min, sec) / 1000
+    );
+  },
+
+
+  // ======== Time ========
   /**
    * @param {number} sec
    * @returns {string}
