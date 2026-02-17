@@ -98,7 +98,6 @@ Botão ▦ deve estar ativo.
                 <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
                     <option value="all">Todos os Pacotes</option>
-                    <option value="errors">Todos os Pacotes com Erro</option>
                 </select>
             </div>
 

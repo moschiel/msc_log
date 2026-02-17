@@ -240,13 +240,13 @@ function revealMessageOption(id) {
 
 /**
  * Esconde todas as opcoes de mensagens
- * Deixa visivel apenas "none", "all" e "errors"
+ * Deixa visivel apenas "none" e "all"
  */
 export function hideAllListMessageOptions() {
     const options = ui.selListMessage.querySelectorAll("option");
 
     options.forEach((opt, index) => {
-        if (index > 2) {
+        if (index > 1) {
             opt.classList.add("hidden");
         }
     });

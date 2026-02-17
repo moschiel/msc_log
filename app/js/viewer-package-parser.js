@@ -63,25 +63,19 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
      * @param {string} createdAtDate
      * @param {string} loggedAtDate
      * @param {"Online" | "Offline"} connState
-     * @param {number} pkgTicket
+     * @param {number|string} pkgTicket
      * @param {boolean} isError
      */
     function appendMessageDataTable(rows, createdAtDate, loggedAtDate, connState, pkgTicket, isError = false) {
         if (isError) {
+            messageDataTable.rows.push([pkgCounter, createdAtDate, loggedAtDate, "🔴", pkgTicket]); // parameters values
+        } else {
             if (messageDataTable.headers.length === 0) {
-                messageDataTable.headers = ["Index", "Logged At"]; // parameters names
-            }
-            messageDataTable.rows.push(pkgCounter, loggedAtDate); // parameters values
-        }
-        else 
-        {
-            if (messageDataTable.headers.length === 0) {
-                rows[0].unshift("Index", "Created At", "Logged At", "Type", "Ticket"); // insere colunas extras no inicio do header
+                rows[0].unshift("Index", "Created At", "Logged At", "Status", "Ticket"); // insere colunas extras no inicio do header
                 messageDataTable.headers = rows[0]; // parameters names
             }
     
             const type = isIncommingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
-    
             rows[1].unshift(pkgCounter, createdAtDate, loggedAtDate, type, pkgTicket); // insere dados extras no inicio da row
             messageDataTable.rows.push(rows[1]); // parameters values
         }
@@ -164,8 +158,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             ErrorPkgCounter++;
             if (opt.highlight)
                 highlightPackage(pkgCounter, false, null, null, lines, lineIndexes);
-            if (opt.searchMsgID === "errors")
-                appendMessageDataTable([], null, loggedAtDate, null, null, true);
+            if (opt.searchMsgID && opt.searchMsgID !== "--")
+                appendMessageDataTable(null, "", loggedAtDate, null, "", true);
 
         }
 
