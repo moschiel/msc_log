@@ -105,6 +105,12 @@ export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, l
     }
 }
 
+export function highlightPkgCreation(line, ticket) {
+    const headerPart = line.slice(0, LOG_HEADER_SIZE);
+    const contentPart = line.slice(LOG_HEADER_SIZE);
+    return `${headerPart}<span class="ticket-${ticket}">${contentPart}</span>`;
+}
+
 
 /**
  * Recupera o frame hexadecimal completo de um pacote que está destacado no LogBox, 
@@ -137,32 +143,38 @@ export function getHexFromHighlightPackageClass(pkgClassName) {
 }
 
 /**
- * Scrolla para um pacote destacado no log, de acordo com seu index.
- * O pacote tambem terá seu estilo alterado (bordas amareladas).
+ * Scrolla para um elemento destacado no log, de acordo com sua classe.
+ * O elemento tambem terá seu estilo alterado (bordas amareladas).
  * 
- * @param {number} pkgClassIndex 
+ * @param {"pkg" | "ticket"} scrollTo
+ * @param {number} pkgIndex
+ * @param {number} pkgTicket
  * @returns 
  */
-export function scrollToHighlightedPackage(pkgClassIndex) {
+export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
     const logBox = document.getElementById("logBox");
     if (!logBox) return;
 
-    const selector = `.pkg-${pkgClassIndex}`;
+    const pkgSelector = `pkg-${pkgIndex}`;
+    const ticketSelector = `ticket-${pkgTicket}`;
+    
+    // Remove highlight anterior (opcional)
+    logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
+    logBox.querySelectorAll(`.hl-ticket-selected`).forEach(el => el.classList.remove("hl-ticket-selected"));
 
-    // 1️⃣ Pega todos
-    const all = logBox.querySelectorAll(selector);
-    if (!all.length) return;
+    // Pega todos
+    const allPkgs = logBox.querySelectorAll(`.${pkgSelector}`);
+    const allTickets = logBox.querySelectorAll(`.${ticketSelector}`);
+    
+    // Adiciona highlight em todos
+    allPkgs.forEach(el => el.classList.add("hl-pkg-selected"));
+    allTickets.forEach(el => el.classList.add("hl-ticket-selected"));
 
-    // 2️⃣ Remove highlight anterior (opcional)
-    logBox.querySelectorAll(".hl-pkg-selected")
-          .forEach(el => el.classList.remove("hl-pkg-selected"));
+    if (scrollTo ==="pkg" && !allPkgs.length) return;
+    else if (scrollTo ==="ticket" && !allTickets.length) return;
 
-    // 3️⃣ Adiciona highlight em todos
-    all.forEach(el => el.classList.add("hl-pkg-selected"));
-
-    // 4️⃣ Scrolla até o primeiro
-    const first = all[0];
-
+    // Scrolla até o primeiro elemento encontrado
+    const first = scrollTo ==="pkg" ? allPkgs[0] : allTickets[0];
     const elRect = first.getBoundingClientRect();
     const boxRect = logBox.getBoundingClientRect();
     // posição relativa ao container

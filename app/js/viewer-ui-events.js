@@ -19,7 +19,7 @@ import {
 import {
     clearPkgInfo, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, scrollToHighlightedPackage } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
@@ -103,8 +103,8 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         writeLogBox("set", "text", getRawLog());
         setLogBoxPendingPacket("");
     }
-    
-    if(highlight) {
+
+    if (highlight) {
         // analise de pacote ativada, libera o seletor de mensagem
         util.setVisible(ui.selListMessageContainer, true);
     } else {
@@ -144,9 +144,9 @@ ui.btnStatistics.addEventListener("click", () => {
     if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
         const sorted = [...hlMessagesCountStatistics]
             .sort((a, b) => a.count - b.count); //contagem descrescente
-            //.sort((a, b) => b.count - a.count); //contagem crescente
-        
-        if(sorted) {
+        //.sort((a, b) => b.count - a.count); //contagem crescente
+
+        if (sorted) {
             contentHtml = sorted.map(m => `
                 <div style="display:flex; justify-content:space-between; padding:4px 0;">
                     <span>${m.description}</span>
@@ -165,7 +165,7 @@ ui.btnStatistics.addEventListener("click", () => {
             deve estar ativo.
         </div>`
     }
-      
+
     getModal().open({
         title: "Estatísticas",
         bodyHtml: `
@@ -221,6 +221,7 @@ let lastMessageIdClicked = 0;
 ui.logBox.addEventListener("click", e => {
     if (!(e.target instanceof HTMLElement)) return;
     if (e.target.classList.contains('hl-pkg-err')) return;
+    if (e.target.classList.length === 0) return;
 
     const pkgClassName = e.target.classList[0];
     if (!pkgClassName.startsWith("pkg-")) return;
@@ -312,51 +313,66 @@ ui.parsedPackageTable.addEventListener("click", (e) => {
     catch (e) {
         console.error(e.message);
     }
-}); 
+});
 
 ui.listMessageTable.addEventListener("click", (e) => {
-  if (!(e.target instanceof HTMLElement)) return;
+    if (!(e.target instanceof HTMLElement)) return;
 
-  const tr = e.target.closest("tr");
-  if (!tr) return;
+    const tr = e.target.closest("tr");
+    if (!tr) return;
 
-  // se tiver <thead>, evita clicar no header
-  if (tr.closest("thead")) return;
+    // se tiver <thead>, evita clicar no header
+    if (tr.closest("thead")) return;
 
-  const table = ui.listMessageTable;
+    const table = ui.listMessageTable;
 
-  // encontra o índice da coluna "Logged At"
-  const headers = Array.from(table.querySelectorAll("thead th"));
-  const loggedAtIndex = headers.findIndex(th =>
-    th.textContent.trim() === "Logged At"
-  );
+    // encontra o índice da coluna
+    const headers = Array.from(table.querySelectorAll("thead th"));
 
-  if (loggedAtIndex === -1) return;
+    const columnPkgIndex = headers.findIndex(th =>
+        th.textContent.trim() === "Index"
+    );
+    const columnCreatedAt = headers.findIndex(th =>
+        th.textContent.trim() === "Created At"
+    );  
+    const columnLoggedAt = headers.findIndex(th =>
+        th.textContent.trim() === "Logged At"
+    );
+    const columnPkgTicket = headers.findIndex(th =>
+        th.textContent.trim() === "Ticket"
+    );
 
-  // verifica se o clique foi na coluna correta
-  const clickedCell = e.target.closest("td");
-  if (!clickedCell) return;
+    if (columnPkgIndex === -1 || columnCreatedAt === -1 || columnLoggedAt === -1 || columnPkgTicket === -1) return;
 
-  const clickedIndex = Array.from(tr.cells).indexOf(clickedCell);
+    // verifica se o clique foi na coluna correta
+    const clickedCell = e.target.closest("td");
+    if (!clickedCell) return;
 
-  if (clickedIndex !== loggedAtIndex) return;
+    const clickedColumnIndex = Array.from(tr.cells).indexOf(clickedCell);
 
-  // ---- segue fluxo normal ----
+    if (clickedColumnIndex !== columnCreatedAt && clickedColumnIndex !== columnLoggedAt) {
+        return;
+    }
 
-  const tds = Array.from(tr.cells);
-  if (tds.length < 1) return;
+    // remove seleção anterior
+    const prevSelected = table.querySelector("tbody tr.is-selected");
+    if (prevSelected) {
+        prevSelected.classList.remove("is-selected");
+    }
+    // adiciona estilo de selecao na row atual
+    tr.classList.add("is-selected");
 
-  const pkgClassIndex = Number(tds[0].textContent.trim());
-  if (Number.isNaN(pkgClassIndex)) return;
+    // Coleta celulas
+    const tds = Array.from(tr.cells);
+    if (tds.length < 1) return;
 
-  // remove seleção anterior
-  const prevSelected = table.querySelector("tbody tr.is-selected");
-  if (prevSelected) {
-    prevSelected.classList.remove("is-selected");
-  }
-
-  // adiciona estilo de selecao na row atual
-  tr.classList.add("is-selected");
-
-  scrollToHighlightedPackage(pkgClassIndex);
+    //  Coleta index e ticket
+    const pkgTicket = Number(tds[columnPkgTicket].textContent.trim());
+    const pkgIndex = Number(tds[columnPkgIndex].textContent.trim());
+    if (Number.isNaN(pkgIndex)) return;
+    if (Number.isNaN(pkgTicket)) return;
+    const scrollTo = clickedColumnIndex === columnCreatedAt ? "ticket" : "pkg";
+    
+    // Scrolla
+    scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket);
 });

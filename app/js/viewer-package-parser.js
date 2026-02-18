@@ -1,6 +1,6 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { highlightPackage } from "./viewer-package-highlight.js";
+import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js";
 import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
@@ -91,7 +91,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "Created Timestamp", 
                     "Created At", 
                     "Logged At", 
-                    "Status", 
+                    "Type", 
                     "Ticket"
                 );
                 messageDataTable.headers = rows[0]; // parameters names
@@ -208,17 +208,23 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            if (substr.startsWith("Write Position TIME: ") || substr.startsWith("Read Position TICKET: ")) {
+            // armazena informacoes de ticket e timestamp do pacote
+            const isPkgWrite = substr.startsWith("Write Position TIME: ");
+            const isPkgRead = substr.startsWith("Read Position TICKET: ");
+            if (isPkgWrite || isPkgRead) {
                 const pkgCreationInfo = util.logExtractPkgTicketAndTime(substr);
                 const exists = pkgsCreatedAt.some(p => p.ticket === pkgCreationInfo.ticket);
                 if(exists === false)
-                    pkgsCreatedAt.push(pkgCreationInfo);
+                    pkgsCreatedAt.push(pkgCreationInfo);    
+                // estiliza a linha da criação
+                if(isPkgWrite) 
+                    lines[lineNumber] = highlightPkgCreation(line, pkgCreationInfo.ticket);
+                continue;
             }
 
+            // verifica se tem que iniciar coleta de frames hexadecimais
             const isSentPkg = substr.startsWith("Sent Buffer:");
             isIncommingPkg = substr.startsWith("Incoming Package:");
-
-            //if (substrFrame.startsWith("CC33") && util.isHexOnly(substrFrame)) {
             if (isSentPkg || isIncommingPkg) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 pkgLoggedTimestamp = util.logExtractTimestampFromHeader(line);

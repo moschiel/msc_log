@@ -65,7 +65,7 @@ td {
 #listMessageTable td:nth-child(4):hover {
     color: #2563eb;
     /* azul um pouco mais vivo */
-    /* font-weight: 800; */
+    font-weight: 700;
 }
 
 /* Dark mode */
