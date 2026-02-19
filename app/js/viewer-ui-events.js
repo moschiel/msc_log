@@ -43,7 +43,8 @@ window.addEventListener("load", () => {
     tailRefreshNow();
 });
 
-if (ui.btnPickLocalFile) {
+if (util.isLocalFile()) 
+{
     ui.btnPickLocalFile.addEventListener("click", () => {
         ui.inpPickLocalFile.value = ""; // permite selecionar o mesmo arquivo de novo
         ui.inpPickLocalFile.click();
@@ -68,11 +69,13 @@ if (ui.btnPickLocalFile) {
         }
     });
 }
-
-ui.btnTailAutoRefresh.addEventListener("click", () => {
-    util.toogleButton(ui.btnTailAutoRefresh);
-    setTailAutoRefresh();
-});
+else 
+{
+    ui.btnTailAutoRefresh.addEventListener("click", () => {
+        util.toogleButton(ui.btnTailAutoRefresh);
+        setTailAutoRefresh();
+    });
+}
 
 ui.btnAutoScroll.addEventListener("click", () => {
     util.toogleButton(ui.btnAutoScroll);
