@@ -358,28 +358,30 @@ export const util = {
   // ======== Log Utils ========
 
   /**
- * Extrai Ticket e Timestamp de um pacote de uma linha de log.
- *
- * Exemplos suportados:
- *  - "Write Position TIME: 1768562107 TICKET: 16401"
- *  - "Read Position TICKET: 16396 TIME: 1768561977 SIZE: 174"
- *
- * @param {string} line
- * @returns {{ ticket: number|null, timestamp: number|null }}
- */
+   * Extrai Ticket e Timestamp de um pacote de uma linha de log.
+   *
+   * Exemplos suportados:
+   *  - "Write Position TIME: 1768562107 TICKET: 16401"
+   *  - "Read Position TICKET: 16396 TIME: 1768561977 SIZE: 174"
+   *  - "New Package Ticket: 57580 Reason: 0x0008"
+   *
+   * @param {string} line
+   * @returns {{ ticket: number|null, timestamp: number|null }}
+   */
   logExtractPkgTicketAndTime(line) {
     if (!line || typeof line !== "string") {
       return { ticket: null, timestamp: null };
     }
 
-    const ticketMatch = line.match(/TICKET:\s*(\d+)/i);
-    const timeMatch = line.match(/TIME:\s*(\d+)/i);
+    const ticketMatch = line.match(/\bTICKET:\s*(\d+)\b/i);
+    const timeMatch = line.match(/\bTIME:\s*(\d+)\b/i);
 
     const ticket = ticketMatch ? Number(ticketMatch[1]) : null;
     const timestamp = timeMatch ? Number(timeMatch[1]) : null;
 
     return { ticket, timestamp };
   },
+
 
   /**
    * Extrai o timestamp (em milisegundos) do header de uma linha do log.

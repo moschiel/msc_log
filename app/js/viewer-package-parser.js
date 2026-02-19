@@ -209,16 +209,21 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
         if (!isCollectingFrame) {
             // armazena informacoes de ticket e timestamp do pacote
+            const isPkgCreation = substr.startsWith("New Package Ticket: ");
             const isPkgWrite = substr.startsWith("Write Position TIME: ");
             const isPkgRead = substr.startsWith("Read Position TICKET: ");
-            if (isPkgWrite || isPkgRead) {
+            if (isPkgCreation) {
+                // estiliza a linha da criação 
+                const ticket = util.logExtractPkgTicketAndTime(substr).ticket;
+                if(ticket !== null)
+                    lines[lineNumber] = highlightPkgCreation(line, ticket);
+            }
+            else if (isPkgWrite || isPkgRead) {
+                // coleta timestamp da criação
                 const pkgCreationInfo = util.logExtractPkgTicketAndTime(substr);
                 const exists = pkgsCreatedAt.some(p => p.ticket === pkgCreationInfo.ticket);
                 if(exists === false)
                     pkgsCreatedAt.push(pkgCreationInfo);    
-                // estiliza a linha da criação
-                if(isPkgWrite) 
-                    lines[lineNumber] = highlightPkgCreation(line, pkgCreationInfo.ticket);
                 continue;
             }
 
