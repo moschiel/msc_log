@@ -53,6 +53,8 @@ def is_remote_dir(sftp: paramiko.SFTPClient, remote_path: str) -> bool:
 
 
 def upload_file(sftp: paramiko.SFTPClient, local_file: Path, remote_file: str) -> None:
+    print(f"[UPLOAD] arquivo: {local_file} -> {remote_file}")
+
     # garante que a pasta remota existe
     remote_parent = posixpath.dirname(remote_file)
     if remote_parent:
@@ -66,6 +68,8 @@ def upload_dir(
     local_dir: Path,
     remote_dir: str,
 ) -> None:
+    # print(f"[UPLOAD] diretório: {local_dir} -> {remote_dir}/")
+
     sftp_mkdir_p(sftp, remote_dir)
 
     for root, dirs, files in os.walk(local_dir):
@@ -82,6 +86,7 @@ def upload_dir(
             lf = root_path / f
             rf = posixpath.join(remote_root, f)
             upload_file(sftp, lf, rf)
+
 
 
 def normalize_remote_base(remote_base: str) -> str:
@@ -109,10 +114,8 @@ def upload_items(
         remote_target = posixpath.join(remote_base, p.name)
 
         if p.is_file():
-            print(f"[UPLOAD] arquivo: {p} -> {remote_target}")
             upload_file(sftp, p, remote_target)
         elif p.is_dir():
-            print(f"[UPLOAD] diretório: {p} -> {remote_target}/")
             upload_dir(sftp, p, remote_target)
         else:
             raise RuntimeError(f"Tipo não suportado (nem arquivo nem pasta): {p}")

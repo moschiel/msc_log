@@ -177,6 +177,7 @@ ui.btnStatistics.addEventListener("click", () => {
             contentHtml = sorted.map(m => `
                 <div style="display:flex; justify-content:space-between; padding:4px 0;">
                     <span>${m.description}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <strong>${m.count}</strong>
                 </div>
             `).join("");
