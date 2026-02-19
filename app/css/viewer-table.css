@@ -43,9 +43,9 @@ td {
     /* white-space: pre-wrap; */
 }
 
-/* Esconde as 2 primeiras colunas ("Index" e "Created Timestamp") */
-#listMessageTable th:nth-child(-n+2),
-#listMessageTable td:nth-child(-n+2) {
+/* Esconde a segunda coluna "Created Timestamp") */
+#listMessageTable th:nth-child(2),
+#listMessageTable td:nth-child(2) {
     display: none;
 }
 

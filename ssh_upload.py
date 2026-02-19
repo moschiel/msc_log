@@ -25,6 +25,33 @@ def env_required(name: str) -> str:
         raise RuntimeError(f"Variável obrigatória ausente no .env: {name}")
     return v
 
+def should_upload_file(
+    sftp: paramiko.SFTPClient,
+    local_file: Path,
+    remote_file: str,
+    *,
+    compare_mtime: bool = True,
+    compare_size: bool = False,
+    mtime_grace_seconds: int = 2,  # tolerância p/ diferenças de FS/clock
+) -> bool:
+    try:
+        rst = sftp.stat(remote_file)  # remoto existe
+    except FileNotFoundError:
+        return True  # não existe → sobe
+
+    lst = local_file.stat()
+
+    if compare_size and lst.st_size != rst.st_size:
+        return True
+
+    if compare_mtime:
+        # Paramiko retorna st_mtime como epoch seconds (UTC)
+        # Local também é epoch seconds
+        if (lst.st_mtime - rst.st_mtime) > mtime_grace_seconds:
+            return True
+
+    return False
+
 
 def sftp_mkdir_p(sftp: paramiko.SFTPClient, remote_dir: str) -> None:
     # cria recursivamente (POSIX path)
@@ -53,14 +80,18 @@ def is_remote_dir(sftp: paramiko.SFTPClient, remote_path: str) -> bool:
 
 
 def upload_file(sftp: paramiko.SFTPClient, local_file: Path, remote_file: str) -> None:
+    if not should_upload_file(sftp, local_file, remote_file):
+        # print(f"[SKIP] {local_file} (sem mudanças)")
+        return
+
     print(f"[UPLOAD] arquivo: {local_file} -> {remote_file}")
 
-    # garante que a pasta remota existe
     remote_parent = posixpath.dirname(remote_file)
     if remote_parent:
         sftp_mkdir_p(sftp, remote_parent)
 
     sftp.put(str(local_file), remote_file)
+
 
 
 def upload_dir(
