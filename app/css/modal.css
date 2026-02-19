@@ -10,7 +10,9 @@
   --modal-border: rgba(0, 0, 0, 0.08);
   --modal-radius: 12px;
   --modal-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --modal-width: 520px;
+  /* --modal-width: 520px;   */
+  --modal-width: fit-content;
+
 
   /* Dividers / borders */
   --modal-divider: rgba(0, 0, 0, 0.10);

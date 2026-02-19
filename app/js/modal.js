@@ -57,50 +57,83 @@ function _bindGlobalHandlers(enableDataAttrs) {
 }
 
 /**
+ * @typedef {Object} ModalOpenOptions
+ * @property {string} [title]        Título a ser colocado em [data-modal-title]
+ * @property {string} [bodyHtml]     HTML a ser colocado em [data-modal-body]
+ * @property {() => void} [onClose]  Callback chamado ao fechar (se existir)
+ */
+
+/**
+ * @typedef {Object} ModalInstance
+ * @property {(opts?: ModalOpenOptions) => void} open
+ * @property {() => void} close
+ * @property {() => boolean} isOpen
+ */
+
+/**
+ * @typedef {Object} InitModalOptions
+ * @property {string} overlayId            ID do elemento overlay (container do modal)
+ * @property {boolean} [enableDataAttrs]   Habilita bind global por data-attrs
+ */
+
+/**
  * Inicializa um modal baseado no overlayId.
  * overlayId também é usado como chave lógica.
+ *
+ * Requer que dentro do overlay existam:
+ *  - [data-modal-title]
+ *  - [data-modal-body]
+ *
+ * @param {InitModalOptions} [opts]
+ * @returns {ModalInstance|null}
  */
-export function initModal(opts = {}) {
-  const {
-    overlayId = "modalOverlay",
-    titleId = "modalTitle",
-    bodyId = "modalBody",
-    enableDataAttrs = true,
-  } = opts;
+export function initModal(opts = /** @type {InitModalOptions} */ ({ overlayId: "" })) {
+  const { overlayId, enableDataAttrs = true } = opts;
+
+  if (!overlayId) return null;
 
   if (_modals.has(overlayId)) {
     return _modals.get(overlayId);
   }
 
   const overlay = document.getElementById(overlayId);
-  const titleEl = document.getElementById(titleId);
-  const bodyEl  = document.getElementById(bodyId);
+  if (!overlay) return null;
 
-  if (!overlay || !titleEl || !bodyEl) {
-    return null;
-  }
+  /** @type {HTMLElement|null} */
+  const titleEl = overlay.querySelector("[data-modal-title]");
+  /** @type {HTMLElement|null} */
+  const bodyEl = overlay.querySelector("[data-modal-body]");
 
+  if (!titleEl || !bodyEl) return null;
+
+  /** @type {HTMLElement|null} */
   let lastFocusEl = null;
+  /** @type {(() => void) | null} */
   let onCloseCb = null;
 
   function isOpen() {
     return overlay.classList.contains("is-open");
   }
 
+  /**
+   * @param {ModalOpenOptions} [mopts]
+   */
   function open(mopts = {}) {
-    lastFocusEl = document.activeElement;
+    const { title = "", bodyHtml = "", onClose } = mopts;
 
-    titleEl.textContent = mopts.title ?? "";
-    bodyEl.innerHTML = mopts.bodyHtml ?? "";
+    lastFocusEl = /** @type {HTMLElement|null} */ (document.activeElement);
 
-    onCloseCb = typeof mopts.onClose === "function" ? mopts.onClose : null;
+    titleEl.textContent = String(title);
+    bodyEl.innerHTML = String(bodyHtml);
+
+    onCloseCb = (typeof onClose === "function") ? onClose : null;
 
     overlay.classList.add("is-open");
     overlay.setAttribute("aria-hidden", "false");
 
     _stackPush(overlayId);
 
-    /** @type {HTMLElement} */
+    /** @type {HTMLElement|null} */
     const closeBtn = overlay.querySelector("[data-modal-close]");
     closeBtn?.focus();
   }
@@ -113,25 +146,23 @@ export function initModal(opts = {}) {
 
     _stackRemove(overlayId);
 
-    const cb = onCloseCb;
+    onCloseCb?.();
     onCloseCb = null;
-    cb?.();
 
     lastFocusEl?.focus?.();
     lastFocusEl = null;
   }
 
-  // click no fundo fecha
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) close();
   });
 
-  // botão com data-modal-close
   overlay.addEventListener("click", (e) => {
     if (!(e.target instanceof HTMLElement)) return;
     if (e.target.closest("[data-modal-close]")) close();
   });
 
+  /** @type {ModalInstance} */
   const instance = { open, close, isOpen };
   _modals.set(overlayId, instance);
 
@@ -139,6 +170,8 @@ export function initModal(opts = {}) {
 
   return instance;
 }
+
+
 
 /** Abre modal pelo overlayId */
 export function openModal(overlayId = "modalOverlay", opts = {}) {

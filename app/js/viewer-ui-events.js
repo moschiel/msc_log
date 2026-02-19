@@ -35,17 +35,8 @@ window.addEventListener("load", () => {
     initAllSplitters();
 
     // inicializa modais
-    initModal({
-        overlayId: "modal1",
-        titleId: "modalTitle1",
-        bodyId: "modalBody1"
-    });
-
-    initModal({
-        overlayId: "modal2",
-        titleId: "modalTitle2",
-        bodyId: "modalBody2"
-    });
+    initModal({ overlayId: "modal1" });
+    initModal({ overlayId: "modal2" });
 
 
     // forca uma requisição inicial do conteúdo do log

@@ -148,14 +148,14 @@ Botão ▦ deve estar ativo.
         </div>
     </div>
     
-    <!-- modal1: modal com botoes -->
+    <!-- modal1 com botoes -->
     <div id="modal1" class="modal-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <strong id="modalTitle1">Título</strong>
-                <button class="normal-btn" data-modal-close type="button">✕</button>
+                <strong data-modal-title>Título</strong>
+                <!-- <button class="normal-btn" data-modal-close type="button">✕</button> -->
             </div>
-            <div class="modal-body" id="modalBody1">
+            <div class="modal-body" data-modal-body>
                 Corpo do modal
             </div>
             <div class="modal-footer">
@@ -163,17 +163,19 @@ Botão ▦ deve estar ativo.
             </div>
         </div>
     </div>
-    <!-- modal2: modal sem botoes -->
+
+    <!-- modal2 sem botoes -->
     <div id="modal2" class="modal-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <strong id="modalTitle2">Título</strong>
+                <strong data-modal-title>Título</strong>
             </div>
-            <div class="modal-body" id="modalBody2">
+            <div class="modal-body" data-modal-body>
                 Corpo do modal
             </div>
         </div>
-    </div>  
+    </div>
+
 
     <script>
         const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 
