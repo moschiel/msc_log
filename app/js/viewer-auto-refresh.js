@@ -3,7 +3,7 @@ import { ui } from "./viewer-ui-elements.js";
 import {
   clearLogBox, clearRawLog, setRawLog, getRawLog, writeLogBox, setLogBoxPendingPacket,
   processLogChunkAndRender,
-  disableControlsForRender
+  disableControlsWhileProcessing
 } from "./viewer-render-log.js";
 import { clearPkgInfo } from "./viewer-package-parser.js";
 

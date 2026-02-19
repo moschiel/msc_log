@@ -2,7 +2,7 @@ import { ui } from "./viewer-ui-elements.js";
 import { util } from "./utils.js";
 import { initAllFloatingWindows } from "./floating-window.js";
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
-import { initModal, getModal } from "./modal.js";
+import { initModal, getModal, openModal, closeModal } from "./modal.js";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
     hlMessagesCountStatistics,
@@ -14,7 +14,7 @@ import {
     setLocalFileHandle
 } from "./viewer-auto-refresh.js";
 import {
-    getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsForRender
+    getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsWhileProcessing
 } from "./viewer-render-log.js";
 import {
     clearPkgInfo, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
@@ -34,12 +34,19 @@ window.addEventListener("load", () => {
     // inicializa splitters (elementos com a classe splitter)
     initAllSplitters();
 
-    // inicializa o modal único
+    // inicializa modais
     initModal({
-        overlayId: "modalOverlay",
-        titleId: "modalTitle",
-        bodyId: "modalBody"
+        overlayId: "modal1",
+        titleId: "modalTitle1",
+        bodyId: "modalBody1"
     });
+
+    initModal({
+        overlayId: "modal2",
+        titleId: "modalTitle2",
+        bodyId: "modalBody2"
+    });
+
 
     // forca uma requisição inicial do conteúdo do log
     tailRefreshNow();
@@ -87,56 +94,85 @@ ui.btnAutoScroll.addEventListener("click", () => {
 });
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    disableControlsForRender(true);
+    openModal("modal2", {
+        title: "Análise de Pacotes",
+        bodyHtml: `<div>Processando<div>`
+    });
 
-    util.toogleButton(ui.btnHighlightPkg);
-    const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
-    if (highlight) {
-        // hihglight acabou de ser ativado
-        // reprocessa TODO o log 
-        // renderizando com highlight nos pacotes encontradas
-        processLogChunkAndRender("set", getRawLog(), { highlight });
-    }
-    else {
-        // highlight acabou de ser desativado, 
-        // renderiza TODO o texto bruto de volta no logBox
-        writeLogBox("set", "text", getRawLog());
-        setLogBoxPendingPacket("");
-    }
+    disableControlsWhileProcessing(true);
 
-    if (highlight) {
-        // analise de pacote ativada, libera o seletor de mensagem
-        util.setVisible(ui.selListMessageContainer, true);
-    } else {
-        // analise de pacote inativa, bloquea o uso do seletor de mensagens
-        util.setVisible(ui.selListMessageContainer, false);
-        ui.selListMessage.selectedIndex = 0;
-        hideListMessagePane();
-        hideAllListMessageOptions();
-    }
+    // inicia timeout aqui pra chamar o codigo abaixo, 
+    // isso deixa o browser renderizar o modal antes de travar no processamento
+    setTimeout(() => {
+        try {
+            util.toogleButton(ui.btnHighlightPkg);
+            const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
+            if (highlight) {
+                // hihglight acabou de ser ativado
+                // reprocessa TODO o log 
+                // renderizando com highlight nos pacotes encontradas
+                processLogChunkAndRender("set", getRawLog(), { highlight });
+            }
+            else {
+                // highlight acabou de ser desativado, 
+                // renderiza TODO o texto bruto de volta no logBox
+                writeLogBox("set", "text", getRawLog());
+                setLogBoxPendingPacket("");
+            }
 
-    disableControlsForRender(false);
+            if (highlight) {
+                // analise de pacote ativada, libera o seletor de mensagem
+                util.setVisible(ui.selListMessageContainer, true);
+            } else {
+                // analise de pacote inativa, bloquea o uso do seletor de mensagens
+                util.setVisible(ui.selListMessageContainer, false);
+                ui.selListMessage.selectedIndex = 0;
+                hideListMessagePane();
+                hideAllListMessageOptions();
+            }
+        }
+        finally {
+            disableControlsWhileProcessing(false);
+            closeModal("modal2");
+        }
+
+    }, 0);
 });
 
 
 ui.selListMessage.addEventListener("change", () => {
-    disableControlsForRender(true);
+    openModal("modal2", {
+        title: "Análise de Pacotes",
+        bodyHtml: `<div>Processando<div>`
+    });
 
-    const searchMsgID = ui.selListMessage.value;
-    if (searchMsgID !== "none") {
-        // um ID de mensagem acabou de ser selecionado,
-        // reprocessa TODO o log 
-        // renderizando as mensagens do ID selecionado na tabela
-        ui.selListMessage.classList.add("is-selected");
-        processLogChunkAndRender("set", getRawLog(), { searchMsgID });
-        setSplitterPaneVisible(ui.mainSplitter, 2, true);
-    } else {
-        // pesquisa de mensagem acabou de ser desativada
-        // esconde painel de mensagens e limpa tabela
-        hideListMessagePane();
-    }
+    disableControlsWhileProcessing(true);
 
-    disableControlsForRender(false);
+    // inicia timeout aqui pra chamar o codigo abaixo, 
+    // isso deixa o browser renderizar o modal antes de travar no processamento
+    setTimeout(() => {
+        try {
+
+            const searchMsgID = ui.selListMessage.value;
+            if (searchMsgID !== "none") {
+                // um ID de mensagem acabou de ser selecionado,
+                // reprocessa TODO o log 
+                // renderizando as mensagens do ID selecionado na tabela
+                ui.selListMessage.classList.add("is-selected");
+                processLogChunkAndRender("set", getRawLog(), { searchMsgID });
+                setSplitterPaneVisible(ui.mainSplitter, 2, true);
+            } else {
+                // pesquisa de mensagem acabou de ser desativada
+                // esconde painel de mensagens e limpa tabela
+                hideListMessagePane();
+            }
+        }
+        finally {
+            disableControlsWhileProcessing(false);
+            closeModal("modal2");
+        }
+
+    }, 0);
 });
 
 ui.btnStatistics.addEventListener("click", () => {
@@ -166,7 +202,7 @@ ui.btnStatistics.addEventListener("click", () => {
         </div>`
     }
 
-    getModal().open({
+    openModal("modal1", {
         title: "Estatísticas",
         bodyHtml: `
 <div>
@@ -183,7 +219,7 @@ ui.btnPkgConfig.addEventListener("click", () => {
     const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
     const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
 
-    getModal().open({
+    openModal("modal1", {
         title: "Configurações",
         bodyHtml: `
 <div>
@@ -334,7 +370,7 @@ ui.listMessageTable.addEventListener("click", (e) => {
     );
     const columnCreatedAt = headers.findIndex(th =>
         th.textContent.trim() === "Created At"
-    );  
+    );
     const columnLoggedAt = headers.findIndex(th =>
         th.textContent.trim() === "Logged At"
     );
@@ -372,7 +408,7 @@ ui.listMessageTable.addEventListener("click", (e) => {
     if (Number.isNaN(pkgIndex)) return;
     if (Number.isNaN(pkgTicket)) return;
     const scrollTo = clickedColumnIndex === columnCreatedAt ? "ticket" : "pkg";
-    
+
     // Scrolla
     scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket);
 });

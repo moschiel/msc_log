@@ -148,23 +148,32 @@ Botão ▦ deve estar ativo.
         </div>
     </div>
     
-    <!-- Modal único (reutilizado por tudo) -->
-    <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+    <!-- modal1: modal com botoes -->
+    <div id="modal1" class="modal-overlay" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="modal-header">
-                <strong id="modalTitle">Título</strong>
+                <strong id="modalTitle1">Título</strong>
                 <button class="normal-btn" data-modal-close type="button">✕</button>
             </div>
-
-            <div class="modal-body" id="modalBody">
+            <div class="modal-body" id="modalBody1">
                 Corpo do modal
             </div>
-
             <div class="modal-footer">
                 <button class="normal-btn" data-modal-close type="button">Fechar</button>
             </div>
         </div>
     </div>
+    <!-- modal2: modal sem botoes -->
+    <div id="modal2" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <strong id="modalTitle2">Título</strong>
+            </div>
+            <div class="modal-body" id="modalBody2">
+                Corpo do modal
+            </div>
+        </div>
+    </div>  
 
     <script>
         const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 

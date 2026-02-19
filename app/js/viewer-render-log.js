@@ -162,7 +162,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
 
 /** Desabilita ou habilita alguns controles em operações que podem demorar
  *  para evitar que o usuário tente interagir enquanto a operação está em andamento. */
-export function disableControlsForRender(disable) {
+export function disableControlsWhileProcessing(disable) {
     if (ui.btnPickLocalFile)
         ui.btnPickLocalFile.disabled = disable;
 
