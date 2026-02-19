@@ -7,6 +7,7 @@
 /**
  * @typedef {Object} ViewerUI
  * @property {HTMLButtonElement} btnPickLocalFile
+ * @property {HTMLInputElement} inpPickLocalFile
  * @property {HTMLSpanElement} labelLocalFile
  * @property {HTMLButtonElement} btnTailAutoRefresh
  * @property {HTMLButtonElement} btnAutoScroll
@@ -38,6 +39,10 @@ export const ui = {
   
   btnPickLocalFile: /** @type {HTMLButtonElement} */ (
     document.getElementById("btnPickLocalFile")
+  ),
+  
+  inpPickLocalFile: /** @type {HTMLInputElement} */ (
+    document.getElementById("inpPickLocalFile")
   ),
 
   btnTailAutoRefresh: /** @type {HTMLButtonElement} */ (

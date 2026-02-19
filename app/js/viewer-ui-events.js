@@ -11,7 +11,7 @@ import {
 } from "./viewer-message-parser.js";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
-    setLocalFileHandle
+    setLocalFileObject,
 } from "./viewer-auto-refresh.js";
 import {
     getRawLog, clearLogBox, writeLogBox, setLogBoxPendingPacket, processLogChunkAndRender, disableControlsWhileProcessing
@@ -44,33 +44,27 @@ window.addEventListener("load", () => {
 });
 
 if (ui.btnPickLocalFile) {
-    ui.btnPickLocalFile.addEventListener("click", async () => {
+    ui.btnPickLocalFile.addEventListener("click", () => {
+        ui.inpPickLocalFile.value = ""; // permite selecionar o mesmo arquivo de novo
+        ui.inpPickLocalFile.click();
+    });
+
+    ui.inpPickLocalFile.addEventListener("change", async () => {
         try {
-            // @ts-ignore
-            const [handle] = await window.showOpenFilePicker({
-                multiple: false,
-                types: [{
-                    description: "Logs",
-                    accept: { "text/plain": [".log", ".txt", ".asc"] }
-                }]
-            });
-
-            if (!handle) return; // nenhum arquivo selecionado
-
-            //util.saveLastFileHandle(handle); // salva handle do arquivo selecionado para próxima vez que carregar a página
+            const file = ui.inpPickLocalFile.files?.[0];
+            if (!file) return;
 
             clearAllLogData();
-            setLocalFileHandle(handle);
+            setLocalFileObject(file);
 
-            ui.labelLocalFile.textContent = handle.name;
+            // guarda o File Object no locastorage, (não é handle), tem que atualizar a funcao para saveLastFileObject
+            //util.saveLastFileHandle(file); //
+
+            ui.labelLocalFile.textContent = file.name;
 
             await tailRefreshNow();
-
         } catch (e) {
-            // cancelado pelo usuário → ignora
-            if (e.name !== "AbortError") {
-                console.error(e);
-            }
+            console.error(e);
         }
     });
 }

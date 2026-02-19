@@ -10,7 +10,6 @@ import { clearPkgInfo } from "./viewer-package-parser.js";
 
 let refreshTimer = null;
 let lastFileSize = 0;
-let localFileHandle = null;
 let localFileObj    = null;
 
 export function clearAllLogData() {
@@ -72,17 +71,11 @@ async function readRemoteTailChunk() {
   return { tailText };
 }
 
-// handlers de seleção de arquivo local, permite verificar o estado atual do arquivo
-export function setLocalFileHandle(handle) {
-  localFileHandle = handle;
-  localFileObj = null;
-  lastFileSize = 0;
-}
-// esse handler só permite ver o snapshot do arquivo no momento da seleção, 
-// ou seja, se o arquivo mudar, nao tem como saber, o usuário teria que selecionar o arquivo novamente
+// seleção de snapshot do arquivo local, 
+// se o arquivo mudar nao detecta, usuario tem que selecionar arquivo novamente, 
+// logo nao faz sentido auto-refresh
 export function setLocalFileObject(file) {
-  localFileObj = file;
-  localFileHandle = null;
+  localFileObj = file || null;
   lastFileSize = 0;
 }
 
@@ -92,13 +85,8 @@ export function setLocalFileObject(file) {
  * @returns {Promise<{tailText: string}>}
 */
 async function readLocalTailChunk() {
-  let file;
-
-  if (localFileHandle) {
-    file = await localFileHandle.getFile();
-  } else {
-    return { tailText: "" };
-  }
+  const file = localFileObj;
+  if (!file) return { tailText: "" };
 
   const size = file.size;
 

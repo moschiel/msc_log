@@ -5,7 +5,7 @@
 function render_viewer($selectedFile, $isLocal) {
     global $ROOT_DIR, $currentPath;
 
-    $title = ($selectedFile !== '') ? $selectedFile : '(nenhum arquivo)';
+    $title = ($selectedFile !== '') ? $selectedFile : 'Log Viewer (Local)';
     $downloadUrl = './home.php?download=1&file=' . urlencode($selectedFile);
     ?>
 <!DOCTYPE html>
@@ -34,6 +34,12 @@ function render_viewer($selectedFile, $isLocal) {
                         <button id="btnPickLocalFile" type="button" class="normal-btn">
                             📂 Abrir arquivo
                         </button>
+                        <input
+                            id="inpPickLocalFile"
+                            type="file"
+                            accept=".log,.txt,.asc,text/plain"
+                            hidden
+                        >
                         <span id="labelLocalFile" class="local-file-name">
                             nenhum arquivo selecionado
                         </span>
@@ -51,19 +57,20 @@ function render_viewer($selectedFile, $isLocal) {
                             <span><?= htmlspecialchars($title) ?></span>
                         </a>
                     </div>
+
+                    <button 
+                        id="btnTailAutoRefresh"
+                        type="button"
+                        class="hint toogle-btn"
+                        data-hint="Tail Auto-Refresh (3s)"
+                    >
+                        <span class="toogle-btn-icon">⟳</span>
+                    </button>
+
                     <?php
                 } 
             ?>
         
-            <button 
-                id="btnTailAutoRefresh"
-                type="button"
-                class="hint toogle-btn"
-                data-hint="Tail Auto-Refresh (3s)"
-            >
-                <span class="toogle-btn-icon">⟳</span>
-            </button>
-
             <button 
                 id="btnAutoScroll"
                 type="button"
