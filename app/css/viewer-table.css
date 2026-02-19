@@ -43,9 +43,9 @@ td {
     /* white-space: pre-wrap; */
 }
 
-/* Esconde a segunda coluna "Created Timestamp") */
-#listMessageTable th:nth-child(2),
-#listMessageTable td:nth-child(2) {
+/* Esconde a primeira e segunda coluna "#, Created Timestamp") */
+#listMessageTable th:nth-child(-n+2),
+#listMessageTable td:nth-child(-n+2) {
     display: none;
 }
 
