@@ -87,7 +87,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             if (messageDataTable.headers.length === 0) {
                 // insere colunas extras no inicio do header
                 rows[0].unshift(
-                    "Index", 
+                    "#", 
                     "Created Timestamp", 
                     "Created At", 
                     "Logged At", 

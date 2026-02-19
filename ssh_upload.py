@@ -11,6 +11,7 @@ from datetime import datetime
 
 # lista de arquivos e diretórios locais pra subir
 items_to_upload = [
+    "./.htaccess",
     "./home.php",
     "./app",
 ]
