@@ -1,7 +1,9 @@
 import { util } from "./utils.js";
-import { tailSplitWithPendingPkg, LOG_HEADER_EXAMPLE, detectPackages, LOG_HEADER_SIZE
+import {
+    tailSplitWithPendingPkg, LOG_HEADER_EXAMPLE, detectPackages, LOG_HEADER_SIZE
 } from "./viewer-package-parser.js";
-import { getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket 
+import {
+    getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket
 } from "./viewer-render-log.js";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
@@ -23,7 +25,7 @@ export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, l
     let classPkgStatus = "";
 
     if (parseOk) {
-        if(isIncommingPkg)
+        if (isIncommingPkg)
             classPkgStatus = "hl-pkg-incomming";
         else
             classPkgStatus = connState === "Online" ? "hl-pkg-online" : "hl-pkg-offline";
@@ -63,21 +65,18 @@ export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, l
             // segurança
             if (!oldLine || oldLine.length < headerLen) continue;
 
-            let classBorder = "hl-border-sides"; // adiciona borda nas laterais
-            if (i === 0) classBorder += " hl-border-top"; // primeira linha do pacote tem borda no topo
-            if (i === total - 1) classBorder += " hl-border-bottom"; //ultima linha do pacote tempo borda embaixo
-
             const headerPart = oldLine.slice(0, headerLen);
             const hexPart = oldLine.slice(headerLen);
 
             let newLine = "";
 
-            // regra especial da penúltima linha
+            // verifica se é penúltima linha
             if (
                 total >= 2 && // Se o pacote tem mais de duas linhas no log
                 i === (total - 2) && // Se essa é a penultima linha
                 (lines[lineIndexes[total - 1]].length < lines[lineIndexes[total - 2]].length) // E a ultima linha é menor que a penultima linha
             ) {
+                // é penultima linha,
                 // entao temos que aplicar borda embaixo dessa linha tambem, 
                 // mas só na parte direita do frame que nao tenha caracteres de outro frame abaixo dele
 
@@ -93,9 +92,13 @@ export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, l
                     `<span class="${pkgClassName} pkg-right-part hl-border-bottom hl-border-right">${endHexPart}</span>`;
 
                 newLine =
-                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} hl-border-left">` +
+                    `${headerPart}<span class="${pkgClassName} ${classPkgStatus} hl-border-left ${i === 0 ? 'hl-border-top' : ''}">` +
                     `${startHexPart}${spanEndHexPart}</span>`;
             } else {
+                let classBorder = "hl-border-sides"; // adiciona borda nas laterais
+                if (i === 0) classBorder += " hl-border-top"; // primeira linha do pacote tem borda no topo
+                if (i === total - 1) classBorder += " hl-border-bottom"; //ultima linha do pacote tempo borda embaixo
+
                 newLine =
                     `${headerPart}<span class="${pkgClassName} ${classPkgStatus} ${classBorder}">${hexPart}</span>`;
             }
@@ -157,7 +160,7 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
 
     const pkgSelector = `pkg-${pkgIndex}`;
     const ticketSelector = `ticket-${pkgTicket}`;
-    
+
     // Remove highlight anterior (opcional)
     logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
     logBox.querySelectorAll(`.hl-ticket-selected`).forEach(el => el.classList.remove("hl-ticket-selected"));
@@ -165,21 +168,21 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
     // Pega todos
     const allPkgs = logBox.querySelectorAll(`.${pkgSelector}`);
     const allTickets = logBox.querySelectorAll(`.${ticketSelector}`);
-    
+
     // Adiciona highlight em todos
     allPkgs.forEach(el => el.classList.add("hl-pkg-selected"));
     allTickets.forEach(el => el.classList.add("hl-ticket-selected"));
 
-    if (scrollTo ==="pkg" && !allPkgs.length) return;
-    else if (scrollTo ==="ticket" && !allTickets.length) return;
+    if (scrollTo === "pkg" && !allPkgs.length) return;
+    else if (scrollTo === "ticket" && !allTickets.length) return;
 
     // Scrolla até o primeiro elemento encontrado
-    const first = scrollTo ==="pkg" ? allPkgs[0] : allTickets[0];
+    const first = scrollTo === "pkg" ? allPkgs[0] : allTickets[0];
     const elRect = first.getBoundingClientRect();
     const boxRect = logBox.getBoundingClientRect();
     // posição relativa ao container
     const offset = elRect.top - boxRect.top + logBox.scrollTop;
-    
+
     logBox.scrollTo({
         //top: offset, // no topo tela
         top: offset - logBox.clientHeight / 2, // no centro da tela
