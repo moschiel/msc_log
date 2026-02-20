@@ -35,6 +35,7 @@
  * @property {(data: Uint8Array)=>string} getAsciiStringAll
  * @property {(u8arr: Uint8Array)=>string[]} splitNullTerminatedAscii
  * @property {(data: Uint8Array, offset: number)=>string} asciiFromOffset
+ * @property {(text: string)=>string[]} splitLines
  *
  * @property {(el: Element, visible: boolean)=>void} setVisible
  * @property {(el: Element)=>boolean} isVisible
@@ -468,6 +469,18 @@ export const util = {
     }
     return s;
   },
+
+  /** 
+   * @param {string} text
+   * @returns {string[]}
+   */
+  splitLines(text) {
+    if (text)
+      return text.split(/\r?\n/);
+    else
+      return [];
+  },   
+  
 
   // ======== DOM / Visibility ========
 

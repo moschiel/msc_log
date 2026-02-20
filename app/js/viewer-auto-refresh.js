@@ -1,9 +1,12 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import {
-  clearLogBox, clearRawLog, setRawLog, getRawLog, writeLogBox, setLogBoxPendingPacket,
+  clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
-  disableControlsWhileProcessing
+  disableControlsWhileProcessing,
+  virtualLog,
+  setSafeHtmlText,
+  appendRawLog
 } from "./viewer-render-log.js";
 import { clearPkgInfo } from "./viewer-package-parser.js";
 
@@ -14,8 +17,8 @@ let localFileObj    = null;
 
 export function clearAllLogData() {
   clearPkgInfo();
-  clearLogBox();
-  clearRawLog();
+  clearVirtualLog();
+  clearLogMemory();
   lastFileSize = 0;
 }
 
@@ -130,8 +133,8 @@ export async function tailRefreshNow() {
 
     if (tailText.length === 0) return;
     
-    // Atualiza raw log
-    setRawLog(getRawLog() + tailText);
+    // Append raw log
+    appendRawLog(tailText);
 
     const highlight = util.isToogleButtonPressed(ui.btnHighlightPkg);
     const searchMsgID = ui.selListMessage.value;
@@ -143,14 +146,17 @@ export async function tailRefreshNow() {
 
     if (!highlight) {
       // highlight inativo, 
-      // renderiza o texto bruto do Tail recebido no logBox (área visível do log)
-      writeLogBox("append", "text", tailText);
+      // renderiza o texto bruto recebido
+      // virtualLog.appendHtmlText(tailText);
+      virtualLog.setHtmlText(getRawLog());
     }
 
   } catch (e) {
-    setRawLog("Erro ao carregar arquivo: " + e);
-    writeLogBox("set", "text", "Erro ao carregar arquivo: " + e);
-    setLogBoxPendingPacket("");
+    const errMsg = "Erro ao carregar arquivo: " + e; 
+    setRawLog(errMsg);
+    setSafeHtmlText(errMsg);
+    setPendingHtmlText("");
+    virtualLog.setHtmlText(errMsg);
   }
 }
 

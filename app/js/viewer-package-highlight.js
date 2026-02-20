@@ -1,10 +1,4 @@
-import { util } from "./utils.js";
-import {
-    tailSplitWithPendingPkg, LOG_HEADER_EXAMPLE, detectPackages, LOG_HEADER_SIZE
-} from "./viewer-package-parser.js";
-import {
-    getLogBoxPendingPacket, writeLogBox, setLogBoxPendingPacket
-} from "./viewer-render-log.js";
+import { LOG_HEADER_SIZE } from "./viewer-package-parser.js";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
 

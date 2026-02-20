@@ -4,6 +4,8 @@ import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-
 import { setSplitterPaneVisible } from "./split-pane.js";
 
 let rawTextLog = "";
+let safeHtmlLog = "";
+let pendingTextLog = "";
 
 /**
  * Seta o conteudo bruto do log em memoria para uso futuro.
@@ -11,33 +13,46 @@ let rawTextLog = "";
  * Util para quando precisa alternar o conteudo entre texto puro ou texto com HTML.
  * @param {string} rawText 
  */
-export function setRawLog(rawText) {
-    rawTextLog = rawText;
+export function setRawLog(rawText) { rawTextLog = rawText; }
+export function appendRawLog(rawText) { rawTextLog += rawText; }
+export function getRawLog() { return rawTextLog; }
+
+/**
+ * Seta o conteudo seguro pra renderizar com HTML, onde todos os pacotes estao completos
+ * @param {string} content
+ */
+export function setSafeHtmlText(content) { safeHtmlLog = content; }
+export function appendSafeHtmlText(content) { safeHtmlLog += content; }
+export function getSafeHtmlText() { return safeHtmlLog; }
+
+/**
+ * Seta o conteudo pendente de completar um pacote no logBox (área visível do log).
+ * @param {string} content
+ */
+export function setPendingHtmlText(content) { pendingTextLog = content; }
+export function appendPendingHtmlText(content) { pendingTextLog += content; }
+export function getPendingHtmlText() { return pendingTextLog; }
+
+/** Limpa conteudo html em memória */
+export function clearHtmlTextMemory() {
+    setSafeHtmlText("");
+    setPendingHtmlText("");
 }
 
 /**
- * Retorna o conteudo bruto do log em memoria.
- * 
- * Util para quando precisa alternar o conteudo entre texto puro ou texto com HTML.
- * @returns {string} rawText
+ * Limpa o conteudo do log em memoria.
  */
-export function getRawLog() {
-    return rawTextLog;
-}
-
-/**
- * Limpa o conteudo bruto do log em memoria.
- */
-export function clearRawLog() {
+export function clearLogMemory() {
     setRawLog("");
+    clearHtmlTextMemory();
 }
 
 /**
- * Limpa o conteudo do logBox (área visível do log).
+ * Limpa o conteudo do virtualLog.
  */
-export function clearLogBox() {
-    writeLogBox("set", "html", "Carregando...");
-    setLogBoxPendingPacket("");
+export function clearVirtualLog() {
+    // virtualLog.setHtmlText(""); to maluco já
+    clearHtmlTextMemory();
 }
 
 /**
@@ -49,46 +64,31 @@ export function clearLogBox() {
  * @param {string} content
  * @param {boolean} [isPendingPkgContent=false] se true, escreve na parte do log reservada p/ texto pendente de pacote
  */
-export function writeLogBox(mode, type, content, isPendingPkgContent = false) {
-    const el = isPendingPkgContent ? ui.logPendingPacketContent : ui.logContent;
+// export function writeLogBox(mode, type, content, isPendingPkgContent = false) {
+//     const el = isPendingPkgContent ? ui.logPendingPacketContent : ui.logContent;
 
-    if (mode === "set") {
-        if (type === "text")
-            el.textContent = content;
-        else if (type === "html") // html - lento demais se for muito grande o conteudo
-            el.innerHTML = content;
-    }
-    else if (mode === "append") {
-        if (type === "text")
-            el.insertAdjacentText("beforeend", content);
-        else if (type === "html")
-            el.insertAdjacentHTML("beforeend", content);
-    }
+//     if (mode === "set") {
+//         if (type === "text")
+//             el.textContent = content;
+//         else if (type === "html") // html - lento demais se for muito grande o conteudo
+//             el.innerHTML = content;
+//     }
+//     else if (mode === "append") {
+//         if (type === "text")
+//             el.insertAdjacentText("beforeend", content);
+//         else if (type === "html")
+//             el.insertAdjacentHTML("beforeend", content);
+//     }
 
-    // scroll LogBox to bottom if needed
-    if (util.isToogleButtonPressed(ui.btnAutoScroll))
-        ui.logBox.scrollTop = ui.logBox.scrollHeight;
-}
-
-/**
- * Seta o conteudo pendente de completar um pacote no logBox (área visível do log).
- * @param {string} content
- */
-export function setLogBoxPendingPacket(content) {
-    writeLogBox("set", "text", content, true);
-}
-
-/**
- * Recupera o conteudo pendente de completar um pacote no logBox (área visível do log).
- * @returns {string}
- */
-export function getLogBoxPendingPacket() {
-    return ui.logPendingPacketContent.textContent;
-}
+//     // scroll LogBox to bottom if needed
+//     if (util.isToogleButtonPressed(ui.btnAutoScroll))
+//         ui.logBox.scrollTop = ui.logBox.scrollHeight;
+// }
 
 /**
  * Processa um pedaço (chunk) do log, para:
- * - renderizar o log com highlight de pacotes (se solicitado)
+ * - renderizar o log
+ * - renderização do log deve ter highlight de pacotes (se solicitado)
  * - renderizar na tabela de mensagens, as mensagens encontradas de um ID específico (se solicitado) 
  *
  * @param {"set" | "append"} mode
@@ -102,17 +102,22 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
     if (mode === "set") {
         clearPkgInfo();
         if (opts.highlight) {
-            clearLogBox();
+            // clearVirtualLog();
+            clearHtmlTextMemory();
         }
     }
 
     // separa o texto bruto em parte segura + parte pendente (pacote incompleto)
     // onde a parte pendente é o TAIL do texto que pode ter terminado com um pacote incompleto
-    // essa parte pendente fica armazenada no logBox para uso futuro aguardando o pacote completar,
+    // essa parte pendente fica armazenada separadamente para uso futuro aguardando o pacote completar,
     // ja a parte segura contem pacotes completos que podem ser processados.
     const { safeText, pendingText } =
-        tailSplitWithPendingPkg(getLogBoxPendingPacket(), textContent);
+        tailSplitWithPendingPkg(pendingTextLog, textContent);
 
+    // atualiza texto pendente
+    appendPendingHtmlText(pendingText);
+
+    // checa se tem texto seguro pra processar pacotes
     if (safeText && safeText.length > 0) {
         // escapa HTML 
         const escaped = util.escapeHtml(safeText);
@@ -125,10 +130,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
             searchMsgID: opts.searchMsgID
         });
 
-        // renderiza no logBox (área visível do log) o texto com highlight dos pacotes (se solicitado)
-        if (opts.highlight) {
-            writeLogBox(mode, "html", parsed.htmlWithPackagesHighlight);
-        }
+        appendSafeHtmlText(parsed.htmlWithPackagesHighlight);
 
         // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
         if (opts.searchMsgID && opts.searchMsgID !== "none") {
@@ -154,8 +156,10 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
         }
     }
 
-    // atualiza pending do logBox (área visível do log) com o texto pendente de completar um pacote
-    setLogBoxPendingPacket(pendingText || "");
+    // se foi solicitado pra destacar os pacotes processados, renderiza o log
+    if (opts.highlight) {
+        virtualLog.setHtmlText(getSafeHtmlText() + getPendingHtmlText());
+    }
 }
 
 /** Desabilita ou habilita alguns controles em operações que podem demorar
@@ -169,6 +173,24 @@ export function disableControlsWhileProcessing(disable) {
     ui.btnHighlightPkg.disabled = disable;
     ui.selListMessage.disabled = disable;
 }
+
+
+
+/**
+ *
+ * @typedef {( newHtmlText: string ) => void } FuncSetHtmlText
+ * @typedef {( moreHtmlText: string ) => void } FuncAppendHtmlText
+ * 
+ * @typedef {Object} VirtualLog
+ * @property {FuncSetHtmlText} setHtmlText
+ * @property {FuncAppendHtmlText} appendHtmlText
+ * @property {() => void} rerender
+ * @property {() => void} destroy
+ * @property {(lineIndex: number) => void} scrollToLine
+ */
+
+/** @type {VirtualLog} */
+export let virtualLog;
 
 /**
  * Inicializa um virtualizador de log baseado em altura fixa por linha.
@@ -187,12 +209,7 @@ export function disableControlsWhileProcessing(disable) {
  * @param {number} [params.lineHeight=18] Altura fixa de cada linha em pixels
  * @param {number} [params.overscan=200] Número de linhas extras renderizadas acima/abaixo do viewport
  *
- * @returns {{
- *   setLinesHtml: (newLinesHtml: string[]) => void,
- *   rerender: () => void,
- *   destroy: () => void,
- *   scrollToLine: (lineIndex: number) => void
- * }}
+ * @returns {void}
  */
 export function initVirtualLog({
     viewportEl,
@@ -205,6 +222,7 @@ export function initVirtualLog({
     const state = {
         linesHtml,
         lineHeight,
+        linesTotal: 0,
         overscan,
         lastStart: -1,
         lastEnd: -1,
@@ -267,20 +285,50 @@ export function initVirtualLog({
 
     /**
      * Substitui completamente o conteúdo do log.
-     * Reseta scroll para o topo.
      *
-     * @param {string[]} newLinesHtml
+     * @type {FuncSetHtmlText}
      */
-    function setLinesHtml(newLinesHtml) {
-        state.linesHtml = newLinesHtml || [];
-        spacerEl.style.height =
-            state.linesHtml.length * state.lineHeight + "px";
+    function setHtmlText(newHtmlText) {
+        const oldScrollTop = viewportEl.scrollTop;
+
+        state.linesHtml = util.splitLines(newHtmlText);
+
+        const newMaxHeight = state.linesHtml.length * state.lineHeight;
+        spacerEl.style.height = newMaxHeight + "px";
 
         state.lastStart = state.lastEnd = -1;
-        viewportEl.scrollTop = 0;
+
+        const maxScrollTop = Math.max(0, newMaxHeight - viewportEl.clientHeight);
+
+        if (oldScrollTop > maxScrollTop) {
+            viewportEl.scrollTop = 0;
+        } else {
+            viewportEl.scrollTop = oldScrollTop;
+        }
+
         renderNow();
     }
 
+    /**
+     * Acrescenta conteúdo ao final do log a partir de um HTML/texto delta.
+     * Não altera o scroll atual.
+     *
+     * @type {FuncAppendHtmlText}
+     */
+    function appendHtmlText(moreHtmlText) {
+        if (!moreHtmlText) return;
+
+        const moreLines = util.splitLines(moreHtmlText);
+        if (!moreLines || moreLines.length === 0) return;
+
+        for (let i = 0; i < moreLines.length; i++) {
+            state.linesHtml.push(moreLines[i]);
+        }
+
+        spacerEl.style.height = (state.linesHtml.length * state.lineHeight) + "px";
+        state.lastStart = state.lastEnd = -1;
+        renderNow();
+    }
     viewportEl.addEventListener("scroll", scheduleRender, { passive: true });
 
     // Re-render quando o viewport for redimensionado (ex: splitter)
@@ -292,8 +340,9 @@ export function initVirtualLog({
         state.linesHtml.length * state.lineHeight + "px";
     renderNow();
 
-    return {
-        setLinesHtml,
+    virtualLog = {
+        setHtmlText,
+        appendHtmlText,
 
         /**
          * Força re-render completo do range atual.
