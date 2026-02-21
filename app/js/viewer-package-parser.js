@@ -101,7 +101,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             if (messageDataTable.headers.length === 0) {
                 // insere colunas extras no inicio do header
                 rows[0].unshift(
-                    "#", 
+                    "Package Index", 
                     "Created Timestamp", 
                     "Created At", 
                     "Logged At", 
@@ -346,7 +346,7 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     // index / service type
     let connState;
-    const pkgTicket = br.add_row_u16("Index do Pacote");
+    const pkgTicket = br.add_row_u16("Ticket do Pacote");
     br.add_row_u8("Tipo de Serviço", (v) => {
         let ackType = "";
         switch (v & 0x03) {

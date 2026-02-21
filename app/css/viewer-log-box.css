@@ -21,13 +21,14 @@
   right: 0;
 
   display: block;
-  
+
   white-space: pre;
   font-family: Consolas, monospace;
   font-size: 12px;
-  line-height: 14px; /* TEM que bater com lineHeight do JS */
+  line-height: 14px;
+  /* TEM que bater com lineHeight do JS */
   padding-left: 6px;
-  
+
   background: #fafafa;
   color: #111;
 
@@ -53,12 +54,15 @@
 
 /* ===== LOG BOX (dark mode) ===== */
 @media (prefers-color-scheme: dark) {
-    .log-content {
-        background: #0f172a;
-        /* azul bem escuro / terminal vibe */
-        color: #e5e7eb;
-        /* texto claro */
-        scrollbar-color: #475569 #0b1220;
-        /* thumb | track */
-    }
+  .log-viewport {
+    scrollbar-color: #475569 #0b1220;
+    /* thumb | track */
+  }
+
+  .log-content {
+    background: #0f172a;
+    /* azul bem escuro / terminal vibe */
+    color: #e5e7eb;
+    /* texto claro */
+  }
 }

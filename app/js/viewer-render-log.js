@@ -32,7 +32,9 @@ export function getSafeHtmlText() { return safeHtmlLog; }
 export function setPendingHtmlText(content) { pendingTextLog = content; }
 export function appendPendingHtmlText(content) { pendingTextLog += content; }
 export function getPendingHtmlText() { return pendingTextLog; }
-function getPendingWrapper() {return `<span class="pending-content">${pendingTextLog}</span>`;}
+
+function getPendingWrapper() { return `<span class="pending-content">${pendingTextLog}</span>`; }
+export function getLogHtmlTextWrapper() { return getSafeHtmlText() + getPendingWrapper(); }
 
 /** Limpa conteudo html em memória */
 export function clearHtmlTextMemory() {
@@ -159,7 +161,7 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
 
     // se foi solicitado pra destacar os pacotes processados, renderiza o log
     if (opts.highlight) {
-        virtualLog.setHtmlText(getSafeHtmlText() + getPendingWrapper());
+        virtualLog.setHtmlText(getLogHtmlTextWrapper());
     }
 }
 
@@ -187,7 +189,7 @@ export function disableControlsWhileProcessing(disable) {
  * @property {FuncAppendHtmlText} appendHtmlText
  * @property {() => void} rerender
  * @property {() => void} destroy
- * @property {(lineIndex: number) => void} scrollToLine
+ * @property {(lineIndex: number, opts?: {center: boolean}) => void} scrollToLine
  */
 
 /** @type {VirtualLog} */
@@ -368,15 +370,36 @@ export function initVirtualLog({
         /**
          * Faz scroll programático até uma linha específica.
          * @param {number} lineIndex
+         * @param {{ center?: boolean }} [opts]
          */
-        scrollToLine(lineIndex) {
+        scrollToLine(lineIndex, opts = {}) {
             const total = state.linesHtml.length;
+
             const idx = clamp(
                 lineIndex,
                 0,
                 Math.max(0, total - 1)
             );
-            viewportEl.scrollTop = idx * state.lineHeight;
+
+            const lineTopPx = idx * state.lineHeight;
+
+            let targetScrollTop = lineTopPx;
+
+            if (opts.center) {
+                const viewportHeight = viewportEl.clientHeight;
+                targetScrollTop =
+                    lineTopPx
+                    - (viewportHeight / 2)
+                    + (state.lineHeight / 2);
+            }
+
+            const maxScrollTop = Math.max(
+                0,
+                state.linesHtml.length * state.lineHeight - viewportEl.clientHeight
+            );
+
+            viewportEl.scrollTop = clamp(targetScrollTop, 0, maxScrollTop);
+
             scheduleRender();
         },
     };

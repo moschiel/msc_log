@@ -369,7 +369,7 @@ ui.listMessageTable.addEventListener("click", (e) => {
     const headers = Array.from(table.querySelectorAll("thead th"));
 
     const columnPkgIndex = headers.findIndex(th =>
-        th.textContent.trim() === "#"
+        th.textContent.trim() === "Package Index"
     );
     const columnCreatedAt = headers.findIndex(th =>
         th.textContent.trim() === "Created At"

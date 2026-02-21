@@ -1,4 +1,6 @@
+import { util } from "./utils.js";
 import { LOG_HEADER_SIZE } from "./viewer-package-parser.js";
+import { getLogHtmlTextWrapper, getSafeHtmlText, virtualLog } from "./viewer-render-log.js";
 import { ui } from "./viewer-ui-elements.js";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
@@ -150,10 +152,25 @@ export function getHexFromHighlightPackageClass(pkgClassName) {
  * @returns 
  */
 export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
-    if (!ui.logBox) return;
+    //if (!ui.logBox) return;
 
     const pkgSelector = `pkg-${pkgIndex}`;
     const ticketSelector = `ticket-${pkgTicket}`;
+
+    const lines = util.splitLines(getLogHtmlTextWrapper());
+    if(!lines.length) return;
+
+    const pkgLineIndex = lines.findIndex(line => line.includes(pkgSelector));
+    const ticketLineIndex = lines.findIndex(line => line.includes(ticketSelector));
+
+    if(scrollTo === "pkg" && pkgLineIndex)
+        virtualLog.scrollToLine(pkgLineIndex, { center: true });
+    else if(scrollTo === "ticket" && ticketLineIndex)
+        virtualLog.scrollToLine(ticketLineIndex, { center: true });
+
+    return;
+
+    
 
     // Remove highlight anterior (opcional)
     ui.logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
