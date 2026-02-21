@@ -1,4 +1,5 @@
 import { LOG_HEADER_SIZE } from "./viewer-package-parser.js";
+import { ui } from "./viewer-ui-elements.js";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
 
@@ -149,19 +150,18 @@ export function getHexFromHighlightPackageClass(pkgClassName) {
  * @returns 
  */
 export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
-    const logBox = document.getElementById("logBox");
-    if (!logBox) return;
+    if (!ui.logBox) return;
 
     const pkgSelector = `pkg-${pkgIndex}`;
     const ticketSelector = `ticket-${pkgTicket}`;
 
     // Remove highlight anterior (opcional)
-    logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
-    logBox.querySelectorAll(`.hl-ticket-selected`).forEach(el => el.classList.remove("hl-ticket-selected"));
+    ui.logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
+    ui.logBox.querySelectorAll(`.hl-ticket-selected`).forEach(el => el.classList.remove("hl-ticket-selected"));
 
     // Pega todos
-    const allPkgs = logBox.querySelectorAll(`.${pkgSelector}`);
-    const allTickets = logBox.querySelectorAll(`.${ticketSelector}`);
+    const allPkgs = ui.logBox.querySelectorAll(`.${pkgSelector}`);
+    const allTickets = ui.logBox.querySelectorAll(`.${ticketSelector}`);
 
     // Adiciona highlight em todos
     allPkgs.forEach(el => el.classList.add("hl-pkg-selected"));
@@ -173,13 +173,13 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
     // Scrolla até o primeiro elemento encontrado
     const first = scrollTo === "pkg" ? allPkgs[0] : allTickets[0];
     const elRect = first.getBoundingClientRect();
-    const boxRect = logBox.getBoundingClientRect();
+    const boxRect = ui.logBox.getBoundingClientRect();
     // posição relativa ao container
-    const offset = elRect.top - boxRect.top + logBox.scrollTop;
+    const offset = elRect.top - boxRect.top + ui.logBox.scrollTop;
 
-    logBox.scrollTo({
+    ui.logBox.scrollTo({
         //top: offset, // no topo tela
-        top: offset - logBox.clientHeight / 2, // no centro da tela
+        top: offset - ui.logBox.clientHeight / 2, // no centro da tela
         behavior: "smooth"
     });
 }

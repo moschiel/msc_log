@@ -51,7 +51,7 @@ export function saveSplitterSettings(splitterEl, config = { isVertical: null, ra
   all[id] = cur;
   // salva tudo de volta
   localStorage.setItem(LS_SPLITTER_SETTINGS_KEY, JSON.stringify(all));
-  console.log("Splitter settings salvos:", all);
+  //console.log("Splitter settings salvos:", all);
 }
 
 /**

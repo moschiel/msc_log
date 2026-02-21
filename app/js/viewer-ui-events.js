@@ -97,10 +97,10 @@ ui.btnAutoScroll.addEventListener("click", () => {
 });
 
 ui.btnHighlightPkg.addEventListener("click", () => {
-    openModal("modal2", {
-        title: "Análise de Pacotes",
-        bodyHtml: `<div>Processando<div>`
-    });
+    // openModal("modal2", {
+    //     title: "Análise de Pacotes",
+    //     bodyHtml: `<div>Processando<div>`
+    // });
 
     disableControlsWhileProcessing(true);
 
@@ -136,7 +136,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
         }
         finally {
             disableControlsWhileProcessing(false);
-            closeModal("modal2");
+            // closeModal("modal2");
         }
 
     }, 0);
@@ -144,10 +144,10 @@ ui.btnHighlightPkg.addEventListener("click", () => {
 
 
 ui.selListMessage.addEventListener("change", () => {
-    openModal("modal2", {
-        title: "Análise de Pacotes",
-        bodyHtml: `<div>Processando<div>`
-    });
+    // openModal("modal2", {
+    //     title: "Análise de Pacotes",
+    //     bodyHtml: `<div>Processando<div>`
+    // });
 
     disableControlsWhileProcessing(true);
 
@@ -155,7 +155,6 @@ ui.selListMessage.addEventListener("change", () => {
     // isso deixa o browser renderizar o modal antes de travar no processamento
     setTimeout(() => {
         try {
-
             const searchMsgID = ui.selListMessage.value;
             if (searchMsgID !== "none") {
                 // um ID de mensagem acabou de ser selecionado,
@@ -172,7 +171,7 @@ ui.selListMessage.addEventListener("change", () => {
         }
         finally {
             disableControlsWhileProcessing(false);
-            closeModal("modal2");
+            // closeModal("modal2");
         }
 
     }, 0);
@@ -258,7 +257,7 @@ ui.btnPkgConfig.addEventListener("click", () => {
 });
 
 let lastMessageIdClicked = 0;
-ui.logBox.addEventListener("click", e => {
+ui.logContent.addEventListener("click", e => {
     if (!(e.target instanceof HTMLElement)) return;
     if (e.target.classList.contains('hl-pkg-err')) return;
     if (e.target.classList.length === 0) return;

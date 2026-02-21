@@ -4,11 +4,6 @@
   min-height: 0;
   min-width: 0;
   overflow: auto;
-
-  background: #fafafa;
-  color: #111;
-  padding-left: 6px;
-
   border: 2px solid red;
 }
 
@@ -26,41 +21,17 @@
   right: 0;
 
   display: block;
-
+  
   white-space: pre;
   font-family: Consolas, monospace;
   font-size: 12px;
   line-height: 14px; /* TEM que bater com lineHeight do JS */
-
-  margin: 0;
-  padding: 0;
+  padding-left: 6px;
+  
+  background: #fafafa;
+  color: #111;
 
   will-change: transform;
-}
-
-
-/* ===== LOG BOX (light) ===== */
-.log-box {
-    overflow: auto;
-    height: 100%;
-    width: 100%;
-    white-space: pre;
-    font-family: Consolas, monospace;
-    font-size: 12px;
-    background: #fafafa;
-    color: #111;
-    padding-left: 6px;
-}
-
-/* =========================================================
- * SPANS DE CONTEÚDO (containers)
- * ========================================================= */
-#logContent,
-#logPendingPacketContent {
-    display: inline;
-    padding: 0;
-    margin: 0;
-    cursor: auto;
 }
 
 /* =========================================================
@@ -74,41 +45,20 @@
  * Este padding garante que o <span> cubra toda a altura visual
  * da linha, eliminando a zona morta de hover/click.
  * ========================================================= */
-.log-box .pkg {
+/*.log-box .pkg {
     display: inline-block;
     padding: 1px 0;
     cursor: pointer;
-}
-
-/* =========================================================
- * VISUAL DO PENDING (frame incompleto)
- * ========================================================= */
-
-#logPendingPacketContent {
-    opacity: 0.65;
-}
+}*/
 
 /* ===== LOG BOX (dark mode) ===== */
 @media (prefers-color-scheme: dark) {
-    .log-viewport {
+    .log-content {
         background: #0f172a;
         /* azul bem escuro / terminal vibe */
         color: #e5e7eb;
         /* texto claro */
         scrollbar-color: #475569 #0b1220;
         /* thumb | track */
-    }
-
-    .log-box {
-        background: #0f172a;
-        /* azul bem escuro / terminal vibe */
-        color: #e5e7eb;
-        /* texto claro */
-        scrollbar-color: #475569 #0b1220;
-        /* thumb | track */
-    }
-
-    #logPendingPacketContent {
-        opacity: 0.7;
     }
 }

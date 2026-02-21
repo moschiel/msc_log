@@ -117,13 +117,9 @@ Botão ▦ deve estar ativo.
         <div id="mainSplitter" class="splitter splitter-root is-vertical" add-btn-close="none">
             <div id="logViewport" class="log-viewport">
                 <div id="logSpacer" class="log-spacer">
-                    <div id="logContent" class="log-content">EXEMPLO CONTEUDO
-EXEMPLO CONTEUDO
+                    <div id="logContent" class="log-content">
                     </div>
                 </div>
-            </div>
-            <div id="logBox" class="log-box hidden">
-                <span id="logContent">Carregando...</span><span id="logPendingPacketContent"></span>
             </div>
             <div class="table-scroll hidden" id="listMessageContainer">
                 <table id="listMessageTable" class="table-clean table-sticky">
