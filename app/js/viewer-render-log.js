@@ -32,6 +32,7 @@ export function getSafeHtmlText() { return safeHtmlLog; }
 export function setPendingHtmlText(content) { pendingTextLog = content; }
 export function appendPendingHtmlText(content) { pendingTextLog += content; }
 export function getPendingHtmlText() { return pendingTextLog; }
+function getPendingWrapper() {return `<span class="pending-content">${pendingTextLog}</span>`;}
 
 /** Limpa conteudo html em memória */
 export function clearHtmlTextMemory() {
@@ -92,13 +93,13 @@ export function clearVirtualLog() {
  * - renderizar na tabela de mensagens, as mensagens encontradas de um ID específico (se solicitado) 
  *
  * @param {"set" | "append"} mode
- * @param {string} textContent
+ * @param {string} chunk
  * @param {{
  *   highlight?: boolean,
  *   searchMsgID?: string,      // se definido, preenche tabela
  * }} opts
  */
-export function processLogChunkAndRender(mode, textContent, opts = { highlight: false, searchMsgID: null }) {
+export function processLogChunkAndRender(mode, chunk, opts = { highlight: false, searchMsgID: null }) {
     if (mode === "set") {
         clearPkgInfo();
         if (opts.highlight) {
@@ -112,10 +113,10 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
     // essa parte pendente fica armazenada separadamente para uso futuro aguardando o pacote completar,
     // ja a parte segura contem pacotes completos que podem ser processados.
     const { safeText, pendingText } =
-        tailSplitWithPendingPkg(pendingTextLog, textContent);
+        tailSplitWithPendingPkg(getPendingHtmlText(), chunk);
 
     // atualiza texto pendente
-    appendPendingHtmlText(pendingText);
+    setPendingHtmlText(pendingText);
 
     // checa se tem texto seguro pra processar pacotes
     if (safeText && safeText.length > 0) {
@@ -158,7 +159,7 @@ export function processLogChunkAndRender(mode, textContent, opts = { highlight: 
 
     // se foi solicitado pra destacar os pacotes processados, renderiza o log
     if (opts.highlight) {
-        virtualLog.setHtmlText(getSafeHtmlText() + getPendingHtmlText());
+        virtualLog.setHtmlText(getSafeHtmlText() + getPendingWrapper());
     }
 }
 
@@ -300,10 +301,13 @@ export function initVirtualLog({
 
         const maxScrollTop = Math.max(0, newMaxHeight - viewportEl.clientHeight);
 
-        if (oldScrollTop > maxScrollTop) {
-            viewportEl.scrollTop = 0;
+        if (util.isToogleButtonPressed(ui.btnAutoScroll)) {
+            // Vai pro final
+            viewportEl.scrollTop = maxScrollTop;
         } else {
-            viewportEl.scrollTop = oldScrollTop;
+            // Mantém posição se ainda válida
+            viewportEl.scrollTop =
+                oldScrollTop > maxScrollTop ? 0 : oldScrollTop;
         }
 
         renderNow();
@@ -329,6 +333,7 @@ export function initVirtualLog({
         state.lastStart = state.lastEnd = -1;
         renderNow();
     }
+
     viewportEl.addEventListener("scroll", scheduleRender, { passive: true });
 
     // Re-render quando o viewport for redimensionado (ex: splitter)

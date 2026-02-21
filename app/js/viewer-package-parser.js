@@ -30,6 +30,20 @@ export function clearPkgInfo() {
     clearMessageCounter();
 }
 
+/** 
+ * @param {string} line
+ * @returns {{isPkgAnnouncement: boolean, type: "Sent" | "Incomming"} }
+ */
+function checkPkgAnnouncement(line) {
+    const substr = line.substring(LOG_HEADER_SIZE);
+    const isSentPkg = substr.startsWith("Sent Buffer:");
+    const isIncomPkg = substr.startsWith("Incoming Package:");
+    return {
+        isPkgAnnouncement: isSentPkg || isSentPkg,
+        type: isSentPkg ? "Sent" : isIncomPkg ? "Incomming" : null,
+    }
+}
+
 /**
  * Detecta pacotes no texto para:
  * - retornar o texto convertido para HTML, aplicando CSS de highlight nesses pacotes.
@@ -228,9 +242,9 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             }
 
             // verifica se tem que iniciar coleta de frames hexadecimais
-            const isSentPkg = substr.startsWith("Sent Buffer:");
-            isIncommingPkg = substr.startsWith("Incoming Package:");
-            if (isSentPkg || isIncommingPkg) {
+            const res = checkPkgAnnouncement(line);
+            isIncommingPkg = res.type === "Incomming";
+            if (res.isPkgAnnouncement) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 pkgLoggedTimestamp = util.logExtractTimestampFromHeader(line);
                 isCollectingFrame = true;
@@ -455,11 +469,12 @@ function splitTailIfEndsWithIncompletePkg(textChunk) {
     }
 
     // tem mais de uma linha
-    // apartir da penultima linha vai subindo enquanto for linha "frameish"
-    // se encontrar uma linha não frameish, o before é a linha encontrada e as anteriores, 
+    // apartir da penultima linha vai subindo enquanto for linha "frameish" ou "anuncio de frame"
+    // se encontrar uma linha não frameish/anuncio, o before é a linha encontrada e as anteriores, 
     // e o rest começa na próxima linha.
     for (let i = lastIdx - 1; i >= 0; i--) {
-        if (!splitTailUtils.isFrameishLine(lines[i])) {
+        if (!splitTailUtils.isFrameishLine(lines[i]) && !checkPkgAnnouncement(lines[i]).isPkgAnnouncement) {
+            // nao é anuncio de pacote nem frame, fazemos o split apartir desse indice 
             return {
                 before: lines.slice(0, i + 1).join("\n"),
                 rest: lines.slice(i + 1).join("\n") // sempre vai ter pelo menos a última linha no rest
@@ -467,7 +482,7 @@ function splitTailIfEndsWithIncompletePkg(textChunk) {
         }
     }
 
-    // se chegou aqui, todas as linhas antes da última são frameish, 
+    // se chegou aqui, todas as linhas antes da última são frameish ou anuncio de frame, 
     // logo não são seguras, tudo será tratado como rest
     return { before: "", rest: textChunk };
 }

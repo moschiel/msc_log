@@ -91,6 +91,11 @@
   cursor: pointer;
 }
 
+/* Conteudo pendente do log */
+.pending-content {
+ opacity: 0.65;   
+}
+
 /* ========================= */
 /* DARK MODE */
 /* ========================= */
