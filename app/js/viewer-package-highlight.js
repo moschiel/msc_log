@@ -159,13 +159,12 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
     const lines = util.splitLines(getLogHtmlTextWrapper());
     if (!lines || lines.length === 0) return;
 
-    const pkgLineIndex = lines.findIndex(line => line.includes(`<span class="${selectedPkgClass} `));
-    const ticketLineIndex = lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
-
-    if(scrollTo === "pkg" && pkgLineIndex >= 0)
-        virtualLog.scrollToLine(pkgLineIndex, { center: true });
-    else if(scrollTo === "ticket" && ticketLineIndex >= 0)
-        virtualLog.scrollToLine(ticketLineIndex, { center: true });
+    const lineIndex = scrollTo === "pkg" 
+        ? lines.findIndex(line => line.includes(`<span class="${selectedPkgClass} `))
+        : lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
+                    
+    if(lineIndex >= 0)
+        virtualLog.scrollToLine(lineIndex, { center: true });
 
     return;    
 }
