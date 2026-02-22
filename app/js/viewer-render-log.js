@@ -177,19 +177,27 @@ export function disableControlsWhileProcessing(disable) {
     ui.selListMessage.disabled = disable;
 }
 
-
-
 /**
  *
  * @typedef {( newHtmlText: string ) => void } FuncSetHtmlText
  * @typedef {( moreHtmlText: string ) => void } FuncAppendHtmlText
+ * @typedef {(
+ * lineIndex: number, 
+ * opts?: {
+ *  center?: boolean, 
+ *  afterRender?: () => void
+ *  }) => void 
+ * } FuncScrollToLine
+ * @typedef {() => void} FuncAfterRenderHandler
+ * @typedef {(handler: FuncAfterRenderHandler) => () => void} FuncOnAfterRender
  * 
  * @typedef {Object} VirtualLog
  * @property {FuncSetHtmlText} setHtmlText
  * @property {FuncAppendHtmlText} appendHtmlText
+ * @property {FuncScrollToLine} scrollToLine
+ * @property {FuncOnAfterRender} onAfterRender
  * @property {() => void} rerender
  * @property {() => void} destroy
- * @property {(lineIndex: number, opts?: {center: boolean}) => void} scrollToLine
  */
 
 /** @type {VirtualLog} */
@@ -211,8 +219,9 @@ export let virtualLog;
  * @param {string[]} params.linesHtml Array de linhas já prontas em HTML (cada item = 1 linha)
  * @param {number} [params.lineHeight=18] Altura fixa de cada linha em pixels
  * @param {number} [params.overscan=200] Número de linhas extras renderizadas acima/abaixo do viewport
- *
- * @returns {void}
+ * @param {FuncAfterRenderHandler[]} [params.initialAfterRenderHandlers=[]]
+ 
+* @returns {void}
  */
 export function initVirtualLog({
     viewportEl,
@@ -221,6 +230,7 @@ export function initVirtualLog({
     linesHtml,
     lineHeight = 14,
     overscan = 200,
+    initialAfterRenderHandlers
 }) {
     const state = {
         linesHtml,
@@ -230,6 +240,8 @@ export function initVirtualLog({
         lastStart: -1,
         lastEnd: -1,
         rafPending: false,
+        afterRenderQueue: [], // one-shot callbacks
+        afterRenderHandlers: [] // callbacks persistentes
     };
 
     /**
@@ -268,20 +280,61 @@ export function initVirtualLog({
         state.rafPending = false;
 
         const { start, end } = computeRange();
-        if (start === state.lastStart && end === state.lastEnd) return;
 
-        state.lastStart = start;
-        state.lastEnd = end;
+        const rangeChanged =
+            start !== state.lastStart ||
+            end !== state.lastEnd;
 
-        contentEl.style.transform = `translateY(${start * state.lineHeight}px)`;
-        contentEl.innerHTML = state.linesHtml.slice(start, end).join("\n");
+        if (rangeChanged) {
+            state.lastStart = start;
+            state.lastEnd = end;
+
+            contentEl.style.transform =
+                `translateY(${start * state.lineHeight}px)`;
+
+            contentEl.innerHTML =
+                state.linesHtml.slice(start, end).join("\n");
+        }
+
+        // Handlers persistentes (plugins)
+        for (let i = 0; i < state.afterRenderHandlers.length; i++) {
+            const fn = state.afterRenderHandlers[i];
+            try { fn(); }
+            catch (e) { console.error(e); }
+        }
+
+        // Callbacks one-shot (ex: scrollToLine afterRender)
+        while (state.afterRenderQueue.length) {
+            const fn = state.afterRenderQueue.shift();
+            try { fn(); }
+            catch (e) { console.error(e); }
+        }
     }
 
     /**
-     * Agenda renderização no próximo frame.
+     * Agenda a renderização do log virtualizado para o próximo frame
+     * usando `requestAnimationFrame`.
+     *
+     * Se um callback `afterRender` for fornecido, ele será executado
+     * após o DOM ter sido atualizado (ou confirmado) pelo ciclo de render.
+     *
+     * Se já houver uma renderização pendente, o callback será apenas
+     * enfileirado e executado após o próximo render.
+     *
+     * @remarks
+     * Esta função não força renderização imediata; ela apenas garante
+     * que `renderNow()` será executado no próximo frame, evitando
+     * múltiplas renderizações redundantes durante scroll rápido.
+
+     * @param {() => void} [afterRender] Função opcional executada após a renderização.
      */
-    function scheduleRender() {
-        if (state.rafPending) return;
+    function scheduleRender(afterRender) {
+        if (afterRender)
+            state.afterRenderQueue.push(afterRender);
+
+        if (state.rafPending)
+            return;
+
         state.rafPending = true;
         requestAnimationFrame(renderNow);
     }
@@ -336,20 +389,90 @@ export function initVirtualLog({
         renderNow();
     }
 
-    viewportEl.addEventListener("scroll", scheduleRender, { passive: true });
+    /**
+     * Registra um callback que será chamado após toda renderização do log virtualizado.
+     * Retorna uma função para remover o handler.
+     *
+     * @param {FuncAfterRenderHandler} handler
+     * @returns {() => void}
+     */
+    function onAfterRender(handler) {
+        state.afterRenderHandlers.push(handler);
+        return () => {
+            const idx = state.afterRenderHandlers.indexOf(handler);
+            if (idx >= 0) state.afterRenderHandlers.splice(idx, 1);
+        };
+    }
+
+    /**
+     * Faz scroll programático até uma linha específica do log virtualizado.
+     *
+     * Por padrão, a linha é posicionada no topo do viewport.
+     * Se `opts.center` for verdadeiro, a linha será centralizada
+     * verticalmente dentro da área visível.
+     *
+     * Opcionalmente, pode-se fornecer um callback `afterRender`,
+     * que será executado após a virtualização atualizar o DOM.
+     *
+     * @type {FuncScrollToLine}
+     */
+    function scrollToLine(lineIndex, opts = {}) {
+        const total = state.linesHtml.length;
+
+        const idx = clamp(
+            lineIndex,
+            0,
+            Math.max(0, total - 1)
+        );
+
+        const lineTopPx = idx * state.lineHeight;
+
+        let targetScrollTop = lineTopPx;
+
+        if (opts.center) {
+            const viewportHeight = viewportEl.clientHeight;
+            targetScrollTop =
+                lineTopPx
+                - (viewportHeight / 2)
+                + (state.lineHeight / 2);
+        }
+
+        const maxScrollTop = Math.max(
+            0,
+            state.linesHtml.length * state.lineHeight - viewportEl.clientHeight
+        );
+
+        viewportEl.scrollTop = clamp(targetScrollTop, 0, maxScrollTop);
+
+        scheduleRender(opts.afterRender);
+    }
+
+    /**
+     * Pra removeEventListener funcionar, tem que passar a mesma referência da função usada no addEventListener. 
+     * Então não faça inline tipo: viewportEl.addEventListener("scroll", () => scheduleRender());
+     * 
+     * @param {Event} _ev
+     */
+    function onViewportScroll(_ev) {
+        scheduleRender();
+    }
+
+    viewportEl.addEventListener("scroll", onViewportScroll, { passive: true });
 
     // Re-render quando o viewport for redimensionado (ex: splitter)
     const ro = new ResizeObserver(() => scheduleRender());
     ro.observe(viewportEl);
 
     // Init
-    spacerEl.style.height =
-        state.linesHtml.length * state.lineHeight + "px";
+    state.afterRenderHandlers = Array.isArray(initialAfterRenderHandlers) ? initialAfterRenderHandlers.slice() : [];
+    spacerEl.style.height = state.linesHtml.length * state.lineHeight + "px";
     renderNow();
 
     virtualLog = {
         setHtmlText,
         appendHtmlText,
+        onAfterRender,
+        scrollToLine,
 
         /**
          * Força re-render completo do range atual.
@@ -364,43 +487,8 @@ export function initVirtualLog({
          */
         destroy() {
             ro.disconnect();
-            viewportEl.removeEventListener("scroll", scheduleRender);
+            viewportEl.removeEventListener("scroll", onViewportScroll);
         },
 
-        /**
-         * Faz scroll programático até uma linha específica.
-         * @param {number} lineIndex
-         * @param {{ center?: boolean }} [opts]
-         */
-        scrollToLine(lineIndex, opts = {}) {
-            const total = state.linesHtml.length;
-
-            const idx = clamp(
-                lineIndex,
-                0,
-                Math.max(0, total - 1)
-            );
-
-            const lineTopPx = idx * state.lineHeight;
-
-            let targetScrollTop = lineTopPx;
-
-            if (opts.center) {
-                const viewportHeight = viewportEl.clientHeight;
-                targetScrollTop =
-                    lineTopPx
-                    - (viewportHeight / 2)
-                    + (state.lineHeight / 2);
-            }
-
-            const maxScrollTop = Math.max(
-                0,
-                state.linesHtml.length * state.lineHeight - viewportEl.clientHeight
-            );
-
-            viewportEl.scrollTop = clamp(targetScrollTop, 0, maxScrollTop);
-
-            scheduleRender();
-        },
     };
 }

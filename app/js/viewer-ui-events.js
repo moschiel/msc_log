@@ -24,7 +24,7 @@ import {
     clearPkgInfo, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable,
     detectPackages
 } from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, scrollToHighlightedElement } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, highlightBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 
 
 // Evento de página carregada, 
@@ -52,6 +52,7 @@ window.addEventListener("load", () => {
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
+        initialAfterRenderHandlers: [highlightBorderSelection]
     });
 
     // forca uma requisição inicial do conteúdo do log

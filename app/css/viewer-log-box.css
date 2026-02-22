@@ -4,13 +4,13 @@
   min-height: 0;
   min-width: 0;
   overflow: auto;
-  border: 2px solid red;
+  /* border: 2px solid red; */
 }
 
 /* spacer: âncora para posicionamento absoluto */
 .log-spacer {
   position: relative;
-  border: 2px solid yellow;
+  /* border: 2px solid yellow; */
 }
 
 /* content: é o bloco renderizado (virtualizado) */

@@ -142,61 +142,45 @@ export function getHexFromHighlightPackageClass(pkgClassName) {
     }
 }
 
+let selectedPkgClass = null;
+let selectedTicketClass = null;
 /**
- * Scrolla para um elemento destacado no log, de acordo com sua classe.
- * O elemento tambem terá seu estilo alterado (bordas amareladas).
- * 
- * @param {"pkg" | "ticket"} scrollTo
- * @param {number} pkgIndex
- * @param {number} pkgTicket
- * @returns 
+ * Scrolla para um elemento destacado no log, de acordo com sua classe
+ *
+ * @param {"pkg" | "ticket"} scrollTo Define o alvo do scroll.
+ * @param {number} pkgIndex Índice do pacote (usado para montar a classe `pkg-<index>`).
+ * @param {number} pkgTicket Ticket do pacote (usado para montar a classe `ticket-<ticket>`).
+ * @returns {void}
  */
 export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
-    //if (!ui.logBox) return;
-
-    const pkgSelector = `pkg-${pkgIndex}`;
-    const ticketSelector = `ticket-${pkgTicket}`;
+    selectedPkgClass = `pkg-${pkgIndex}`;
+    selectedTicketClass = `ticket-${pkgTicket}`;
 
     const lines = util.splitLines(getLogHtmlTextWrapper());
-    if(!lines.length) return;
+    if (!lines || lines.length === 0) return;
 
-    const pkgLineIndex = lines.findIndex(line => line.includes(pkgSelector));
-    const ticketLineIndex = lines.findIndex(line => line.includes(ticketSelector));
+    const pkgLineIndex = lines.findIndex(line => line.includes(`<span class="${selectedPkgClass} `));
+    const ticketLineIndex = lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
 
-    if(scrollTo === "pkg" && pkgLineIndex)
+    if(scrollTo === "pkg" && pkgLineIndex >= 0)
         virtualLog.scrollToLine(pkgLineIndex, { center: true });
-    else if(scrollTo === "ticket" && ticketLineIndex)
+    else if(scrollTo === "ticket" && ticketLineIndex >= 0)
         virtualLog.scrollToLine(ticketLineIndex, { center: true });
 
-    return;
+    return;    
+}
 
-    
 
-    // Remove highlight anterior (opcional)
-    ui.logBox.querySelectorAll(`.hl-pkg-selected`).forEach(el => el.classList.remove("hl-pkg-selected"));
-    ui.logBox.querySelectorAll(`.hl-ticket-selected`).forEach(el => el.classList.remove("hl-ticket-selected"));
+/**
+ * se o pacote selecionado estiver no range da renderização virtualizada, 
+ * aplica highlight (bordas/amarelo) .
+ */
+export function highlightBorderSelection() {
+    // Remove highlight de borda anterior
+    ui.logContent.querySelectorAll(".hl-pkg-selected").forEach(el => el.classList.remove("hl-pkg-selected"));
+    ui.logContent.querySelectorAll(".hl-ticket-selected").forEach(el => el.classList.remove("hl-ticket-selected"));
 
-    // Pega todos
-    const allPkgs = ui.logBox.querySelectorAll(`.${pkgSelector}`);
-    const allTickets = ui.logBox.querySelectorAll(`.${ticketSelector}`);
-
-    // Adiciona highlight em todos
-    allPkgs.forEach(el => el.classList.add("hl-pkg-selected"));
-    allTickets.forEach(el => el.classList.add("hl-ticket-selected"));
-
-    if (scrollTo === "pkg" && !allPkgs.length) return;
-    else if (scrollTo === "ticket" && !allTickets.length) return;
-
-    // Scrolla até o primeiro elemento encontrado
-    const first = scrollTo === "pkg" ? allPkgs[0] : allTickets[0];
-    const elRect = first.getBoundingClientRect();
-    const boxRect = ui.logBox.getBoundingClientRect();
-    // posição relativa ao container
-    const offset = elRect.top - boxRect.top + ui.logBox.scrollTop;
-
-    ui.logBox.scrollTo({
-        //top: offset, // no topo tela
-        top: offset - ui.logBox.clientHeight / 2, // no centro da tela
-        behavior: "smooth"
-    });
+    // Aplica highlight de borda nos elementos atualmente renderizados (range visível)
+    ui.logContent.querySelectorAll(`.${selectedPkgClass}`).forEach(el => el.classList.add("hl-pkg-selected"));
+    ui.logContent.querySelectorAll(`.${selectedTicketClass}`).forEach(el => el.classList.add("hl-ticket-selected"));
 }
