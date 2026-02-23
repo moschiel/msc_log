@@ -60,7 +60,7 @@ window.addEventListener("load", () => {
      * @param {string} htmlBeforeRender 
      * @returns {string} new html before render
      */
-    function highlightFindQuery(htmlBeforeRender) {
+    function highlightFindBarQuery(htmlBeforeRender) {
         const query = findBar.currentQuery();
         if(!query || query === "")
             return htmlBeforeRender;
@@ -75,7 +75,7 @@ window.addEventListener("load", () => {
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
-        beforeRenderHandlers: [highlightFindQuery],
+        beforeRenderHandlers: [highlightFindBarQuery],
         afterRenderHandlers: [highlightPkgBorderSelection]
     });
 

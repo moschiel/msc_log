@@ -125,13 +125,10 @@
 /* highlights no texto */
 .find-hit {
   background: var(--hit-bg);
-  border-radius: 4px;
-  padding: 0 1px;
 }
 
 .find-hit.is-active {
   background: var(--hit-bg-active);
-  outline: 1px solid rgba(0,0,0,0.22);
 }
 
 /* Dark mode */
@@ -145,7 +142,7 @@
     --find-border: rgba(255,255,255,0.10);
     --find-sep: rgba(255,255,255,0.14);
     --find-focus: rgba(244, 197, 66, 0.95);
-    --hit-bg: rgba(255, 215, 0, 0.28);
+    --hit-bg: rgba(255, 215, 0, 0.78);
     --hit-bg-active: rgba(255, 165, 0, 0.38);
 
     /* Foreground (texto/ícones) */
