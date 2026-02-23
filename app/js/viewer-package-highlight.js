@@ -1,7 +1,8 @@
 import { util } from "./utils.js";
 import { LOG_HEADER_SIZE } from "./viewer-package-parser.js";
-import { getLogHtmlTextWrapper, getSafeHtmlText, virtualLog } from "./viewer-render-log.js";
+import { getLogHtmlTextWrapper, getSafeHtmlText } from "./viewer-render-log.js";
 import { ui } from "./viewer-ui-elements.js";
+import { virtualTextBox } from "./virtual-text-box.js";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
 
@@ -164,7 +165,7 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
         : lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
                     
     if(lineIndex >= 0)
-        virtualLog.scrollToLine(lineIndex, { center: true, behavior: "smooth" }); 
+        virtualTextBox.scrollToLine(lineIndex, { center: true, behavior: "smooth" }); 
 }
 
 

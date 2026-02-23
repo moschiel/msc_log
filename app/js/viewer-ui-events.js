@@ -14,17 +14,15 @@ import {
     setLocalFileObject,
 } from "./viewer-auto-refresh.js";
 import {
-    getRawLog, setPendingHtmlText, processLogChunkAndRender, disableControlsWhileProcessing,
-    initVirtualLog,
-    virtualLog,
-    setSafeHtmlText,
+    getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
 } from "./viewer-render-log.js";
 import {
-    clearPkgInfo, readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable,
-    detectPackages
+    readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
 import { getHexFromHighlightPackageClass, highlightBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
+import { initFindBar } from "./find-bar.js";
+import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js";
 
 
 // Evento de página carregada, 
@@ -44,15 +42,41 @@ window.addEventListener("load", () => {
     initModal({ overlayId: "modal1" });
     initModal({ overlayId: "modal2" });
 
-    // inicializa virtualização do log
-    initVirtualLog({
+    // init find bar
+    const findBar = initFindBar({
+        findBarId: "findBar",
+        btnOpenId: "btnOpenFind",
+        getFullText: getRawLog,
+        gotoLine: (lineIndex) => virtualTextBox.scrollToLine(lineIndex),
+    });
+
+    function renderSearchHighlight() {
+        if(findBar.currentQuery() === "") return;
+
+        virtualTextBox.rerender
+        ui.logContent.textContent
+        /*
+        // Remove highlight de borda anterior
+        ui.logContent.querySelectorAll(".hl-pkg-selected").forEach(el => el.classList.remove("hl-pkg-selected"));
+        ui.logContent.querySelectorAll(".hl-ticket-selected").forEach(el => el.classList.remove("hl-ticket-selected"));
+    
+        // Aplica highlight de borda nos elementos atualmente renderizados (range visível)
+        if(selectedPkgClass)
+            ui.logContent.querySelectorAll(`.${selectedPkgClass}`).forEach(el => el.classList.add("hl-pkg-selected"));
+        if(selectedTicketClass)
+            ui.logContent.querySelectorAll(`.${selectedTicketClass}`).forEach(el => el.classList.add("hl-ticket-selected"));
+        */
+    }
+
+     // inicializa virtualização do log
+    initVirtualTextBox({
         viewportEl: document.getElementById("logViewport"),
         spacerEl: document.getElementById("logSpacer"),
         contentEl: document.getElementById("logContent"),
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
-        initialAfterRenderHandlers: [highlightBorderSelection]
+        initialAfterRenderHandlers: [highlightBorderSelection, renderSearchHighlight]
     });
 
     // forca uma requisição inicial do conteúdo do log
@@ -121,7 +145,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
                 // highlight acabou de ser desativado, 
                 // renderiza TODO o texto bruto de volta no logBox
                 clearHtmlTextMemory();
-                virtualLog.setHtmlText(getRawLog());                
+                virtualTextBox.setHtmlText(getRawLog());                
             }
 
             if (highlight) {

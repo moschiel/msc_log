@@ -3,12 +3,11 @@ import { ui } from "./viewer-ui-elements.js";
 import {
   clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
-  disableControlsWhileProcessing,
-  virtualLog,
   setSafeHtmlText,
   appendRawLog
 } from "./viewer-render-log.js";
 import { clearPkgInfo } from "./viewer-package-parser.js";
+import { virtualTextBox } from "./virtual-text-box.js";
 
 
 let refreshTimer = null;
@@ -147,8 +146,8 @@ export async function tailRefreshNow() {
     if (!highlight) {
       // highlight inativo, 
       // renderiza o texto bruto recebido
-      // virtualLog.appendHtmlText(tailText);
-      virtualLog.setHtmlText(getRawLog());
+      // virtualTextBox.appendHtmlText(tailText);
+      virtualTextBox.setHtmlText(getRawLog());
     }
 
   } catch (e) {
@@ -156,7 +155,7 @@ export async function tailRefreshNow() {
     setRawLog(errMsg);
     setSafeHtmlText(errMsg);
     setPendingHtmlText("");
-    virtualLog.setHtmlText(errMsg);
+    virtualTextBox.setHtmlText(errMsg);
   }
 }
 

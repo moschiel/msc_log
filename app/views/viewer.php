@@ -18,9 +18,10 @@ function render_viewer($selectedFile, $isLocal) {
     <link rel="stylesheet" href="./app/css/modal.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/split-pane.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/floating-window.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/find-bar.css?v=<?= APP_VERSION ?>">
+    <link rel="stylesheet" href="./app/css/virtual-text-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=<?= APP_VERSION ?>">
-    <link rel="stylesheet" href="./app/css/viewer-log-box.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=<?= APP_VERSION ?>">
     <link rel="stylesheet" href="./app/css/viewer-table.css?v=<?= APP_VERSION ?>">
 </head>
@@ -90,17 +91,13 @@ Permite clicar nos pacotes p/ ver detalhes.
 🟢 Pacote Enviado (Online)
 ⚪ Pacote Enviado (Offline)
 🔵 Pacote Recebido
-🔴 Pacote com Erro
-
-⚠ Em logs grandes, a página pode ficar lenta." >
+🔴 Pacote com Erro" >
                 <span class="toogle-btn-icon">▦</span>
             </button>
 
             <div id="selListMessageContainer" class="hint hidden", data-hint="Lista todas as mensagens do ID selecionado.
 
-Botão ▦ deve estar ativo.
-
-⚠ Em logs grandes, a página pode ficar lenta." >
+Botão ▦ deve estar ativo." >
                 <!-- <label for="selListMessage">Listar:</label> -->
                 <select name="selListMessage" id="selListMessage">
                     <option value="none">--</option>
@@ -109,15 +106,29 @@ Botão ▦ deve estar ativo.
             </div>
 
             <div class="align-right">
-                <button id="btnStatistics" class="emoji-btn">📊</button>
-                <button id="btnPkgConfig" class="emoji-btn">⚙️</button>
+                <button id="btnOpenFind" class="emoji-btn" title="Buscar (Ctrl+Shift+F)">🔎</button>
+                <button id="btnStatistics" class="emoji-btn" title="Estatísticas">📊</button>
+                <button id="btnPkgConfig" class="emoji-btn" title="Configurações">⚙️</button>
+            </div>
+
+            <!-- Find bar (overlay no canto superior direito) -->
+            <div class="findbar" id="findBar" aria-hidden="true">
+                <input class="findbar-input" type="search" placeholder="Find"
+                        autocomplete="off" spellcheck="false" />
+                <div class="findbar-count">0/0</div>
+                <div class="findbar-sep" aria-hidden="true"></div>
+                <div class="findbar-actions">
+                    <button class="findbar-prev findbar-btn" type="button" title="Previous (Shift+Enter)">▲</button>
+                    <button class="findbar-next findbar-btn" type="button" title="Next (Enter)">▼</button>
+                    <button class="findbar-close findbar-btn" type="button" title="Close (Esc)">✕</button>
+                </div>
             </div>
         </div>
 
         <div id="mainSplitter" class="splitter splitter-root is-vertical" add-btn-close="none">
-            <div id="logViewport" class="log-viewport">
-                <div id="logSpacer" class="log-spacer">
-                    <div id="logContent" class="log-content">
+            <div id="logViewport" class="text-box-viewport">
+                <div id="logSpacer" class="text-box-spacer">
+                    <div id="logContent" class="text-box-content">
                     </div>
                 </div>
             </div>

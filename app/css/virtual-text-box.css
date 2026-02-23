@@ -1,20 +1,21 @@
 /* viewport: só controla scroll e layout */
-.log-viewport {
+.text-box-viewport {
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow: auto;
   /* border: 2px solid red; */
+  /* 'relative' para a classe .findbar se posicionar em relacao ao viewport */
 }
 
 /* spacer: âncora para posicionamento absoluto */
-.log-spacer {
+.text-box-spacer {
   position: relative;
   /* border: 2px solid yellow; */
 }
 
 /* content: é o bloco renderizado (virtualizado) */
-.log-content {
+.text-box-content {
   position: absolute;
   top: 0;
   left: 0;
@@ -54,12 +55,12 @@
 
 /* ===== LOG BOX (dark mode) ===== */
 @media (prefers-color-scheme: dark) {
-  .log-viewport {
+  .text-box-viewport {
     scrollbar-color: #475569 #0b1220;
     /* thumb | track */
   }
 
-  .log-content {
+  .text-box-content {
     background: #0f172a;
     /* azul bem escuro / terminal vibe */
     color: #e5e7eb;
