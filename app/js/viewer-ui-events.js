@@ -68,8 +68,6 @@ window.addEventListener("load", () => {
     // inicializa virtualização do log
     initVirtualTextBox({
         viewportEl: document.getElementById("logViewport"),
-        spacerEl: document.getElementById("logSpacer"),
-        contentEl: document.getElementById("logContent"),
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,

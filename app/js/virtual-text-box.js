@@ -43,8 +43,6 @@ export let virtualTextBox;
  *
  * @param {Object} params
  * @param {HTMLElement} params.viewportEl Elemento que possui scroll (overflow:auto)
- * @param {HTMLElement} params.spacerEl Elemento que simula a altura total do conteúdo
- * @param {HTMLElement} params.contentEl Elemento onde as linhas visíveis serão renderizadas
  * @param {string[]} params.linesHtml Array de linhas já prontas em HTML (cada item = 1 linha)
  * @param {number} [params.lineHeight=18] Altura fixa de cada linha em pixels
  * @param {number} [params.overscan=200] Número de linhas extras renderizadas acima/abaixo do viewport
@@ -55,14 +53,19 @@ export let virtualTextBox;
  */
 export function initVirtualTextBox({
     viewportEl,
-    spacerEl,
-    contentEl,
     linesHtml,
     lineHeight = 14,
     overscan = 200,
     beforeRenderHandlers,
     afterRenderHandlers
 }) {
+    // Elemento que simula a altura total do conteúdo
+    /** @type {HTMLElement} */
+    const spacerEl = viewportEl.querySelector(".text-box-spacer");
+    // Elemento onde as linhas visíveis serão renderizadas
+    /** @type {HTMLElement} */
+    const contentEl = viewportEl.querySelector(".text-box-content");
+
     const state = {
         linesHtml,
         lineHeight,
@@ -75,6 +78,8 @@ export function initVirtualTextBox({
         afterRenderHandlers, 
         afterRenderQueue: [] // one-shot callbacks depois de renderizar HTML
     };
+
+
 
     /**
      * Garante que um valor fique dentro de um intervalo.
