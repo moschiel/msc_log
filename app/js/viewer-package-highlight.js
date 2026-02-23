@@ -164,9 +164,7 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
         : lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
                     
     if(lineIndex >= 0)
-        virtualLog.scrollToLine(lineIndex, { center: true });
-
-    return;    
+        virtualLog.scrollToLine(lineIndex, { center: true, behavior: "smooth" }); 
 }
 
 
@@ -175,11 +173,16 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
  * aplica highlight (bordas/amarelo) .
  */
 export function highlightBorderSelection() {
+    if(!util.isToogleButtonPressed(ui.btnHighlightPkg)) 
+        return;
+
     // Remove highlight de borda anterior
     ui.logContent.querySelectorAll(".hl-pkg-selected").forEach(el => el.classList.remove("hl-pkg-selected"));
     ui.logContent.querySelectorAll(".hl-ticket-selected").forEach(el => el.classList.remove("hl-ticket-selected"));
 
     // Aplica highlight de borda nos elementos atualmente renderizados (range visível)
-    ui.logContent.querySelectorAll(`.${selectedPkgClass}`).forEach(el => el.classList.add("hl-pkg-selected"));
-    ui.logContent.querySelectorAll(`.${selectedTicketClass}`).forEach(el => el.classList.add("hl-ticket-selected"));
+    if(selectedPkgClass)
+        ui.logContent.querySelectorAll(`.${selectedPkgClass}`).forEach(el => el.classList.add("hl-pkg-selected"));
+    if(selectedTicketClass)
+        ui.logContent.querySelectorAll(`.${selectedTicketClass}`).forEach(el => el.classList.add("hl-ticket-selected"));
 }

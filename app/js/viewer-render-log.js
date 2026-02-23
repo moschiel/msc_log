@@ -185,6 +185,7 @@ export function disableControlsWhileProcessing(disable) {
  * lineIndex: number, 
  * opts?: {
  *  center?: boolean, 
+ *  behavior?: "instant" | "smooth",
  *  afterRender?: () => void
  *  }) => void 
  * } FuncScrollToLine
@@ -416,7 +417,7 @@ export function initVirtualLog({
      *
      * @type {FuncScrollToLine}
      */
-    function scrollToLine(lineIndex, opts = {}) {
+    function scrollToLine(lineIndex, opts = { }) {
         const total = state.linesHtml.length;
 
         const idx = clamp(
@@ -442,7 +443,11 @@ export function initVirtualLog({
             state.linesHtml.length * state.lineHeight - viewportEl.clientHeight
         );
 
-        viewportEl.scrollTop = clamp(targetScrollTop, 0, maxScrollTop);
+        // viewportEl.scrollTop = clamp(targetScrollTop, 0, maxScrollTop);
+        viewportEl.scrollTo({
+            top: clamp(targetScrollTop, 0, maxScrollTop),
+            behavior: opts.behavior ? opts.behavior : "auto"
+        });
 
         scheduleRender(opts.afterRender);
     }
