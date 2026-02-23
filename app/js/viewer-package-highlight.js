@@ -173,7 +173,7 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
  * se o pacote selecionado estiver no range da renderização virtualizada, 
  * aplica highlight (bordas/amarelo) .
  */
-export function highlightBorderSelection() {
+export function highlightPkgBorderSelection() {
     if(!util.isToogleButtonPressed(ui.btnHighlightPkg)) 
         return;
 

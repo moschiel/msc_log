@@ -12,7 +12,7 @@
  * @returns {{
  * open: () => void,
  * close: () => void,
- * currentQuery: () => string,
+ * currentQuery: () => string,  
  * runSearch: () => void
  * }}
  */
@@ -20,7 +20,7 @@ export function initFindBar({
     findBarId,
     btnOpenId, 
     getFullText, 
-    gotoLine,           
+    gotoLine           
     //renderHighlights, // (matches, activeIndex) => void  -> aplica highlight no viewport
 }) {
     const bar = /** @type {HTMLDivElement} */ (

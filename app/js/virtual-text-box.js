@@ -15,6 +15,8 @@ import { ui } from "./viewer-ui-elements.js";
  *  afterRender?: () => void
  *  }) => void 
  * } FuncScrollToLine
+ * @typedef {(htmlBeforeRender: string) => string} FuncBeforeRenderHandler
+ * @typedef {(handler: FuncBeforeRenderHandler) => void} FuncOnBeforeRender
  * @typedef {() => void} FuncAfterRenderHandler
  * @typedef {(handler: FuncAfterRenderHandler) => () => void} FuncOnAfterRender
  * 
@@ -46,7 +48,8 @@ export let virtualTextBox;
  * @param {string[]} params.linesHtml Array de linhas já prontas em HTML (cada item = 1 linha)
  * @param {number} [params.lineHeight=18] Altura fixa de cada linha em pixels
  * @param {number} [params.overscan=200] Número de linhas extras renderizadas acima/abaixo do viewport
- * @param {FuncAfterRenderHandler[]} [params.initialAfterRenderHandlers=[]]
+ * @param {FuncBeforeRenderHandler[]} [params.beforeRenderHandlers=[]] callbacks persistentes antes de renderizar HTML
+ * @param {FuncAfterRenderHandler[]} [params.afterRenderHandlers=[]] callbacks persistentes depois de renderizar HTML
  
 * @returns {void}
  */
@@ -57,7 +60,8 @@ export function initVirtualTextBox({
     linesHtml,
     lineHeight = 14,
     overscan = 200,
-    initialAfterRenderHandlers
+    beforeRenderHandlers,
+    afterRenderHandlers
 }) {
     const state = {
         linesHtml,
@@ -67,8 +71,9 @@ export function initVirtualTextBox({
         lastStart: -1,
         lastEnd: -1,
         rafPending: false,
-        afterRenderQueue: [], // one-shot callbacks
-        afterRenderHandlers: [] // callbacks persistentes
+        beforeRenderHandlers,
+        afterRenderHandlers, 
+        afterRenderQueue: [] // one-shot callbacks depois de renderizar HTML
     };
 
     /**
@@ -112,25 +117,34 @@ export function initVirtualTextBox({
             start !== state.lastStart ||
             end !== state.lastEnd;
 
-        if (rangeChanged) {
+        // descomentar "if" abaixo se quiser atualizar apenas se mudar range do scroll
+        //if (rangeChanged) {
             state.lastStart = start;
             state.lastEnd = end;
 
-            contentEl.style.transform =
-                `translateY(${start * state.lineHeight}px)`;
+            contentEl.style.transform = `translateY(${start * state.lineHeight}px)`;
 
-            contentEl.innerHTML =
-                state.linesHtml.slice(start, end).join("\n");
-        }
+            let htmlToRender = state.linesHtml.slice(start, end).join("\n");
 
-        // Handlers persistentes (plugins)
+            // Handlers persistentes before HTML render
+            for (let i = 0; i < state.beforeRenderHandlers.length; i++) {
+                const fn = state.beforeRenderHandlers[i];
+                try { htmlToRender = fn(htmlToRender); }
+                catch (e) { console.error(e); }
+            }
+
+            // Finalmente, renderiza innerHTML
+            contentEl.innerHTML = htmlToRender;
+        //} //
+
+        // Handlers persistentes after HTML render
         for (let i = 0; i < state.afterRenderHandlers.length; i++) {
             const fn = state.afterRenderHandlers[i];
             try { fn(); }
             catch (e) { console.error(e); }
         }
 
-        // Callbacks one-shot (ex: scrollToLine afterRender)
+        // Callbacks one-shot after HTML render
         while (state.afterRenderQueue.length) {
             const fn = state.afterRenderQueue.shift();
             try { fn(); }
@@ -220,8 +234,7 @@ export function initVirtualTextBox({
      * Registra um callback que será chamado após toda renderização do log virtualizado.
      * Retorna uma função para remover o handler.
      *
-     * @param {FuncAfterRenderHandler} handler
-     * @returns {() => void}
+     * @type {FuncOnAfterRender}
      */
     function onAfterRender(handler) {
         state.afterRenderHandlers.push(handler);
@@ -295,7 +308,7 @@ export function initVirtualTextBox({
     ro.observe(viewportEl);
 
     // Init
-    state.afterRenderHandlers = Array.isArray(initialAfterRenderHandlers) ? initialAfterRenderHandlers.slice() : [];
+    state.afterRenderHandlers = Array.isArray(afterRenderHandlers) ? afterRenderHandlers.slice() : [];
     spacerEl.style.height = state.linesHtml.length * state.lineHeight + "px";
     renderNow();
 

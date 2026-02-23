@@ -2,7 +2,7 @@ import { ui } from "./viewer-ui-elements.js";
 import { util } from "./utils.js";
 import { initAllFloatingWindows } from "./floating-window.js";
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
-import { initModal, getModal, openModal, closeModal } from "./modal.js";
+import { initModal, openModal } from "./modal.js";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
     hlMessagesCountStatistics,
@@ -20,7 +20,7 @@ import {
 import {
     readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 } from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, highlightBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
+import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 import { initFindBar } from "./find-bar.js";
 import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js";
 
@@ -42,33 +42,32 @@ window.addEventListener("load", () => {
     initModal({ overlayId: "modal1" });
     initModal({ overlayId: "modal2" });
 
-    // init find bar
+    // inicializa barra de pesquisa
     const findBar = initFindBar({
         findBarId: "findBar",
         btnOpenId: "btnOpenFind",
         getFullText: getRawLog,
-        gotoLine: (lineIndex) => virtualTextBox.scrollToLine(lineIndex),
+        gotoLine: (lineIndex) => {
+            virtualTextBox.scrollToLine(lineIndex);
+            // highlightFindSearchResults();
+        }
     });
 
-    function renderSearchHighlight() {
-        if(findBar.currentQuery() === "") return;
-
-        virtualTextBox.rerender
-        ui.logContent.textContent
-        /*
-        // Remove highlight de borda anterior
-        ui.logContent.querySelectorAll(".hl-pkg-selected").forEach(el => el.classList.remove("hl-pkg-selected"));
-        ui.logContent.querySelectorAll(".hl-ticket-selected").forEach(el => el.classList.remove("hl-ticket-selected"));
-    
-        // Aplica highlight de borda nos elementos atualmente renderizados (range visível)
-        if(selectedPkgClass)
-            ui.logContent.querySelectorAll(`.${selectedPkgClass}`).forEach(el => el.classList.add("hl-pkg-selected"));
-        if(selectedTicketClass)
-            ui.logContent.querySelectorAll(`.${selectedTicketClass}`).forEach(el => el.classList.add("hl-ticket-selected"));
-        */
+    /**
+     * Recebe o html que será renderizado, 
+     * e adiciona highlight no termo pesquisado na barra de pesquisa
+     * 
+     * @param {string} htmlBeforeRender 
+     * @returns {string} new html before render
+     */
+    function highlightFindQuery(htmlBeforeRender) {
+        const query = findBar.currentQuery();
+        if(!query || query === "")
+            return htmlBeforeRender;
+       return htmlBeforeRender.replaceAll(query, `<span class="find-hit">${query}</span>`);
     }
 
-     // inicializa virtualização do log
+    // inicializa virtualização do log
     initVirtualTextBox({
         viewportEl: document.getElementById("logViewport"),
         spacerEl: document.getElementById("logSpacer"),
@@ -76,15 +75,15 @@ window.addEventListener("load", () => {
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
-        initialAfterRenderHandlers: [highlightBorderSelection, renderSearchHighlight]
+        beforeRenderHandlers: [highlightFindQuery],
+        afterRenderHandlers: [highlightPkgBorderSelection]
     });
 
     // forca uma requisição inicial do conteúdo do log
     tailRefreshNow();
 });
 
-if (util.isLocalFile()) 
-{
+if (util.isLocalFile()) {
     ui.btnPickLocalFile.addEventListener("click", () => {
         ui.inpPickLocalFile.value = ""; // permite selecionar o mesmo arquivo de novo
         ui.inpPickLocalFile.click();
@@ -109,8 +108,7 @@ if (util.isLocalFile())
         }
     });
 }
-else 
-{
+else {
     ui.btnTailAutoRefresh.addEventListener("click", () => {
         util.toogleButton(ui.btnTailAutoRefresh);
         setTailAutoRefresh();
@@ -145,7 +143,7 @@ ui.btnHighlightPkg.addEventListener("click", () => {
                 // highlight acabou de ser desativado, 
                 // renderiza TODO o texto bruto de volta no logBox
                 clearHtmlTextMemory();
-                virtualTextBox.setHtmlText(getRawLog());                
+                virtualTextBox.setHtmlText(getRawLog());
             }
 
             if (highlight) {

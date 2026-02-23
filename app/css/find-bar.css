@@ -9,6 +9,16 @@
   --find-focus: #f4c542; /* “amarelinho” tipo a imagem */
   --hit-bg: rgba(255, 215, 0, 0.45);
   --hit-bg-active: rgba(255, 165, 0, 0.55);
+
+  /* Foreground (texto/ícones) */
+  --find-fg: #111;
+  --find-fg-muted: rgba(0,0,0,0.55);
+
+  /* Botões */
+  --find-btn-hover: rgba(0,0,0,0.06);
+
+  /* Input (opcional) */
+  --find-input-bg: transparent;
 }
 
 .findbar {
@@ -16,8 +26,7 @@
   top: 10px;
   right: 10px;
 
-  /* fechado */
-  display: none; 
+  display: none; /* fechado */
   grid-template-columns: 1fr auto 1px auto;
   align-items: center;
   column-gap: 10px;
@@ -31,6 +40,9 @@
   border-radius: 16px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.20);
   z-index: 99999;
+
+  /* garante que texto/ícones fiquem legíveis no dark também */
+  color: var(--find-fg);
 }
 
 .findbar.is-open { display: grid; }
@@ -42,7 +54,16 @@
   outline: none;
   font-size: 14px;
   padding: 4px 6px;
-  background: transparent;
+
+  background: var(--find-input-bg);
+  color: var(--find-fg);
+  caret-color: var(--find-fg);
+
+  border-radius: 10px; /* opcional, deixa mais “input” */
+}
+
+.findbar-input::placeholder {
+  color: var(--find-fg-muted);
 }
 
 .findbar-input:focus {
@@ -51,7 +72,7 @@
 
 .findbar-count {
   font-size: 13px;
-  color: var(--muted);
+  color: var(--find-fg-muted);
   width: 70px;
   text-align: right;
   padding-right: 2px;
@@ -81,13 +102,18 @@
   cursor: pointer;
   font-size: 14px;
   line-height: 30px;
+
+  color: var(--find-fg);
 }
+
 .findbar-btn:hover {
-  background: rgba(0,0,0,0.06);
+  background: var(--find-btn-hover);
 }
+
 .findbar-btn:active {
   transform: translateY(1px);
 }
+
 .findbar-close {
   margin-left: 2px;
 }
@@ -102,12 +128,13 @@
   border-radius: 4px;
   padding: 0 1px;
 }
+
 .find-hit.is-active {
   background: var(--hit-bg-active);
   outline: 1px solid rgba(0,0,0,0.22);
 }
 
-/* Dark mode básico */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --muted: rgba(231,234,240,0.60);
@@ -120,7 +147,15 @@
     --find-focus: rgba(244, 197, 66, 0.95);
     --hit-bg: rgba(255, 215, 0, 0.28);
     --hit-bg-active: rgba(255, 165, 0, 0.38);
-  }
 
-  .findbar-btn:hover { background: rgba(255,255,255,0.07); }
+    /* Foreground (texto/ícones) */
+    --find-fg: #e7eaf0;
+    --find-fg-muted: rgba(231,234,240,0.65);
+
+    /* Botões */
+    --find-btn-hover: rgba(255,255,255,0.08);
+
+    /* Input (opcional) */
+    --find-input-bg: rgba(255,255,255,0.04);
+  }
 }
