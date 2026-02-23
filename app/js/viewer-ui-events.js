@@ -47,10 +47,8 @@ window.addEventListener("load", () => {
         findBarId: "findBar",
         btnOpenId: "btnOpenFind",
         getFullText: getRawLog,
-        gotoLine: (lineIndex) => {
-            virtualTextBox.scrollToLine(lineIndex);
-            // highlightFindSearchResults();
-        }
+        gotoLine: (lineIndex) => virtualTextBox.scrollToLine(lineIndex),
+        onClearSearch: () => virtualTextBox.rerender() // rerender pra limpar busca na caixa de log
     });
 
     /**

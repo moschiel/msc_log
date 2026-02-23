@@ -8,6 +8,7 @@
  * @param {string} opts.btnOpenId Id do botao que abre o FindBar
  * @param {() => string} opts.getFullText callback para requisitar o texto completo
  * @param {(lineIndex: number) => void} opts.gotoLine callback para scrollar para a linha
+ * @param {() => void} opts.onClearSearch
  * 
  * @returns {{
  * open: () => void,
@@ -20,7 +21,8 @@ export function initFindBar({
     findBarId,
     btnOpenId, 
     getFullText, 
-    gotoLine           
+    gotoLine,
+    onClearSearch           
     //renderHighlights, // (matches, activeIndex) => void  -> aplica highlight no viewport
 }) {
     const bar = /** @type {HTMLDivElement} */ (
@@ -78,11 +80,13 @@ export function initFindBar({
         state.matches = [];
         state.activeIndex = -1;
         updateCount();
+
+        onClearSearch();
         //renderHighlights([], -1);
     }
 
     function currentQuery() {
-        return state.query;
+        return state.activeIndex != -1 ? state.query : "";
     }
 
     // =============================
@@ -119,18 +123,18 @@ export function initFindBar({
 
     function runSearch() {
         const fullText = getFullText();
-
-        state.query = findBarUi.input.value;
+        const previousQuery = state.query;
+        state.query = findBarUi.input.value.trim();
         state.matches = findAllMatches(fullText, state.query);
         state.activeIndex = state.matches.length ? 0 : -1;
 
         updateCount();
 
         //renderHighlights(state.matches, state.activeIndex);
-
-        if (state.activeIndex !== -1) {
+        if (state.activeIndex !== -1)   
             gotoLine(state.matches[state.activeIndex].lineIndex);
-        }
+        else if (previousQuery.length > 0 && state.query.length === 0)
+            onClearSearch();  //se acabou de limpar a pesquisa, notifica
     }
 
     function scheduleSearch() {
@@ -183,6 +187,15 @@ export function initFindBar({
         if (e.key === "Escape") {
             e.preventDefault();
             close();
+        }
+    });
+
+    window.addEventListener("keydown", (e) => {
+        // Ctrl+Shift+F
+        if (e.ctrlKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
+            e.preventDefault();      // impede ações do browser
+            e.stopPropagation();
+            open();          // abre findbar
         }
     });
 
