@@ -104,7 +104,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "Package Index", 
                     "Created Timestamp", 
                     "Created At", 
-                    "Logged At", 
+                    "Sent/Recv At", 
                     "Type", 
                     "Ticket"
                 );

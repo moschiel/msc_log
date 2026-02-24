@@ -393,14 +393,14 @@ ui.listMessageTable.addEventListener("click", (e) => {
     const columnCreatedAt = headers.findIndex(th =>
         th.textContent.trim() === "Created At"
     );
-    const columnLoggedAt = headers.findIndex(th =>
-        th.textContent.trim() === "Logged At"
+    const columnSentRecvAt = headers.findIndex(th =>
+        th.textContent.trim() === "Sent/Recv At"
     );
     const columnPkgTicket = headers.findIndex(th =>
         th.textContent.trim() === "Ticket"
     );
 
-    if (columnPkgIndex === -1 || columnCreatedAt === -1 || columnLoggedAt === -1 || columnPkgTicket === -1) return;
+    if (columnPkgIndex === -1 || columnCreatedAt === -1 || columnSentRecvAt === -1 || columnPkgTicket === -1) return;
 
     // verifica se o clique foi na coluna correta
     const clickedCell = e.target.closest("td");
@@ -408,7 +408,7 @@ ui.listMessageTable.addEventListener("click", (e) => {
 
     const clickedColumnIndex = Array.from(tr.cells).indexOf(clickedCell);
 
-    if (clickedColumnIndex !== columnCreatedAt && clickedColumnIndex !== columnLoggedAt) {
+    if (clickedColumnIndex !== columnCreatedAt && clickedColumnIndex !== columnSentRecvAt) {
         return;
     }
 

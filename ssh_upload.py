@@ -84,9 +84,9 @@ def is_remote_dir(sftp: paramiko.SFTPClient, remote_path: str) -> bool:
 def upload_file(sftp: paramiko.SFTPClient, local_file: Path, remote_file: str) -> None:
     # build gera arquivos "novos", mas ainda vale pular upload se não mudou no servidor
     # (deixa ligado por padrão, usando mtime do arquivo buildado)
-    #if not should_upload_file(sftp, local_file, remote_file):
+    if not should_upload_file(sftp, local_file, remote_file):
         # print(f"[SKIP] {local_file} (sem mudanças)")
-    #    return
+        return
 
     print(f"[UPLOAD] arquivo: {local_file} -> {remote_file}")
 

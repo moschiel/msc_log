@@ -49,7 +49,7 @@ td {
     display: none;
 }
 
-/* A terceita e quarta coluna ("Created At" e "Logged At") estilo indicando que são clicáveis */
+/* A terceita e quarta coluna ("Created At" e "Sent/Recv At") estilo indicando que são clicáveis */
 #listMessageTable td:nth-child(3),
 #listMessageTable td:nth-child(4) {
     white-space: nowrap;
