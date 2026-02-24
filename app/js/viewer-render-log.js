@@ -1,7 +1,7 @@
-import { util } from "./utils.js";
-import { ui } from "./viewer-ui-elements.js";
-import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js";
-import { virtualTextBox } from "./virtual-text-box.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -92,13 +92,10 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
 
     // checa se tem texto seguro pra processar pacotes
     if (safeText && safeText.length > 0) {
-        // escapa HTML 
-        const escaped = util.escapeHtml(safeText);
-
         // detecta os pacotes no texto, retornando:
-        // - HTML com highlight (se solicitado)
+        // - HTML, com highlight (se solicitado)
         // - lista de mensagens de um determinado ID (se solicitado)
-        const parsed = detectPackages(escaped, {
+        const parsed = detectPackages(safeText, {
             highlight: opts.highlight,
             searchMsgID: opts.searchMsgID
         });

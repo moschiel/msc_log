@@ -1,28 +1,28 @@
-import { ui } from "./viewer-ui-elements.js";
-import { util } from "./utils.js";
-import { initAllFloatingWindows } from "./floating-window.js";
-import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
-import { initModal, openModal } from "./modal.js";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initAllFloatingWindows } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initModal, openModal } from "./modal.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
     hlMessagesCountStatistics,
     hideAllListMessageOptions,
     hideListMessagePane
-} from "./viewer-message-parser.js";
+} from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileObject,
-} from "./viewer-auto-refresh.js";
+} from "./viewer-auto-refresh.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
-} from "./viewer-render-log.js";
+} from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
-} from "./viewer-package-parser.js";
-import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
-import { initFindBar } from "./find-bar.js";
-import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js";
+} from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initFindBar } from "./find-bar.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 
 // Evento de página carregada, 

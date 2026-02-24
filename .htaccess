@@ -1,7 +1,0 @@
-<!-- para o client fazer download novamente dos arquivos se o mesmo mudar, ao invez de usar do cache -->
-<IfModule mod_headers.c>
-  <FilesMatch "\.(js|mjs|css)$">
-    Header set Cache-Control "no-cache, max-age=0, must-revalidate"
-  </FilesMatch>
-</IfModule>
-

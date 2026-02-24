@@ -1,8 +1,8 @@
-import { util } from "./utils.js";
-import { LOG_HEADER_SIZE } from "./viewer-package-parser.js";
-import { getLogHtmlTextWrapper, getSafeHtmlText } from "./viewer-render-log.js";
-import { ui } from "./viewer-ui-elements.js";
-import { virtualTextBox } from "./virtual-text-box.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { LOG_HEADER_SIZE } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { getLogHtmlTextWrapper, getSafeHtmlText } from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
 

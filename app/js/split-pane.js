@@ -1,5 +1,5 @@
 // split-pane.js (ESM)
-import { util } from "./utils.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 const MIN_PANE_PX = 80;
 const splitterApi = new WeakMap(); // key: splitterEl, value: { setPaneVisible, syncVisibility, toggleOrientation, ... }

@@ -8,16 +8,16 @@ from dotenv import load_dotenv
 
 import re
 from datetime import datetime
+import shutil
 
 # lista de arquivos e diretórios locais pra subir
 items_to_upload = [
-    "./.htaccess",
     "./home.php",
     "./app",
 ]
 
 # diretório destino no servidor
-remote_base_dir = "/var/www/html/msclogs/"   
+remote_base_dir = "/var/www/html/msclogs/"
 
 
 def env_required(name: str) -> str:
@@ -25,6 +25,7 @@ def env_required(name: str) -> str:
     if not v:
         raise RuntimeError(f"Variável obrigatória ausente no .env: {name}")
     return v
+
 
 def should_upload_file(
     sftp: paramiko.SFTPClient,
@@ -81,9 +82,11 @@ def is_remote_dir(sftp: paramiko.SFTPClient, remote_path: str) -> bool:
 
 
 def upload_file(sftp: paramiko.SFTPClient, local_file: Path, remote_file: str) -> None:
-    if not should_upload_file(sftp, local_file, remote_file):
+    # build gera arquivos "novos", mas ainda vale pular upload se não mudou no servidor
+    # (deixa ligado por padrão, usando mtime do arquivo buildado)
+    #if not should_upload_file(sftp, local_file, remote_file):
         # print(f"[SKIP] {local_file} (sem mudanças)")
-        return
+    #    return
 
     print(f"[UPLOAD] arquivo: {local_file} -> {remote_file}")
 
@@ -92,7 +95,6 @@ def upload_file(sftp: paramiko.SFTPClient, local_file: Path, remote_file: str) -
         sftp_mkdir_p(sftp, remote_parent)
 
     sftp.put(str(local_file), remote_file)
-
 
 
 def upload_dir(
@@ -118,7 +120,6 @@ def upload_dir(
             lf = root_path / f
             rf = posixpath.join(remote_root, f)
             upload_file(sftp, lf, rf)
-
 
 
 def normalize_remote_base(remote_base: str) -> str:
@@ -152,31 +153,79 @@ def upload_items(
         else:
             raise RuntimeError(f"Tipo não suportado (nem arquivo nem pasta): {p}")
 
-def update_app_version(home_php_path):
-    # Gera nova versão baseada em data/hora
-    new_version = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    with open(home_php_path, "r", encoding="utf-8") as f:
-        content = f.read()
+# ---------------- BUILD (placeholder) ----------------
 
-    # Regex para capturar define('APP_VERSION', '...');
-    pattern = r"define\s*\(\s*['\"]APP_VERSION['\"]\s*,\s*['\"][^'\"]*['\"]\s*\)\s*;"
+PLACEHOLDER_BUILD_VERSION = "__PLACEHOLDER_BUILD_VERSION__"
 
-    replacement = f"define('APP_VERSION', '{new_version}');"
 
-    new_content, count = re.subn(pattern, replacement, content)
+def _try_read_text(path: Path) -> tuple[str | None, str | None]:
+    # tenta ler como texto (sem inventar muito). se falhar, não altera.
+    try:
+        return path.read_text(encoding="utf-8"), "utf-8"
+    except UnicodeDecodeError:
+        try:
+            return path.read_text(encoding="latin-1"), "latin-1"
+        except UnicodeDecodeError:
+            return None, None
 
-    if count == 0:
-        raise RuntimeError("APP_VERSION não encontrado em home.php")
 
-    with open(home_php_path, "w", encoding="utf-8") as f:
-        f.write(new_content)
+def replace_placeholder_in_file(file_path: Path, build_version: str) -> None:
+    text, enc = _try_read_text(file_path)
+    if text is None:
+        return
 
-    return new_version
+    if PLACEHOLDER_BUILD_VERSION not in text:
+        return
+
+    file_path.write_text(text.replace(PLACEHOLDER_BUILD_VERSION, build_version), encoding=enc)
+
+
+def prepare_build(items: list[str], build_dir: Path, build_version: str) -> list[str]:
+    """
+    Copia todos os itens para build/<nome_do_item> e substitui
+    __PLACEHOLDER_BUILD_VERSION__ -> build_version em todos os arquivos de texto.
+    Retorna a nova lista de items para upload (apontando para build).
+    """
+    if build_dir.exists():
+        shutil.rmtree(build_dir)
+    build_dir.mkdir(parents=True, exist_ok=True)
+
+    build_items: list[str] = []
+
+    for item in items:
+        src = Path(item).expanduser().resolve()
+        if not src.exists():
+            raise FileNotFoundError(f"Item não existe: {src}")
+
+        dst = build_dir / src.name
+        build_items.append(str(dst))
+
+        if src.is_file():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)  # preserva mtime/metadata
+        elif src.is_dir():
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+        else:
+            raise RuntimeError(f"Tipo não suportado (nem arquivo nem pasta): {src}")
+
+    # substitui placeholder em tudo dentro do build/
+    for f in build_dir.rglob("*"):
+        if f.is_file():
+            replace_placeholder_in_file(f, build_version)
+
+    return build_items
+
 
 def main() -> None:
-    update_app_version("./home.php")
     load_dotenv()
+
+    # timestamp único do build (mesma versão pra tudo)
+    build_version = datetime.now().strftime("%Y%m%d-%H%M%S")
+    build_dir = Path("./build").resolve()
+
+    # monta build/ com placeholder substituído
+    build_items_to_upload = prepare_build(items_to_upload, build_dir, build_version)
 
     host = env_required("SSH_HOST")
     port = int(os.getenv("SSH_PORT", "22"))
@@ -186,6 +235,8 @@ def main() -> None:
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+    print(f"[BUILD] pasta: {build_dir}")
+    print(f"[BUILD] versão: {build_version}")
     print(f"[SSH] conectando em {user}@{host}:{port} ...")
     client.connect(
         hostname=host,
@@ -200,7 +251,7 @@ def main() -> None:
     try:
         sftp = client.open_sftp()
         try:
-            upload_items(sftp, items_to_upload, remote_base_dir)
+            upload_items(sftp, build_items_to_upload, remote_base_dir)
             print("[OK] upload finalizado.")
         finally:
             sftp.close()

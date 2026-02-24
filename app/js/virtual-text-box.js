@@ -1,6 +1,6 @@
 
-import { util } from "./utils.js";
-import { ui } from "./viewer-ui-elements.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 
 /**

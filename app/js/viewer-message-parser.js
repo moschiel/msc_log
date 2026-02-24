@@ -1,7 +1,7 @@
-import { util } from "./utils.js";
-import { setSplitterPaneVisible } from "./split-pane.js";
-import { ui } from "./viewer-ui-elements.js";
-import { createBinaryReader } from "./viewer-binary-reader.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 /**
  * ID e descrição das mensagens, e se suportam listagem

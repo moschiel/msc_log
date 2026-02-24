@@ -1,13 +1,13 @@
-import { util } from "./utils.js";
-import { ui } from "./viewer-ui-elements.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
   clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
   setSafeHtmlText,
   appendRawLog
-} from "./viewer-render-log.js";
-import { clearPkgInfo } from "./viewer-package-parser.js";
-import { virtualTextBox } from "./virtual-text-box.js";
+} from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { clearPkgInfo } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 
 let refreshTimer = null;
@@ -147,7 +147,7 @@ export async function tailRefreshNow() {
       // highlight inativo, 
       // renderiza o texto bruto recebido
       // virtualTextBox.appendHtmlText(tailText);
-      virtualTextBox.setHtmlText(getRawLog());
+      virtualTextBox.setHtmlText(util.escapeHtml(getRawLog()));
     }
 
   } catch (e) {

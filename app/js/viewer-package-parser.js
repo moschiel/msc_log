@@ -1,9 +1,9 @@
-import { util } from "./utils.js";
-import { ui } from "./viewer-ui-elements.js";
-import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js";
-import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js";
-import { createBinaryReader } from "./viewer-binary-reader.js";
-import { openFloatingWindow } from "./floating-window.js";
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { openFloatingWindow } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
@@ -62,7 +62,7 @@ function checkPkgAnnouncement(line) {
  * }}}
  */
 export function detectPackages(text, opt = { highlight: false, searchMsgID: null }) {
-    const lines = text.split(/\r?\n/);
+    const lines = util.escapeHtml(text).split(/\r?\n/);
     const headerLen = LOG_HEADER_SIZE;
 
     let messageDataTable = { headers: [], rows: [] };
