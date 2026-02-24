@@ -31,9 +31,6 @@ import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
  * @property {() => void} destroy
  */
 
-/** @type {VirtualTextBox} */
-export let virtualTextBox;
-
 /**
  * Inicializa um virtualizador de log baseado em altura fixa por linha.
  * Mantém apenas as linhas visíveis (com overscan) no DOM,
@@ -51,7 +48,7 @@ export let virtualTextBox;
  * @param {FuncBeforeRenderHandler[]} [params.beforeRenderHandlers=[]] callbacks persistentes antes de renderizar HTML
  * @param {FuncAfterRenderHandler[]} [params.afterRenderHandlers=[]] callbacks persistentes depois de renderizar HTML
  
-* @returns {void}
+* @returns {VirtualTextBox}
  */
 export function initVirtualTextBox({
     viewportEl,
@@ -320,7 +317,7 @@ export function initVirtualTextBox({
     spacerEl.style.height = state.linesHtml.length * state.lineHeight + "px";
     renderNow();
 
-    virtualTextBox = {
+    return {
         setHtmlText,
         appendHtmlText,
         onAfterRender,

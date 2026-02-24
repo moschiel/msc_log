@@ -1,0 +1,78 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --border: #dcdfe4;
+  --text: #111;
+  --btn-bg: #111;
+  --btn-text: #fff;
+  --danger: #e05858;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141b;
+    --surface: #161d26;
+    --border: #2a3442;
+    --text: #e6edf3;
+    --btn-bg: #e6edf3;
+    --btn-text: #0f141b;
+    --danger: #ff6b6b;
+  }
+}
+
+.hlcfg-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.hl-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--surface);
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.term-input {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.color-input {
+  width: 40px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.hlcfg-footer {
+  margin-top: 12px;
+  text-align: right;
+}

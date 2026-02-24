@@ -22,8 +22,9 @@ function render_viewer($selectedFile, $isLocal) {
     <link rel="stylesheet" href="./app/css/virtual-text-box.css?v=__PLACEHOLDER_BUILD_VERSION__">
     <link rel="stylesheet" href="./app/css/viewer.css?v=__PLACEHOLDER_BUILD_VERSION__">
     <link rel="stylesheet" href="./app/css/viewer-header.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer-highlight.css?v=__PLACEHOLDER_BUILD_VERSION__">
+    <link rel="stylesheet" href="./app/css/viewer-pkg-highlight.css?v=__PLACEHOLDER_BUILD_VERSION__">
     <link rel="stylesheet" href="./app/css/viewer-table.css?v=__PLACEHOLDER_BUILD_VERSION__">
+    <link rel="stylesheet" href="./app/css/viewer-terms-highlight.css?v=__PLACEHOLDER_BUILD_VERSION__">
 </head>
 <body>
     <div class="main">
@@ -108,7 +109,7 @@ Botão ▦ deve estar ativo." >
             <div class="align-right">
                 <button id="btnOpenFind" class="emoji-btn" title="Buscar (Ctrl+Shift+F)">🔎</button>
                 <button id="btnStatistics" class="emoji-btn" title="Estatísticas">📊</button>
-                <button id="btnPkgConfig" class="emoji-btn" title="Configurações">⚙️</button>
+                <button id="btnConfigs" class="emoji-btn" title="Configurações">⚙️</button>
             </div>
 
             <!-- Find bar (overlay no canto superior direito) -->

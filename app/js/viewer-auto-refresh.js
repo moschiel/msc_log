@@ -12,7 +12,7 @@ import {
 // @ts-ignore
 import { clearPkgInfo } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
-import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 
 let refreshTimer = null;

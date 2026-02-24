@@ -14,7 +14,7 @@
  * @property {HTMLButtonElement} btnHighlightPkg
  * @property {HTMLDivElement} selListMessageContainer
  * @property {HTMLSelectElement} selListMessage
- * @property {HTMLButtonElement} btnPkgConfig
+ * @property {HTMLButtonElement} btnConfigs
  * @property {HTMLButtonElement} btnStatistics
  *
  * @property {HTMLDivElement} mainSplitter
@@ -69,8 +69,8 @@ export const ui = {
     document.getElementById("btnStatistics")
   ),
   
-  btnPkgConfig: /** @type {HTMLButtonElement} */ (
-    document.getElementById("btnPkgConfig")
+  btnConfigs: /** @type {HTMLButtonElement} */ (
+    document.getElementById("btnConfigs")
   ),
 
   mainSplitter: /** @type {HTMLDivElement} */ (

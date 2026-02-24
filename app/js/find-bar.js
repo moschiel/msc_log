@@ -3,19 +3,24 @@
 // =============================
 
 /**
+ * @typedef {{
+ * open: () => void,
+ * close: () => void,
+ * currentQuery: () => string,  
+ * runSearch: () => void
+ * }} FindBar
+ */
+
+
+/**
  * @param {Object} opts
  * @param {string} opts.findBarId Id do finder bar
  * @param {string} opts.btnOpenId Id do botao que abre o FindBar
  * @param {() => string} opts.getFullText callback para requisitar o texto completo
  * @param {(lineIndex: number) => void} opts.gotoLine callback para scrollar para a linha
  * @param {() => void} opts.onClearSearch
- * 
- * @returns {{
- * open: () => void,
- * close: () => void,
- * currentQuery: () => string,  
- * runSearch: () => void
- * }}
+ *  
+ * @returns {FindBar}
  */
 export function initFindBar({
     findBarId,

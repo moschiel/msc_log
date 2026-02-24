@@ -7,7 +7,7 @@ import { getLogHtmlTextWrapper, getSafeHtmlText } from "./viewer-render-log.js?v
 // @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
-import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 const PKG_HIGHLIGHT_VERSION = "V1";
 

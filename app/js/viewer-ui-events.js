@@ -34,8 +34,14 @@ import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToH
 // @ts-ignore
 import { initFindBar } from "./find-bar.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
-import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initVirtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
+import { highlightFindBarTerm } from "./viewer-terms-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
+/**@type {import("./find-bar").FindBar} */
+export let findBar;
+/**@type {import("./virtual-text-box").VirtualTextBox} */
+export let virtualTextBox;
 
 // Evento de página carregada, 
 // após carregamento inicializamos outros componentes da UI
@@ -55,7 +61,7 @@ window.addEventListener("load", () => {
     initModal({ overlayId: "modal2" });
 
     // inicializa barra de pesquisa
-    const findBar = initFindBar({
+    findBar = initFindBar({
         findBarId: "findBar",
         btnOpenId: "btnOpenFind",
         getFullText: getRawLog,
@@ -63,27 +69,13 @@ window.addEventListener("load", () => {
         onClearSearch: () => virtualTextBox.rerender() // rerender pra limpar busca na caixa de log
     });
 
-    /**
-     * Recebe o html que será renderizado, 
-     * e adiciona highlight no termo pesquisado na barra de pesquisa
-     * 
-     * @param {string} htmlBeforeRender 
-     * @returns {string} new html before render
-     */
-    function highlightFindBarQuery(htmlBeforeRender) {
-        const query = findBar.currentQuery();
-        if(!query || query === "")
-            return htmlBeforeRender;
-       return htmlBeforeRender.replaceAll(query, `<span class="find-hit">${query}</span>`);
-    }
-
     // inicializa virtualização do log
-    initVirtualTextBox({
+    virtualTextBox = initVirtualTextBox({
         viewportEl: document.getElementById("logViewport"),
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
-        beforeRenderHandlers: [highlightFindBarQuery],
+        beforeRenderHandlers: [highlightFindBarTerm],
         afterRenderHandlers: [highlightPkgBorderSelection]
     });
 
@@ -248,7 +240,7 @@ ui.btnStatistics.addEventListener("click", () => {
     });
 });
 
-ui.btnPkgConfig.addEventListener("click", () => {
+ui.btnConfigs.addEventListener("click", () => {
 
     const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
     const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
@@ -256,7 +248,7 @@ ui.btnPkgConfig.addEventListener("click", () => {
     openModal("modal1", {
         title: "Configurações",
         bodyHtml: `
-<div>
+<section>
     <div style="padding-bottom: 16px;">
         Análise de Pacotes
     </div>
@@ -269,7 +261,42 @@ ui.btnPkgConfig.addEventListener("click", () => {
         <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
         Ignora Pacote que só tem KEEP-ALIVE (message ID 0x0000)
     </label>
-<div>`
+<section>
+<div class="modal-divider hidden"></div>
+<section class="hidden">
+  <div style="padding-bottom: 16px;">
+        Highlight Terms
+  </div>
+
+  <ul class="hlcfg-list">
+    <!-- Exemplo 1 -->
+    <li class="hl-item">
+      <input type="text" value="ERROR" class="term-input" />
+      <input type="color" value="#E05858" class="color-input" />
+      <label>
+        <input type="checkbox" checked />
+        Enabled
+      </label>
+      <button class="btn-remove" type="button">✕</button>
+    </li>
+
+    <!-- Exemplo 2 -->
+    <li class="hl-item">
+      <input type="text" value="Ticket:" class="term-input" />
+      <input type="color" value="#34B6EE" class="color-input" />
+      <label>
+        <input type="checkbox" checked />
+        Enabled
+      </label>
+      <button class="btn-remove" type="button">✕</button>
+    </li>
+  </ul>
+
+  <footer class="hlcfg-footer">
+    <button class="btn-primary" type="button">+ Add</button>
+    <button class="btn-primary" type="button">Save</button>
+  </footer>
+</section>`
     });
 
     const modalBody = document.getElementById("modalBody");
