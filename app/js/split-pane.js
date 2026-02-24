@@ -1,4 +1,5 @@
 // split-pane.js (ESM)
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 const MIN_PANE_PX = 80;

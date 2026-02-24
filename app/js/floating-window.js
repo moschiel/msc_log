@@ -1,3 +1,4 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 // floating-window.js (ESM)

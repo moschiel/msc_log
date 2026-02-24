@@ -1,8 +1,14 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { openFloatingWindow } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";

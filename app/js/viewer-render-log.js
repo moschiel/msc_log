@@ -1,6 +1,10 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 let rawTextLog = "";

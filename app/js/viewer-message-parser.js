@@ -1,6 +1,10 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 /**
@@ -218,6 +222,7 @@ export function initSelectMessageIDOptions() {
     }
 
     // Eventos de Telemetria 0x1402
+    // @ts-ignore
     for (const [evId, description] of telemetryEventsList) {
         const opt = document.createElement("option");
 

@@ -1,5 +1,6 @@
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // viewer-binary-reader.js
+// @ts-ignore
+import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 /**
  * @typedef {"validate" | "collect"} ProcessMode

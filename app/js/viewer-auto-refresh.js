@@ -1,12 +1,17 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
   clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
   setSafeHtmlText,
   appendRawLog
+// @ts-ignore
 } from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { clearPkgInfo } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 

@@ -1,27 +1,39 @@
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { initAllFloatingWindows } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { initModal, openModal } from "./modal.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
     hlMessagesCountStatistics,
     hideAllListMessageOptions,
     hideListMessagePane
+// @ts-ignore
 } from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileObject,
+// @ts-ignore
 } from "./viewer-auto-refresh.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
+// @ts-ignore
 } from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
+// @ts-ignore
 } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { initFindBar } from "./find-bar.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { initVirtualTextBox, virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 

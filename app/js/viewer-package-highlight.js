@@ -1,7 +1,12 @@
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { LOG_HEADER_SIZE } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { getLogHtmlTextWrapper, getSafeHtmlText } from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { virtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 const PKG_HIGHLIGHT_VERSION = "V1";

@@ -1,5 +1,7 @@
 
+// @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
 import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 
@@ -118,6 +120,7 @@ export function initVirtualTextBox({
 
         const { start, end } = computeRange();
 
+        // @ts-ignore
         const rangeChanged =
             start !== state.lastStart ||
             end !== state.lastEnd;
