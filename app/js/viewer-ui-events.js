@@ -13,22 +13,20 @@ import {
     hlMessagesCountStatistics,
     hideAllListMessageOptions,
     hideListMessagePane
-// @ts-ignore
+    // @ts-ignore
 } from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileObject,
-// @ts-ignore
+    // @ts-ignore
 } from "./viewer-auto-refresh.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
-// @ts-ignore
+    // @ts-ignore
 } from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
-import {
-    readPkgAnalyzeConfig, savePkgAnalyzeConfig, parsePackage, showParsedPackageOnTable
 // @ts-ignore
-} from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
 import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
@@ -37,6 +35,10 @@ import { initFindBar } from "./find-bar.js?v=__PLACEHOLDER_BUILD_VERSION__";
 import { initVirtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
 import { highlightFindBarTerm } from "./viewer-terms-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
+import { configs, loadConfigs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
+import { htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 /**@type {import("./find-bar").FindBar} */
 export let findBar;
@@ -47,6 +49,8 @@ export let virtualTextBox;
 // após carregamento inicializamos outros componentes da UI
 // além de forçar uma atualização inicial do conteúdo do log.
 window.addEventListener("load", () => {
+    loadConfigs();
+
     // carrega options no seletor #selListMessage
     initSelectMessageIDOptions();
 
@@ -75,7 +79,7 @@ window.addEventListener("load", () => {
         linesHtml: [],
         lineHeight: 14,
         overscan: 200,
-        beforeRenderHandlers: [highlightFindBarTerm],
+        beforeRenderHandlers: [highlightConfiguredTerms, highlightFindBarTerm],
         afterRenderHandlers: [highlightPkgBorderSelection]
     });
 
@@ -241,77 +245,17 @@ ui.btnStatistics.addEventListener("click", () => {
 });
 
 ui.btnConfigs.addEventListener("click", () => {
-
-    const ignoreAck = readPkgAnalyzeConfig("ignoreAck") === "1";
-    const ignoreKeepAlive = readPkgAnalyzeConfig("ignoreKeepAlive") === "1";
-
     openModal("modal1", {
         title: "Configurações",
         bodyHtml: `
-<section>
-    <div style="padding-bottom: 16px;">
-        Análise de Pacotes
-    </div>
-    <label>
-        <input id="cbIgnoreAck" type="checkbox" ${ignoreAck ? "checked" : ""}>
-        Ignora Pacote que só tem ACK (message ID 0xFFFF)
-    </label>
-    <br>
-    <label>
-        <input id="cbIgnoreKeepAlive" type="checkbox" ${ignoreKeepAlive ? "checked" : ""}>
-        Ignora Pacote que só tem KEEP-ALIVE (message ID 0x0000)
-    </label>
-<section>
-<div class="modal-divider hidden"></div>
-<section class="hidden">
-  <div style="padding-bottom: 16px;">
-        Highlight Terms
-  </div>
+            ${htmlTermsConfigurator()}
+            <div class="modal-divider"></div>
+            ${htmlPkgAnalyzerConfigurator()}
+        `}
+    );
 
-  <ul class="hlcfg-list">
-    <!-- Exemplo 1 -->
-    <li class="hl-item">
-      <input type="text" value="ERROR" class="term-input" />
-      <input type="color" value="#E05858" class="color-input" />
-      <label>
-        <input type="checkbox" checked />
-        Enabled
-      </label>
-      <button class="btn-remove" type="button">✕</button>
-    </li>
-
-    <!-- Exemplo 2 -->
-    <li class="hl-item">
-      <input type="text" value="Ticket:" class="term-input" />
-      <input type="color" value="#34B6EE" class="color-input" />
-      <label>
-        <input type="checkbox" checked />
-        Enabled
-      </label>
-      <button class="btn-remove" type="button">✕</button>
-    </li>
-  </ul>
-
-  <footer class="hlcfg-footer">
-    <button class="btn-primary" type="button">+ Add</button>
-    <button class="btn-primary" type="button">Save</button>
-  </footer>
-</section>`
-    });
-
-    const modalBody = document.getElementById("modalBody");
-    /** @type {HTMLInputElement} */
-    const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
-    /** @type {HTMLInputElement} */
-    const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive")
-
-    cbIgnoreAck.onchange = () => {
-        savePkgAnalyzeConfig("ignoreAck", cbIgnoreAck.checked ? "1" : "0");
-    };
-
-    cbIgnoreKeepAlive.onchange = () => {
-        savePkgAnalyzeConfig("ignoreKeepAlive", cbIgnoreKeepAlive.checked ? "1" : "0");
-    };
+    initTermsConfiguratorListener();
+    initPkgAnalyzerConfiguratorListener();
 });
 
 let lastMessageIdClicked = 0;

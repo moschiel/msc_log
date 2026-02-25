@@ -10,6 +10,9 @@ import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounte
 import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
 import { openFloatingWindow } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
+// @ts-ignore
+import { configs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION__";
+
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
@@ -153,8 +156,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
-                if ((msg.id === 0xFFFF && readPkgAnalyzeConfig("ignoreAck") === "1") ||
-                    (msg.id === 0x0000 && readPkgAnalyzeConfig("ignoreKeepAlive") === "1")) {
+                if ((msg.id === 0xFFFF && configs.pkgAnalyze.ignoreAck) ||
+                    (msg.id === 0x0000 && configs.pkgAnalyze.ignoreKeepAlive)) {
 
                     if (messages.length === 1) {
                         // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
@@ -414,7 +417,6 @@ export function showParsedPackageOnTable(headers, rows, pkgClassIndex = null) {
     });
 }
 
-
 const splitTailUtils = {
     getPayload: (line) => (line.length > LOG_HEADER_SIZE ? line.slice(LOG_HEADER_SIZE) : ""),
     isHexPrefixNonEmpty: (s) => s.length > 0 && /^[0-9a-fA-F]+$/.test(s),
@@ -513,51 +515,38 @@ export function tailSplitWithPendingPkg(pendingText, chunk) {
     return { safeText: before || "", pendingText: rest || "" };
 }
 
-const PKG_ANALYZE_KEY = "pkg-analyze-config";
-/**
- * Retorna o objeto de configurações completo,
- * já mesclado com defaults.
- */
-function getPkgAnalyzeConfigObject() {
-    const raw = localStorage.getItem(PKG_ANALYZE_KEY);
 
-    let cfg = {};
-    if (raw) {
-        try {
-            cfg = JSON.parse(raw);
-        } catch (e) {
-            console.warn("pkg-analyze: JSON inválido, resetando configs");
-            cfg = {};
-        }
-    }
+export function htmlPkgAnalyzerConfigurator() {
+    return `
+<section>
+    <div style="padding-bottom: 16px;">
+        Análise de Pacotes
+    </div>
+    <label>
+        <input id="cbIgnoreAck" type="checkbox" ${configs.pkgAnalyze.ignoreAck ? "checked" : ""}>
+        Ignora Pacote que só tem ACK (ID 0xFFFF)
+    </label>
+    <br>
+    <label>
+        <input id="cbIgnoreKeepAlive" type="checkbox" ${configs.pkgAnalyze.ignoreKeepAlive ? "checked" : ""}>
+        Ignora Pacote que só tem KEEP-ALIVE (ID 0x0000)
+    </label>
+<section>`;
+}
 
-    // defaults
-    return {
-        ignoreAck: "1",
-        ignoreKeepAlive: "1",
-        ...cfg
+export function initPkgAnalyzerConfiguratorListener() {
+    const modalBody = document.getElementById("modal1");
+    /** @type {HTMLInputElement} */
+    const cbIgnoreAck = modalBody.querySelector("#cbIgnoreAck");
+    /** @type {HTMLInputElement} */
+    const cbIgnoreKeepAlive = modalBody.querySelector("#cbIgnoreKeepAlive");
+
+    cbIgnoreAck.onchange = () => {
+        configs.pkgAnalyze.ignoreAck = cbIgnoreAck.checked;
+        saveConfigs();
     };
-}
-
-/**
- * Salva uma configuração de análise de pacotes no localStorage (JSON).
- * @param {string} config
- * @param {string} value
- */
-export function savePkgAnalyzeConfig(config, value) {
-    const cfg = getPkgAnalyzeConfigObject();
-    cfg[config] = value;
-
-    localStorage.setItem(PKG_ANALYZE_KEY, JSON.stringify(cfg));
-    console.log("save", PKG_ANALYZE_KEY, cfg);
-}
-
-/**
- * Lê uma configuração de análise de pacotes do localStorage (JSON).
- * @param {string} config
- * @returns {string}
- */
-export function readPkgAnalyzeConfig(config) {
-    const cfg = getPkgAnalyzeConfigObject();
-    return cfg[config];
+    cbIgnoreKeepAlive.onchange = () => {
+        configs.pkgAnalyze.ignoreKeepAlive = cbIgnoreKeepAlive.checked;
+        saveConfigs();
+    };
 }

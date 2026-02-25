@@ -7,7 +7,7 @@
   --find-border: rgba(0,0,0,0.12);
   --find-sep: rgba(0,0,0,0.12);
   --find-focus: #f4c542; /* “amarelinho” tipo a imagem */
-  --hit-bg: rgba(255, 215, 0, 0.45);
+  --hit-bg: rgb(251, 247, 2);
   --hit-bg-active: rgba(255, 165, 0, 0.55);
 
   /* Foreground (texto/ícones) */
