@@ -111,17 +111,19 @@ if (util.isLocalFile()) {
             console.error(e);
         }
     });
+
 }
-else {
+else 
+{
+    ui.btnAutoScroll.addEventListener("click", () => {
+        util.toogleButton(ui.btnAutoScroll);
+    });
+
     ui.btnTailAutoRefresh.addEventListener("click", () => {
         util.toogleButton(ui.btnTailAutoRefresh);
         setTailAutoRefresh();
     });
 }
-
-ui.btnAutoScroll.addEventListener("click", () => {
-    util.toogleButton(ui.btnAutoScroll);
-});
 
 ui.btnHighlightPkg.addEventListener("click", () => {
     // openModal("modal2", {

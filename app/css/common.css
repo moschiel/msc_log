@@ -227,25 +227,27 @@ select:disabled {
   /* cursor: help; */
 }
 
+.hint {
+  position: relative; /* garante que o ::after se baseia no elemento */
+}
+
 .hint::after {
   content: attr(data-hint);
   position: absolute;
   z-index: 1000;
-  left: 0%;
-  /* left: 50%; */
-  /* aparece emcima do elemento*/
-  /* bottom: 120%;  */
-  /* 👈 aparece embaixo do */
+
   top: 120%;
-  /* transform: translateX(-50%); */
+
+  /* âncora no meio do elemento */
+  left: 50%;
+  transform: translateX(-50%);
 
   white-space: pre;
-  /* permite quebrar linha */
   display: inline-block;
   width: max-content;
-  /* width = maior linha */
-  max-width: 90vw;
-  /* segurança pra não sair da tela */
+
+  /* evita estourar a viewport */
+  max-width: min(90vw, 420px);
 
   background: #333;
   color: #fff;

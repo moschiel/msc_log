@@ -69,18 +69,18 @@ function render_viewer($selectedFile, $isLocal) {
                         <span class="toogle-btn-icon">⟳</span>
                     </button>
 
+                    <button 
+                        id="btnAutoScroll"
+                        type="button"
+                        class="hint toogle-btn is-pressed"
+                        data-hint="Auto-Scroll"
+                    >
+                        <span class="toogle-btn-icon">⇣</span>
+                    </button>
+
                     <?php
                 } 
             ?>
-        
-            <button 
-                id="btnAutoScroll"
-                type="button"
-                class="hint toogle-btn is-pressed"
-                data-hint="Auto-Scroll"
-            >
-                <span class="toogle-btn-icon">⇣</span>
-            </button>
             
             <button
                 id="btnHighlightPkg"
@@ -107,9 +107,14 @@ Botão ▦ deve estar ativo." >
             </div>
 
             <div class="align-right">
-                <button id="btnOpenFind" class="emoji-btn" title="Buscar (Ctrl+Shift+F)">🔎</button>
-                <button id="btnStatistics" class="emoji-btn" title="Estatísticas">📊</button>
-                <button id="btnConfigs" class="emoji-btn" title="Configurações">⚙️</button>
+                <?php if (empty($isLocal)): ?>
+                    <a href="?view=1&local=1" target="_blank" rel="noopener">
+                        <button class="emoji-btn hint" data-hint="Abrir Log Local">🖥️</button>
+                    </a>
+                <?php endif; ?>
+                <button id="btnOpenFind" class="emoji-btn hint" data-hint="Buscar (Ctrl+Shift+F)">🔎</button>
+                <button id="btnStatistics" class="emoji-btn hint" data-hint="Estatísticas">📊</button>
+                <button id="btnConfigs" class="emoji-btn hint" data-hint="Configurações">⚙️</button>
             </div>
 
             <!-- Find bar (overlay no canto superior direito) -->

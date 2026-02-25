@@ -202,7 +202,7 @@ export function initVirtualTextBox({
 
         const maxScrollTop = Math.max(0, newMaxHeight - viewportEl.clientHeight);
 
-        if (util.isToogleButtonPressed(ui.btnAutoScroll)) {
+        if (util.isLocalFile() === false && util.isToogleButtonPressed(ui.btnAutoScroll)) {
             // Vai pro final
             viewportEl.scrollTop = maxScrollTop;
         } else {

@@ -124,7 +124,7 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
                 );
 
             // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final
-            if (util.isToogleButtonPressed(ui.btnAutoScroll)) {
+            if (util.isLocalFile() === false && util.isToogleButtonPressed(ui.btnAutoScroll)) {
                 ui.listMessageContainer.scrollTop = ui.listMessageContainer.scrollHeight;
             }
         }

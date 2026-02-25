@@ -3,7 +3,7 @@ import { configs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION
 // @ts-ignore
 import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
 // @ts-ignore
-import { findBar } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { findBar, virtualTextBox } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
 
 export function htmlTermsConfigurator() {
     return `
@@ -45,6 +45,8 @@ export function initTermsConfiguratorListener() {
         });
 
         saveConfigs();
+
+        virtualTextBox.rerender(); // reaplica alterações no background
     });
 }
 
