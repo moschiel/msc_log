@@ -24,10 +24,10 @@
  */
 export function initFindBar({
     findBarId,
-    btnOpenId, 
-    getFullText, 
+    btnOpenId,
+    getFullText,
     gotoLine,
-    onClearSearch           
+    onClearSearch
     //renderHighlights, // (matches, activeIndex) => void  -> aplica highlight no viewport
 }) {
     const bar = /** @type {HTMLDivElement} */ (
@@ -81,7 +81,7 @@ export function initFindBar({
 
         findBarUi.bar.classList.remove("is-open");
         findBarUi.bar.setAttribute("aria-hidden", "true");
-        
+
         state.matches = [];
         state.activeIndex = -1;
         updateCount();
@@ -104,13 +104,16 @@ export function initFindBar({
         const matches = [];
         const lines = text.split(/\r?\n/);
 
+        const queryLower = query.trim().toLowerCase();
+
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
             const line = lines[lineIndex];
+            const lineLower = line.toLowerCase();
 
             let searchIndex = 0;
 
             while (true) {
-                const found = line.indexOf(query, searchIndex);
+                const found = lineLower.indexOf(queryLower, searchIndex);
                 if (found === -1) break;
 
                 matches.push({
@@ -136,7 +139,7 @@ export function initFindBar({
         updateCount();
 
         //renderHighlights(state.matches, state.activeIndex);
-        if (state.activeIndex !== -1)   
+        if (state.activeIndex !== -1)
             gotoLine(state.matches[state.activeIndex].lineIndex);
         else if (previousQuery.length > 0 && state.query.length === 0)
             onClearSearch();  //se acabou de limpar a pesquisa, notifica
