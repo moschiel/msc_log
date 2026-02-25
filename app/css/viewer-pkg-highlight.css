@@ -96,6 +96,39 @@
  opacity: 0.65;   
 }
 
+/* =========================================================
+ * XUNXO PARA ZONA MORTA ENTRE LINHAS DOS PACOTES
+ *
+ * Com white-space: pre, o navegador cria um line box cuja
+ * altura é definida pelo line-height do container.
+ *
+ * Quando usamos <span> inline puro, ele ocupa apenas a altura
+ * do glyph (texto renderizado), não necessariamente toda a
+ * altura do line box. Isso cria uma "zona morta" invisível
+ * entre linhas consecutivas, onde hover/click não pertencem
+ * ao <span>.
+ *
+ * NÃO usamos padding (ex: 1px) porque isso altera a altura
+ * efetiva do elemento e quebra o cálculo do scroll do
+ * virtualizador (altura fixa por linha).
+ *
+ * A solução é:
+ * - usar inline-block
+ * - herdar o line-height
+ * - ocupar 100% da altura da linha
+ *
+ * Isso elimina a zona morta sem alterar métricas de log virtualizado por linhas.
+ * ========================================================= */
+.hl-pkg-online,
+.hl-pkg-offline,
+.hl-pkg-incomming {
+  display: inline-block;
+  height: 100%;
+  line-height: inherit;
+  vertical-align: top;
+  cursor: pointer;
+}
+
 /* ========================= */
 /* DARK MODE */
 /* ========================= */

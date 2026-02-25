@@ -78,7 +78,7 @@ window.addEventListener("load", () => {
         viewportEl: document.getElementById("logViewport"),
         linesHtml: [],
         lineHeight: 14,
-        overscan: 200,
+        overscan: 100,
         beforeRenderHandlers: [highlightConfiguredTerms, highlightFindBarTerm],
         afterRenderHandlers: [highlightPkgBorderSelection]
     });

@@ -26,8 +26,8 @@
   white-space: pre;
   font-family: Consolas, monospace;
   font-size: 12px;
-  line-height: 14px;
-  /* TEM que bater com lineHeight do JS */
+  line-height: 14px; /* TEM que bater com lineHeight do JS */
+  
   padding-left: 6px;
 
   background: #fafafa;
@@ -36,22 +36,7 @@
   will-change: transform;
 }
 
-/* =========================================================
- * XUNXO PARA ZONA MORTA ENTRE LINHAS DOS PACOTES
- *
- * Com white-space: pre, as quebras de linha criam um "gap
- * invisível" entre linhas (line-height). Sem esse padding /
- * inline-block, existe uma faixa entre duas linhas consecutivas
- * que NÃO pertence a nenhum <span>.
- *
- * Este padding garante que o <span> cubra toda a altura visual
- * da linha, eliminando a zona morta de hover/click.
- * ========================================================= */
-/*.log-box .pkg {
-    display: inline-block;
-    padding: 1px 0;
-    cursor: pointer;
-}*/
+
 
 /* ===== LOG BOX (dark mode) ===== */
 @media (prefers-color-scheme: dark) {

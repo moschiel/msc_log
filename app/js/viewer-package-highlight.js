@@ -169,8 +169,12 @@ export function scrollToHighlightedElement(scrollTo, pkgIndex, pkgTicket) {
         ? lines.findIndex(line => line.includes(`<span class="${selectedPkgClass} `))
         : lines.findIndex(line => line.includes(`<span class="${selectedTicketClass}"`));
                     
-    if(lineIndex >= 0)
-        virtualTextBox.scrollToLine(lineIndex, { center: true, behavior: "smooth" }); 
+    if(lineIndex >= 0) {
+        virtualTextBox.scrollToLine(lineIndex, {
+            center: true, 
+            behavior: "smooth" 
+        }); 
+    }
 }
 
 
