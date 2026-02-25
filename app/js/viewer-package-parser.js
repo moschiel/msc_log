@@ -235,6 +235,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             const isPkgCreation = substr.startsWith("New Package Ticket: ");
             const isPkgWrite = substr.startsWith("Write Position TIME: ");
             const isPkgRead = substr.startsWith("Read Position TICKET: ");
+            //const isBBopen = substr.startsWith("OPEN NEW PACKET - ");
+            //const isBBclose = substr.startsWith("CLOSE PACKET MINUTE - ");
 
             if(isPkgCreation) {
                 // estiliza a linha da criação 
