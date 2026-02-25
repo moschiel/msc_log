@@ -253,6 +253,9 @@ def main() -> None:
         try:
             upload_items(sftp, build_items_to_upload, remote_base_dir)
             print("[OK] upload finalizado.")
+            if build_dir.exists():
+                shutil.rmtree(build_dir)
+                print("build deletado.")
         finally:
             sftp.close()
     finally:
