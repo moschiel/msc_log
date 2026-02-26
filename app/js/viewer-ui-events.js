@@ -67,8 +67,9 @@ window.addEventListener("load", () => {
         afterRenderHandlers: [highlightPkgBorderSelection]
     });
 
-    // forca uma requisição inicial do conteúdo do log
-    tailRefreshNow();
+    if(util.isLocalFile() === false)
+        // forca uma requisição inicial do conteúdo do log
+        tailRefreshNow();
 });
 
 if (util.isLocalFile()) {
