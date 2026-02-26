@@ -1,0 +1,1027 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configurations version="25" model="MSC8XX">
+	<module name="Hardware Info" id="0F">
+    <cfg id="0F0006" name="SERIAL NUMBER" type="string" len="11" display="roText" default="--------"/>
+    <cfg id="0F0001" name="FIRMWARE VERSION" type="array" len="4" display="roVersion" default="-.-.-"/>
+    <cfg id="0F0005" name="IMEI (OTP)" type="string" len="19" display="roText" default="--------"/>
+    <cfg id="0F0410" name="IMEI (MODULE)" type="string" len="19" display="roText" default="--------"/>
+    <cfg id="0F0400" name="ICCID SLOT 0" type="string" len="24" display="roText" default="--------"/>
+    <cfg id="0F0401" name="ICCID SLOT 1" type="string" len="24" display="roText" default="--------"/>
+    <!--cfg id="0F0005" name="IMEI" type="string" display="roText" default="" o MSC nao esta preenchendo essa cfg -->
+	<cfg id="0F0101" name="APP VERSION CODE" type="u32" display="roNumber" default="--------"/>
+	<cfg id="0F0102" name="APP VERSION NAME" type="string" len="24" display="roText" default="--------"/>
+    <cfg id="0F0103" name="DATA TERMINAL SO VERSION" type="string" len="24" display="roText" default="--------"/>
+    <cfg id="0F0104" name="DATA TERMINAL KERNEL" type="string" len="24" display="roText" default="--------"/>
+    <cfg id="0F0105" name="DATA TERMINAL PATCH" type="string" len="24" display="roText" default="--------"/>
+    <cfg id="0F0110" name="DATA TERMINAL TYPE" type="u8" display="roNumber" default="0" desc="0 = Nenhum\n1 = RS485\n2 = WIFI"/>
+    <cfg id="0F0203" name="WIFI MODULE (BIN)" type="string" len="24" display="roText" default="--------" desc="Versão do Binário do Módulo Wifi.\nExibido apenas se WIFI habilitada."/>
+	<cfg id="0F0201" name="WIFI MODULE (AT)" type="string" len="24" display="roText" default="--------" desc="Versão dos Comandos ATs do Módulo Wifi.\nExibido apenas se WIFI habilitada."/>
+	<cfg id="0F0202" name="WIFI MODULE (SDK)" type="string" len="24" display="roText" default="--------" desc="Versão do SDK utilizado para compilar o Módulo Wifi.\nExibido apenas se WIFI habilitada."/>
+	<cfg id="100099" name="LAST ISV" type="string" len="24" display="roText" default="--------" desc="Ultimo ISV conectado"/> <!-- TODO: colocar no modulo ISV???? -->
+    <!-- CFG_ISV_MODEL -->
+		<!-- CFG_ISV_FIRMWARE_VERSION -->
+		<!-- CFG_ID_AUTH_INFO -->
+		<!-- CFG_ID_FIRMWARE_DATE -->
+		<!-- CFG_WIFI_MODULE_AT_VERSION -->
+		<!-- CFG_WIFI_MODULE_SDK_VERSION -->
+	</module>
+	<module name="Actuadores" id="01">
+		<cfg id="010100" name="LOGIC OUTPUT" type="u16" display="bitmask" default="005E" 
+		desc="Lógica de acionamento de um atuador.\n0 -> acionado em nivel logico ALTO do GPIO\n1(inverte) -> acionado em nivel logico BAIXO do GPIO">
+			<bit index="0" name="Saída 1"/>
+			<bit index="1" name="Saída 2"/>
+			<bit index="2" name="Saída 3"/>
+			<bit index="3" name="Saída 4"/>
+			<bit index="4" name="Saída 5"/>
+			<bit index="5" name="Saída 6"/>
+			<bit index="6" name="Saída 7"/>
+			<bit index="7" name="Saída 8"/>
+		</cfg>
+		<cfg id="010200" name="NAME PORT01" type="string" len="24" display="text" default="SAIDA_1" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<cfg id="010201" name="NAME PORT02" type="string" len="24" display="text" default="SAIDA_2" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<cfg id="010202" name="NAME PORT03" type="string" len="24" display="text" default="SAIDA_3" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<cfg id="010203" name="NAME PORT04" type="string" len="24" display="text" default="SAIDA_4" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<cfg id="010204" name="NAME PORT06" type="string" len="24" display="text" default="SAIDA_6" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<cfg id="010205" name="NAME PORT07" type="string" len="24" display="text" default="SAIDA_7" desc="Nome do atuador apresentado no Terminal de Dados"/>
+		<!--cfg id="010300" name="SHOW_MENU_PWD_ACTS" type="u16" display="bitmask" default="00DF"/-->
+		<cfg id="010400" name="SECURITY MODE" type="u16" display="bitmask" default="000FF">
+			<bit index="0" name="Saída 1"/>
+			<bit index="1" name="Saída 2"/>
+			<bit index="2" name="Saída 3"/>
+			<bit index="3" name="Saída 4"/>
+			<bit index="4" name="Saída 5"/>
+			<bit index="5" name="Saída 6"/>
+			<bit index="6" name="Saída 7"/>
+			<bit index="7" name="Saída 8"/>
+		</cfg>
+		<!--cfg id="010500" name="MOD_BLOCK_ACTS" type="u8" display="bitmask" default="00"/-->
+		<cfg id="010600" name="BUZZER PORT" type="u8" display="combo" default="7">
+			<item value="0" name="Saída 1"/>
+			<item value="1" name="Saída 2"/>
+			<item value="2" name="Saída 3"/>
+			<item value="3" name="Saída 4"/>
+			<item value="4" name="Saída 5"/>
+			<item value="5" name="Saída 6"/>
+			<item value="6" name="Saída 7"/>
+			<item value="7" name="Saída 8"/>
+		</cfg>
+		<cfg id="010700" name="TRAVA BAU LATERAL PORT" type="u8" display="combo" default="3">
+			<item value="0" name="Saída 1"/>
+			<item value="1" name="Saída 2"/>
+			<item value="2" name="Saída 3"/>
+			<item value="3" name="Saída 4"/>
+			<item value="4" name="Saída 5"/>
+			<item value="5" name="Saída 6"/>
+			<item value="6" name="Saída 7"/>
+			<item value="7" name="Saída 8"/>
+		</cfg>
+		<cfg id="010800" name="TRAVA BAU TRASEIRO PORT" type="u8" display="combo" default="2">
+			<item value="0" name="Saída 1"/>
+			<item value="1" name="Saída 2"/>
+			<item value="2" name="Saída 3"/>
+			<item value="3" name="Saída 4"/>
+			<item value="4" name="Saída 5"/>
+			<item value="5" name="Saída 6"/>
+			<item value="6" name="Saída 7"/>
+			<item value="7" name="Saída 8"/>
+		</cfg>
+	</module>	
+	<module name="Sensores" id="02">
+		<cfg id="020500" name="LOGIC INPUT INVERTION" type="u16" display="bitmask" default="000C" 
+		desc="Lógica de acionamento de um sensor.\n0 -> acionado em nivel logico ALTO do GPIO\n1(inverte) -> acionado em nivel logico BAIXO do GPIO">
+			<item index="0" name="Ignição"/>
+			<item index="1" name="Entrada 2"/>
+			<item index="2" name="Entrada 3"/>
+			<item index="3" name="Entrada 4"/>
+			<item index="4" name="Entrada 5"/>
+			<item index="5" name="Entrada 6"/>
+			<item index="6" name="Entrada 7"/>
+			<item index="7" name="Entrada 8"/>
+			<item index="9" name="Entrada 10"/>
+			<item index="10" name="Entrada 11"/>
+			<item index="11" name="Entrada 12"/>
+		</cfg>
+		
+		<cfg id="020200" name="NAME PORT01" type="string" len="24" display="text" default="ENTRADA_1" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020201" name="NAME PORT02" type="string" len="24" display="text" default="ENTRADA_2" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020202" name="NAME PORT03" type="string" len="24" display="text" default="ENTRADA_3" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020203" name="NAME PORT04" type="string" len="24" display="text" default="ENTRADA_4" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020204" name="NAME PORT05" type="string" len="24" display="text" default="ENTRADA_5" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020205" name="NAME PORT06" type="string" len="24" display="text" default="ENTRADA_6" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020206" name="NAME PORT07" type="string" len="24" display="text" default="ENTRADA_7" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020207" name="NAME PORT08" type="string" len="24" display="text" default="ENTRADA_8" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020208" name="NAME PORT10" type="string" len="24" display="text" default="ENTRADA_10" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="020209" name="NAME PORT11" type="string" len="24" display="text" default="ENTRADA_11" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		<cfg id="02020A" name="NAME PORT12" type="string" len="24" display="text" default="ENTRADA_12" desc="Nome do sensor apresentado no Terminal de Dados"/>
+		
+		<cfg id="020100" name="DEBOUNCE IN01" type="u16" display="u8_list" default="0-10" desc="(*100ms) Debounce da transicao de estados do sensor 1">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020101" name="DEBOUNCE IN02" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 2">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020102" name="DEBOUNCE IN03" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 3">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020103" name="DEBOUNCE IN04" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 4">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020104" name="DEBOUNCE IN05" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 5">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020105" name="DEBOUNCE IN06" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 6">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020106" name="DEBOUNCE IN07" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 7">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020107" name="DEBOUNCE IN08" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 8">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020108" name="DEBOUNCE IN10" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 10">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="020109" name="DEBOUNCE IN11" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 11">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="02010A" name="DEBOUNCE IN12" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do sensor 12">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+		<cfg id="02010B" name="DEBOUNCE IN13" type="u16" display="u8_list" default="00-30" desc="(*100ms) Debounce da transicao de estados do Jammer">
+			<item index="0" name="ativo para inativo"/>
+			<item index="1" name="inativo para ativo"/>
+		</cfg>
+
+		<!--cfg id="020300" name="SHOW_MENU_SENS" type="u16" display="itemmask" default="00FF"/-->
+		<cfg id="020400" name="SECURITY MODE" type="u16" display="bitmask" default="000FF">
+			<item index="0" name="Ignição"/>
+			<item index="1" name="Entrada 2"/>
+			<item index="2" name="Entrada 3"/>
+			<item index="3" name="Entrada 4"/>
+			<item index="4" name="Entrada 5"/>
+			<item index="5" name="Entrada 6"/>
+			<item index="6" name="Entrada 7"/>
+			<item index="7" name="Entrada 8"/>
+			<item index="9" name="Entrada 10"/>
+			<item index="10" name="Entrada 11"/>
+			<item index="11" name="Entrada 12"/>
+		</cfg>
+		 <cfg id="020601" name="LIMITS ADC05" type="u32" display="u16_list" default="3000-1800">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020602" name="LIMITS ADC06" type="u32" display="u16_list" default="6400-3850">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020603" name="LIMITS ADC07" type="u32" display="u16_list" default="3000-1800">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020604" name="LIMITS ADC08" type="u32" display="u16_list" default="3000-1800">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020605" name="LIMITS ADC11" type="u32" display="u16_list" default="3000-1800">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020606" name="LIMITS ADC12" type="u32" display="u16_list" default="3000-1800">  
+             <item index="0" name="high threshold"/> 
+             <item index="1" name="low threshold "/> 
+         </cfg>
+		 <cfg id="020701" name="3STATE ADC05" type="u8" display="bitmask" default="05" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>
+		<cfg id="020702" name="3STATE ADC06" type="u8" display="bitmask" default="04" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>
+		<cfg id="020703" name="3STATE ADC07" type="u8" display="bitmask" default="05" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>
+		<cfg id="020704" name="3STATE ADC08" type="u8" display="bitmask" default="05" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>
+		<cfg id="020705" name="3STATE ADC11" type="u8" display="bitmask" default="05" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>
+		<cfg id="020706" name="3STATE ADC12" type="u8" display="bitmask" default="05" 
+		 desc="Se o valor do bit for 0 e a leitura do AD ficar dentro do threshold, consideramos entrada inativa, se o valor do bit for 1 e a leitura dentro do range sera considerado ativa.">
+			<item index="0" name="Low Threshold"/>
+			<item index="1" name="Middle Threshold"/>
+			<item index="2" name="High Threshold"/>
+		</cfg>		
+		<cfg id="020A00" name="ADC PORT0" type="u8" display="combo" default="5" desc="Roteamendo da porta a ser reportada em AD0">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020A01" name="ADC PORT1" type="u8" display="combo" default="6" desc="Roteamendo da porta a ser reportada em AD1">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020A02" name="ADC PORT2" type="u8" display="combo" default="7" desc="Roteamendo da porta a ser reportada em AD2">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020A03" name="ADC PORT3" type="u8" display="combo" default="8" desc="Roteamendo da porta a ser reportada em AD3">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020A04" name="ADC PORT4" type="u8" display="combo" default="11" desc="Roteamendo da porta a ser reportada em AD4">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020A05" name="ADC PORT5" type="u8" display="combo" default="12" desc="Roteamendo da porta a ser reportada em AD5">
+			<item value="5" name="Entrada 5"/>
+			<item value="6" name="Entrada 6"/>
+			<item value="7" name="Entrada 7"/>
+			<item value="8" name="Entrada 8"/>
+			<item value="11" name="Entrada 11"/>
+			<item value="12" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020801" name="WIPER DEBOUNCE ON" type="u8" display="number" min="0" max="255" default="20" 
+		desc="debounce da transicao do estado inativo para ativo do wiper."/>
+		<cfg id="020802" name="WIPER DEBOUNCE OFF" type="u8" display="number" min="0" max="255" default="20" 
+		desc="debounce da transicao do estado ativo para inativo do wiper."/>
+		<cfg id="020803" name="WIPER INPUT PORT" type="u8" display="combo" default="9">
+			<item value="0" name="Entrada 1"/>
+			<item value="1" name="Entrada 2"/>
+			<item value="2" name="Entrada 3"/>
+			<item value="3" name="Entrada 4"/>
+			<item value="4" name="Entrada 5"/>
+			<item value="5" name="Entrada 6"/>
+			<item value="6" name="Entrada 7"/>
+			<item value="7" name="Entrada 8"/>
+			<item value="9" name="Entrada 10"/>
+			<item value="10" name="Entrada 11"/>
+			<item value="11" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020B00" name="SENSOR DESENGATE PORT" type="u8" display="combo" default="5">
+			<item value="0" name="Entrada 1"/>
+			<item value="1" name="Entrada 2"/>
+			<item value="2" name="Entrada 3"/>
+			<item value="3" name="Entrada 4"/>
+			<item value="4" name="Entrada 5"/>
+			<item value="5" name="Entrada 6"/>
+			<item value="6" name="Entrada 7"/>
+			<item value="7" name="Entrada 8"/>
+			<item value="9" name="Entrada 10"/>
+			<item value="10" name="Entrada 11"/>
+			<item value="11" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020C00" name="SENSOR BAU LATERAL PORT" type="u8" display="combo" default="6">
+			<item value="0" name="Entrada 1"/>
+			<item value="1" name="Entrada 2"/>
+			<item value="2" name="Entrada 3"/>
+			<item value="3" name="Entrada 4"/>
+			<item value="4" name="Entrada 5"/>
+			<item value="5" name="Entrada 6"/>
+			<item value="6" name="Entrada 7"/>
+			<item value="7" name="Entrada 8"/>
+			<item value="9" name="Entrada 10"/>
+			<item value="10" name="Entrada 11"/>
+			<item value="11" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020D00" name="SENSOR BAU TRASEIRO PORT" type="u8" display="combo" default="7">
+			<item value="0" name="Entrada 1"/>
+			<item value="1" name="Entrada 2"/>
+			<item value="2" name="Entrada 3"/>
+			<item value="3" name="Entrada 4"/>
+			<item value="4" name="Entrada 5"/>
+			<item value="5" name="Entrada 6"/>
+			<item value="6" name="Entrada 7"/>
+			<item value="7" name="Entrada 8"/>
+			<item value="9" name="Entrada 10"/>
+			<item value="10" name="Entrada 11"/>
+			<item value="11" name="Entrada 12"/>
+		</cfg>
+		<cfg id="020900" name="ACCEL ENABLE RFU" type="u8" display="check" default="false"/>
+		<cfg id="020901" name="ACCEL FULL SCALE" type="u8" display="combo" default="2">
+			<item value="0" name="2G"/>
+			<item value="1" name="16G"/>
+			<item value="2" name="4G"/>
+			<item value="3" name="8G"/>
+		</cfg>
+		<cfg id="020902" name="ALIGN VERTICAL IF IGN OFF" type="u8" display="check" default="true"
+			desc="Se ignicao esta desligada, analisa eixo vertical"/>
+		<cfg id="020903" name="ALIGN VERTICAL IF NOT MOVING" type="u8" display="check" default="true"
+			desc="Se veiculo nao esta se movendo (mesmo se IGN ON), analisa eixo vertical"/>
+		<cfg id="020904" name="ALIGN IF NOT MOVING DEBOUNCE" type="u8" display="number" default="4" 
+			desc="Tempo mínimo (segundos), para considerar se o veiculo esta parado"/>
+		<cfg id="020905" name="ALIGN FORWARD VECTOR" type="u8" display="bitmask" default="03">
+			<item index="0" name="ALIGN ON ACCELERATION"/>
+			<item index="1" name="ALIGN ON BREAKING"/>			
+		</cfg>
+		<cfg id="020906" name="MIN SPEED VARIATION TO ALIGN FORWARD VECTOR" type="u8" display="number" default="3" 
+			desc="Variação de velocidade mínima (km/h), para considerar se o veiculo esta em ARRANCADA ou FRENAGEM"/>
+		<cfg id="020907" name="ALIGN FORWARD VECTOR DEBOUNCE" type="u8" display="number" default="4" 
+			desc="Tempo mínimo (segundos), que o veiculo deve se manter em ARRANCADA ou FRENAGEM."/>
+		<cfg id="020908" name="STRAIGHT COURSE TOLERANCE" type="u8" display="number" default="2" 
+			desc="Variacao maxima do trajeto (angulo) para considerar que o veiculo esta se movendo em linha reta"/>
+		<cfg id="020910" name="LATERAL RANGE 1" type="u16" display="number" default="98" 
+			desc="Range para aplicar offset 1 (cm/s2)"/>
+		<cfg id="020911" name="LATERAL RANGE 2" type="u16" display="number" default="294" 
+			desc="Range para aplicar offset 2 (cm/s2)"/>
+		<cfg id="020912" name="LATERAL RANGE 3" type="u16" display="number" default="343" 
+			desc="Range para aplicar offset 3 (cm/s2)"/>
+		<cfg id="020913" name="LATERAL RANGE 4" type="u16" display="number" default="392" 
+			desc="Range para aplicar offset 4 (cm/s2)"/>
+		<cfg id="020909" name="OFFSET LATERAL RANGE 1" type="i16" display="number" default="10" 
+			desc="Offset para ajuste da magnitude da força no range 1 (cm/s2)"/>
+		<cfg id="02090A" name="OFFSET LATERAL RANGE 2" type="i16" display="number" default="-10" 
+			desc="Offset para ajuste da magnitude da força no range 2 (cm/s2)"/>
+		<cfg id="02090B" name="OFFSET LATERAL RANGE 3" type="i16" display="number" default="-24" 
+			desc="Offset para ajuste da magnitude da força no range 3 (cm/s2)"/>
+		<cfg id="020914" name="OFFSET LATERAL RANGE 4" type="i16" display="number" default="-49" 
+			desc="Offset para ajuste da magnitude da força no range 4 (cm/s2)"/>
+		<cfg id="02090C" name="DEBUG ACCEL DATA" type="u8" display="bitmask" default="88">
+			<item index="0" name="AVERAGE RAW DATA"/>
+			<item index="1" name="ALIGN STATUS"/>
+			<item index="2" name="ALIGN STATUS IF SPEED>0"/>
+			<item index="3" name="ALIGN SUCCESS"/>
+			<item index="4" name="MOTION LOG (cm/s²)"/>
+			<item index="5" name="MOTION LOG (G)"/>
+			<item index="6" name="MOTION LOG EXCESS (cm/s²)"/>
+			<item index="7" name="MOTION LOG EXCESS (G)"/>			
+		</cfg>
+		<cfg id="02090D" name="MIN VERTICAL ANGLE CHANGE TO RESET ALIGN" type="u8" display="number" default="20" 
+			desc="Mudança minima do eixo vertical (angulo), para considerar que o MSC mudou de posicao"/>
+		<cfg id="02090E" name="MOVING IN FLAT TERRAIN DEBOUNCE" type="u8" display="number" default="5" 
+			desc="Debounce (segundos), para considerar que o veiculo esta se movendo em terreno plano"/>
+		<cfg id="02090F" name="MAX ACC STABLE ANGLE" type="u8" display="number" default="2" 
+			desc="Variação de angulo máxima do vetor vertical, para considerar que o acelerometro esta estavel (parado)"/>
+	</module>
+	<module name="Network" id="03">
+		<cfg id="030101" name="APN 1" type="string" len="40" display="text" default="sascar.vivo.com.br"/>
+		<cfg id="030102" name="APN 2" type="string" len="40" display="text" default="sascar.claro.com.br"/>
+		<cfg id="030201" name="USER 1" type="string" len="24" display="text" default="vivo"/>
+		<cfg id="030202" name="USER 2" type="string" len="24" display="text" default="claro"/>
+		<cfg id="030301" name="PWD 1" type="string" len="24" display="text" default="vivo"/>
+		<cfg id="030302" name="PWD 2" type="string" len="24" display="text" default="claro"/>
+		<cfg id="030401" name="IP 1" type="string" display="text" len="16" default="201.94.129.253"/>
+		<cfg id="030402" name="IP 2" type="string" display="text" len="16" default="201.94.134.253"/>
+		<cfg id="030501" name="PORT 1" type="u16" display="number" min="0" max="65535" default="13087"/>
+		<cfg id="030502" name="PORT 2" type="u16" display="number" min="0" max="65535" default="13087"/>
+		<!-- CFG_NTW_PIN_1 -->
+		<!-- CFG_NTW_PIN_2 -->
+		<!-- CFG_NTW_DUAL_SIM_STATUS -->
+		<cfg id="030800" name="USE APN MODE" type="u8" display="combo" default="1" desc="SIMCARD and APN Selection, Manual: Use Config or Auto: Use internal table">
+			<item value="0" name="MANUAL"/>
+			<item value="1" name="AUTO PRIVATE"/>
+			<item value="2" name="AUTO GENERIC"/>
+		</cfg>
+		<cfg id="030801" name="USE SIMCARD CARRIER" type="u8" display="combo" default="0" desc="Operator Selection, Auto: COPS=0 or Manual: COPS=CARRIER">
+			<item value="0" name="AUTO"/>
+			<item value="1" name="MANUAL"/>			
+		</cfg>
+    <cfg id="030D01" name="MDM URL" type="string" len="64" display="text" default="http://201.94.131.20/api/msc/verifica/atualizacao"/>
+    <cfg id="030D02" name="MDM REPORT TIMEOUT" type="u16" display="number" min="0" max="65535" default="720" desc="Timeout em minutos para reportar no servidor MDM. (0 = desabilitado)"/>
+		<!-- CFG_NTW_USE_SSL            -->
+		<!-- CFG_NTW_DNS_01  -->
+		<!-- CFG_NTW_DNS_02  -->
+		<!-- CFG_NTW_USE_DNS_1  -->
+		<!-- CFG_NTW_USE_DNS_2  -->
+		<!--cfg id="030C01" name="PROTOCOL_1" type="u8" display="combo" default="0">
+			<item value="0" name="TCP"/>
+			<item value="1" name="UDP"/>
+			<item value="2" name="MQTT"/>
+		</cfg>
+		<cfg id="030C02" name="PROTOCOL_2" type="u8" display="combo" default="0">
+			<item value="0" name="TCP"/>
+			<item value="1" name="UDP"/>
+			<item value="2" name="MQTT"/>
+		</cfg-->
+	</module>
+	<module name="Satellital" id="04">
+		<cfg id="040100" name="ENABLE" type="u8" display="check" default="false"/>
+		<!-- CFG_SAT_MODEL -->
+		<cfg id="040301" name="TIMEOUT GSM FAIL" type="u16" display="number" min="300" max="65535" default="600" desc="segundos"/>
+		<cfg id="040302" name="TIMEOUT GSM FAIL MIN" type="u16" display="number" min="300" max="65535" default="600" 
+		desc="Valor minimimo que o usuário pode configuração o parametro TIMEOUT GSM FAIL"/>
+		<!-- CFG_SAT_FORCE_SENDING -->
+		<cfg id="042001" name="REPORT IGN ON" type="u16" display="number" min="300 " max="65535" default="1800 " 
+         desc="Intervalo em segundos dos pacotes satelital - ign ON"/>
+		<cfg id="042002" name="REPORT IGN OFF" type="u16" display="number" min="300 " max="65535" default="3600 " 
+         desc="Intervalo em segundos dos pacotes satelital - ign OFF"/>
+		<cfg id="042003" name="REPORT PANIC" type="u16" display="number" min="300 " max="65535" default="1800 " 
+         desc="Intervalo em segundos dos pacotes satelital - Panic Mode\nNão implementado"/>
+		<cfg id="042004" name="REPORT MIN" type="u16" display="number" min="300 " max="65535" default="300 " 
+		desc="Valor minimimo que o usuário pode configuração os parametros REPORT IGN ON e REPORT IGN OFF"/>
+		<cfg id="043100" name="INTERFACE CHANNEL" type="u8" display="combo" default="32">
+			<item value="32" name="Serial 1"/>
+			<item value="33" name="Serial 2"/>
+		</cfg>
+		<cfg id="043200" name="BAUDRATE" type="u8" display="combo" default="9">
+			<item value="0" name="0"/>
+			<item value="1" name="1200"/>
+			<item value="2" name="1800"/>
+			<item value="3" name="2400"/>
+			<item value="4" name="4800"/>
+			<item value="5" name="7200"/>
+			<item value="6" name="9600"/>
+			<item value="7" name="14400"/>
+			<item value="8" name="19200"/>
+			<item value="9" name="38400"/>
+			<item value="10" name="57600"/>
+			<item value="11" name="76800"/>
+			<item value="12" name="115200"/>
+			<item value="13" name="128000"/>
+			<item value="14" name="230400"/>
+			<item value="15" name="256000"/>
+			<item value="16" name="460800"/>
+		</cfg>
+		<cfg id="044001" name="POSITION VERSION" type="u8" display="combo" default="2">
+			<item value="1" name="Version 1"/>
+			<item value="2" name="Version 2"/>
+		</cfg>
+		<cfg id="044002" name="ENABLE DRIVER STATUS ON POSITION" type="u8" display="check" default="true"/>
+		<cfg id="044003" name="ENABLE HOURMETER ON POSITION" type="u8" display="check" default="true"/>
+		<cfg id="044007" name="ENABLE DIGITAL TEMPERATURE ON POSITION" type="u8" display="check" default="true"/>
+		<!-- CFG_SAT_BITS_DATA 	cfg id="043300" name="BITS_DATA" type="u8" display="number" min="7" max="9" default="8"/-->
+		<!-- CFG_SAT_PARITY 	cfg id="043400" name="PARITY" type="u8" display="combo" default="2">
+			<item value="1" name="NONE"/>
+			<item value="2" name="EVEN"/>
+			<item value="3" name="ODD"/>
+		</cfg> -->
+		<!-- CFG_SAT_STOP_BITS  cfg id="043500" name="STOP BITS" type="u8" display="number" min="1" max="2" default="2"/> -->
+		<!-- CFG_SAT_FLW_CTRL   Existe no código mas não usado -->
+	</module>
+	<module name="Rotogram" id="05">
+		<cfg id="050100" name="ENABLE" type="u8" display="check" default="true"/>
+		<cfg id="050200" name="COURSE TOLERANCE" type="u8" display="number" min="0" max="255" default="15" 
+		desc="tolerancia em graus para considerar que entrou em uma area com angulo especifico"/>
+	</module>
+	<module name="Location" id="06">
+		<!-- CFG_GNSS_ON_OFF -->
+		<!-- CFG_GNSS_ANCHOR -->
+		<cfg id="060000" name="ANGLE TURN BY TURN" type="u8" display="number" min="0" max="180" default="45" 
+		desc="variação angular em graus para gerar posição"/>
+		<cfg id="060300" name="PARKED MAX SPEED" type="u8" display="number" min="0" max="255" default="3" 
+		desc="velocidade maxima em km/h para considerar como veiculo parado"/>
+		<cfg id="060301" name="MOOVING_MIN_SPEED" type="u8" display="number" min="0" max="255" default="5" 
+		desc="Velocidade minima em km/h para considerar movimento"/> 
+			<cfg id="060400" name="FILTER CONSTELLATION" type="u8" display="bitmask" default="248" desc="Filtros Constelação de Satélites.">
+			<item index="3" name="GPS"/>
+			<item index="4" name="GALILEU"/>
+			<item index="5" name="GLONASS"/>
+			<item index="6" name="BEIDOU"/>
+			<item index="7" name="GNSS"/>
+		</cfg>
+		<cfg id="060500" name="FILTERS FREEZE POSITION" type="u8" display="bitmask" default="60" desc="Filtros congela posição">
+			<item index="0" name="FIX DEBOUCE"/>
+			<item index="1" name="PDOP"/>
+			<item index="2" name="PARKED"/>
+			<item index="3" name="DISPERTION"/>
+			<item index="4" name="ACCELEROMETER"/>
+			<item index="5" name="IGNITION"/>
+			<item index="6" name="ANTENNA DEBOUNCE"/>			
+		</cfg>
+		<cfg id="060600" name="FIX DEBOUNCE FILTER" type="u8" display="number" min="0" max="255" default="3"/>
+		<cfg id="060700" name="PDOP FILTER" type="u8" display="number" min="0" max="255" default="10"/>
+    <!--cfg id="060701" name="HDOP_FILTER" type="u8" display="number" min="0" max="255" default="10"/Nao existe no FW -->
+		<cfg id="060800" name="Parked Debounce" type="u16" display="u8_list" default="2-3" desc="seconds">
+			<item index="0" name="Enter Parked Status"/>
+			<item index="1" name="Out Parked Status"/>
+		</cfg>
+		<cfg id="060900" name="MAX DISPERSION" type="u8" display="number" min="0" max="255" default="31" desc="Distancia em metros do filtro de dispersão"/>		
+		<cfg id="060A00" name="ANTENNA THRESHOLD LOW" type="u16" display="number" min="0" max="2000" default="100" desc="Limite inferior para detectar antena aberta"/>
+		<cfg id="060A01" name="ANTENNA THRESHOLD HIGH" type="u16" display="number" min="0" max="2000" default="1200" desc="Limite superior para detectar antena curto"/>
+				
+	</module>
+	<module name="Driver Time" id="07">
+		<cfg id="070100" name="DRIVE TIME ENABLE" type="u8" display="check" default="true"/>
+		<cfg id="070200" name="AUTOLOGOFF ENABLE" type="u8" display="check" default="false"/>
+		<cfg id="070300" name="AUTOLOGOFF TIME" type="u16" display="number" min="0" max="65535" default="30" desc="Timeout em segundos para autologoff quando ignicao desligada"/>
+		<cfg id="070400" name="MAX JOURNEY" type="u16" display="number" min="0" max="65535" default="480" desc="Tempo maximo em minutos permitido para uma jornada de trabalhoa"/>
+		<cfg id="070500" name="MAX EXTRA" type="u16" display="number" min="0" max="65535" default="120" desc="Tempo maximo em minutos permitido para jornada extra"/>
+		<cfg id="070600" name="MAX DIR CONTINOUS" type="u16" display="number" min="0" max="65535" default="330" desc="Tempo maximo em minutos permitido de direcao ininterrupta"/>
+		<cfg id="070700" name="MIN MEAL" type="u16" display="number" min="0" max="65535" default="60" desc="Tempo minimo em minutos permitido para se manter no status de refeicao"/>
+		<cfg id="070800" name="MIN INTER JOURNEY" type="u16" display="number" min="0" max="65535" default="480" desc="Tempo minimo em minutos entre jornadas de trabalho"/>
+		<cfg id="070900" name="MIN SEC INT JOURN" type="u16" display="number" min="0" max="65535" default="480" desc="minutos"/>
+		<cfg id="070A00" name="PAUSE" type="u16" display="number" min="0" max="65535" default="30" desc="Tempo maximo em minutos permitido para uma pausa na jornada"/>
+		<cfg id="070B00" name="WAIT" type="u16" display="number" min="0" max="65535" default="0" desc="minutos"/>
+		<cfg id="070C00" name="CONTROL DRIVING MODE"  type="u8" display="check" default="false" desc="Define se o hardware é responsavel pelo modo dirigindo do tempo de direcao"/>
+	</module>
+	<module name="Black-Box" id="08">
+		<cfg id="080100" name="ENABLE" type="u8" display="check" default="false"/>
+		<!-- CFG_BLACKBOX_PROTOCOL -->
+		<cfg id="080201" name="BLACKBOX ONLINE" type="u8" display="check" default="true" desc="Configura se os pacotes de blackbox devem ser transmitidos no network"/>
+		<cfg id="080202" name="BLACKBOX AVAILABLE" type="u8" display="bitmask" default="FF" desc="Determina o tipo de informacao que sera armazenado pelo blackbox">
+			<item index="0" name="INPUTS"/>
+			<item index="1" name="SPEED"/>
+			<item index="2" name="RPM"/>
+			<item index="3" name="FUEL"/>
+			<item index="4" name="GENERIC"/>
+			<item index="5" name="ACCEL"/>
+			<item index="6" name="LAT"/>
+			<item index="6" name="LON"/>
+		</cfg>
+		<cfg id="080203" name="SELECT ADC" type="u8" display="number" min="0" max="5" default="0" desc="SELECT ADC CHANNEL (0 to 5)"/>
+	</module>
+	<module name="WIFI" id="09">
+		<cfg id="090001" name="ENABLE" type="u8" display="check" default="false"/>
+		<cfg id="090100" name="SSID" type="string" len="24" display="text" default="" desc="SSID name para se conectar ao modulo WiFi"/>
+		<cfg id="090200" name="PASSWORD" type="string" len="24" display="text" default="MSC830W1F1" desc="Password para se conectar ao modulo WiFi"/>
+		<!-- CFG_WIFI_CHANNEL  -->
+		<!-- CFG_WIFI_SECURITY_TYPE  -->
+		<!-- CFG_WIFI_TYPE_ACCESS  -->
+		<!-- CFG_WIFI_IP_PORT_MASK  -->
+		<!--  CFG_WIFI_POWER_SIGNAL -->
+		<!-- CFG_WIFI_IP_HOST  -->
+		<cfg id="090901" name="AUTHORIZED MDT PIN" type="string" len="10" display="text" default="0000" desc="PIN do dispositivo p/ conexao do MDT ao MSC"/>
+		<cfg id="090902" name="AUTHORIZED MDT MAC" type="array" len="6" display="hex_array" default="00-00-00-00-00-00" 
+		desc="MAC Address do dispositivo MDT que tem permissao para se conectar ao MSC"/>
+		<cfg id="090904" name="AUTHORIZED MDT ID" type="array" len="8" display="hex_array" default="00-00-00-00-00-00-00-00"
+		desc="ID único do dispositivo MDT que tem permissao para se conectar ao MSC"/>
+		<cfg id="090903" name="NO REPLY TIMEOUT" type="u16" display="number" min="0" max="65535" default="10" 
+		desc="Tempo em segundos que o MDT será considerado como desconectado se não responder"/>		
+		<cfg id="090A01" name="DISCONN ALERT TIME" type="u16" display="number" min="0" max="65535" default="120" 
+		desc="Tempo em segundos que o MDT deve se manter desconectado/desautenticado para enviar o primeiro alerta"/>
+		<cfg id="090A02" name="DISC ALERT RESEND" type="u16" display="number" min="0" max="65535" default="600" 
+		desc="Intervalo em segundos de envio de cada alerta de desconexao/desautenticacao do MDT"/>
+	</module>
+	<module name="Bluetooth" id="0E">
+		<cfg id="0E0001" name="ENABLE" type="u8" display="check" default="false"/>
+		<cfg id="0E0002" name="BT MODE" type="u8" display="combo" default="0">
+			<item value="1" name="SPP CLASSIC"/>
+			<item value="2" name="BLE CLIENT"/>
+			<item value="3" name="BLE SERVER"/>
+		</cfg>	
+		<cfg id="0E0003" name="AUTHORIZED MAC" type="array" len="6" display="hex_array" default="00-00-00-00-00-00" 
+		desc="MAC Address of the device that connected to the MSC"/>	
+	</module>
+	<module name="Data Terminal" id="0C">
+		<cfg id="0C0100" name="ENABLE" type="u8" display="check" default="true" desc="Enable or Disable RS-485 for TSC communication"/>
+		<!-- CFG_TERM_MODEL  -->
+		<!-- CFG_TERM_INTERFACE_CHANNEL  -->
+		<cfg id="0C3200" name="BAUDRATE" type="u8" display="combo" default="9">
+			<item value="0" name="0"/>
+			<item value="1" name="1200"/>
+			<item value="2" name="1800"/>
+			<item value="3" name="2400"/>
+			<item value="4" name="4800"/>
+			<item value="5" name="7200"/>
+			<item value="6" name="9600"/>
+			<item value="7" name="14400"/>
+			<item value="8" name="19200"/>
+			<item value="9" name="38400"/>
+			<item value="10" name="57600"/>
+			<item value="11" name="76800"/>
+			<item value="12" name="115200"/>
+			<item value="13" name="128000"/>
+			<item value="14" name="230400"/>
+			<item value="15" name="256000"/>
+			<item value="16" name="460800"/>
+		</cfg>
+		<cfg id="0C3400" name="PARITY" type="u8" display="combo" default="1">
+			<item value="1" name="NONE"/>
+			<item value="2" name="EVEN"/>
+			<item value="3" name="ODD"/>
+		</cfg>
+		<cfg id="0C3500" name="STOP BITS" type="u8" display="number" min="1" max="2" default="1"/>
+		<!-- CFG_TERM_BITS_DATA -->
+		<!-- CFG_TERM_FLW_CTRL -->
+		<!-- CFG_DT_MACADDR -->
+		<cfg id="0C5000" name="Pedigree ELD Library" type="u8" display="check" default="false" desc="Enable or Disable Pedigree ELD Library for USA and Canadian"/>
+	</module>
+	<module name="ISV / ICV" id="10">
+		<!-- CFG_ISV_HW_INFO - em HW info -->
+		<!-- CFG_ISV_MODEL - em HW info -->
+		<!-- CFG_ISV_FIRMWARE_VERSION - em HW info -->
+		<cfg id="100100" name="ENABLE" type="u8" display="check" default="false"/>
+		<cfg id="100400" name="TORQUE OFFSET" type="u16" display="number" min="0" max="250" default="125"/>
+		<cfg id="103100" name="INTERFACE CHANNEL" type="u8" display="combo" default="33">
+			<item value="32" name="Serial 1"/>
+			<item value="33" name="Serial 2"/>
+		</cfg>
+		<cfg id="103200" name="BAUDRATE" type="u8" display="combo" default="6">
+			<item value="0" name="0"/>
+			<item value="1" name="1200"/>
+			<item value="2" name="1800"/>
+			<item value="3" name="2400"/>
+			<item value="4" name="4800"/>
+			<item value="5" name="7200"/>
+			<item value="6" name="9600"/>
+			<item value="7" name="14400"/>
+			<item value="8" name="19200"/>
+			<item value="9" name="38400"/>
+			<item value="10" name="57600"/>
+			<item value="11" name="76800"/>
+			<item value="12" name="115200"/>
+			<item value="13" name="128000"/>
+			<item value="14" name="230400"/>
+			<item value="15" name="256000"/>
+			<item value="16" name="460800"/>
+		</cfg>
+		<cfg id="103300" name="BITS DATA" type="u8" display="number" min="7" max="9" default="9"/>
+		<cfg id="103400" name="PARITY" type="u8" display="combo" default="2">
+			<item value="1" name="NONE"/>
+			<item value="2" name="EVEN"/>
+			<item value="3" name="ODD"/>
+		</cfg>
+		<cfg id="103500" name="STOP BITS" type="u8" display="number" min="1" max="2" default="2"/>
+		<!-- CFG_ISV_FLW_CTRL -->
+		<cfg id="103701" name="TIMER QUERY ISV01" type="u8" display="number" min="1" max="255" default="1"/>
+		<cfg id="103702" name="TIMER QUERY ISV02" type="u8" display="number" min="1" max="255" default="30"/>
+		<cfg id="103703" name="TIMER QUERY ISV03" type="u8" display="number" min="1" max="255" default="1"/>
+    <cfg id="103704" name="TIMER QUERY ISV04" type="u8" display="number" min="1" max="255" default="1"/>
+	<cfg id="150004" name="ICV PROTOCOL" type="string" display="roText" len="12" default=""/>
+	<cfg id="150002" name="ICV BAUDRATE (kbps)" type="u8" display="roCombo" default="0" >
+			<item value="0" name="UNDEFINED"/>
+			<item value="1" name="666.6667"/>
+			<item value="2" name="500"/>
+			<item value="3" name="250"/>
+	</cfg>
+	<cfg id="150003" name="CANPATCH VERSION" type="array" len="3" display="roVersion" default="-.-.-"/>
+	</module>
+	<module name="Telemetry" id="0A">
+		<cfg id="0A0001" name="ENABLE" type="u8" display="check" default="false"/>
+		<cfg id="0A0002" name="TRANSMISSION MODE" type="u8" display="combo" default="0">
+			<item value="0" name="MANUAL"/>
+			<item value="1" name="AUTOMATICO"/>
+		</cfg>	
+		<cfg id="0A0003" name="VIOLATIONS ENABLE" type="u32" display="bitmask" default="FFFFFFFF" 
+			desc="Configura as violacoes que devem ter alerta sonoro (Buzzer, Audio)">
+			<item index="0" name="SPEED"/>
+			<item index="1" name="RPM"/>
+			<item index="2" name="CLUTCH"/>
+			<item index="3" name="ACC BRAKE"/>
+			<item index="4" name="DOWN TIME"/>
+			<item index="5" name="COAST"/>
+		</cfg>	
+		<cfg id="0A0004" name="ODOMETER FACTOR" type="u32" display="number" default="0" 
+			desc="Fator de correcao para leitura do ODOMETRO, que dependo do ISV utilizado."/>		
+		<cfg id="0A0005" name="LOCK SCREEN" type="u8" display="bitmask" default="00">
+			<item index="0" name="Bloquear a Tela"/>
+			<item index="1" name="Escurecer a Tela"/>
+		</cfg>
+		<cfg id="0A0006" name="LOCK SCREEN SPEED" type="u8" display="number" default="5" min="0" max="255" 
+			desc="Velocidade (km/h) para bloquear/escurecer a tela"/>		
+		<cfg id="0A0007" name="FILTER SPEED" type="u8" display="check" default="true" desc="Filtro  p/ leitura de velocidade"/>
+		<cfg id="0A0008" name="FILTER ODOMETER" type="u8" display="combo" default="1" 
+			desc="eleciona o algoritmo de filtro p/ leitura do Odometro, ou desabilita.">
+			<item value="0" name="Disable"/>
+			<item value="1" name="HostedApp"/>
+			<item value="2" name="MSC830"/>
+		</cfg>			
+		<cfg id="0A0009" name="FILTER FUEL" type="u8" display="check" default="true" desc="Filtro p/ leitura do nivel de combustivel."/>
+		<cfg id="0A000A" name="FUEL FACTOR" type="u32" display="number" default="1000" 
+			desc="Fator de multiplicação para o consumo de combustivel. A cfg deve ser Fator * 1000. Ex: Fator = 1.073 -> Cfg = 1073"/>
+		<cfg id="0A000C" name="EVENTS ENABLE" type="u32" display="bitmask" default="000001FF" 
+			desc="Configura as violacoes que devem ficar habilitadas">
+			<item index="0" name="SPEED"/>
+			<item index="1" name="RPM"/>
+			<item index="2" name="CLUTCH"/>
+			<item index="3" name="ACC BRAKE"/>
+			<item index="4" name="DOWN TIME"/>
+			<item index="5" name="COAST"/>
+			<item index="6" name="G FORCE"/>
+			<item index="7" name="AIR BREAK"/>
+			<item index="8" name="SEATBELT"/>
+			<item index="9" name="LIQUID COLLING TEMP"/>
+			<item index="10" name="FUEL LEVEL FALL"/>
+			<item index="11" name="MOTOR OIL TEMP"/>
+		</cfg>
+		<cfg id="0A0101" name="DELTA MODE" type="u8" display="combo" default="0" desc="Diferencia o modo antigo e novo de delta e faixas de RPM">
+			<item value="0" name="Modo Antigo"/>
+			<item value="1" name="Modo Novo"/>
+		</cfg>			
+		<cfg id="0A0102" name="RPM BAND 1" type="u16" display="number" min="0" max="65535" default="300"/>
+		<cfg id="0A0103" name="RPM BAND 2" type="u16" display="number" min="0" max="65535" default="750"/>
+		<cfg id="0A0104" name="RPM BAND 3" type="u16" display="number" min="0" max="65535" default="1200"/>
+		<cfg id="0A0105" name="RPM BAND 4" type="u16" display="number" min="0" max="65535" default="1800"/>
+		<cfg id="0A0106" name="RPM BAND 5" type="u16" display="number" min="0" max="65535" default="2300"/>
+		<cfg id="0A0107" name="RPM BAND 6" type="u16" display="number" min="0" max="65535" default="0" desc="Faixa extra economica"/>
+		<cfg id="0A0108" name="RPM TIME EXCESS" type="u8" display="number" min="0" max="255" default="5" 
+			desc="Tempo minimo em segundos que o RPM deve se manter na faixa vermelha para entrar em evento de excesso de RPM.\nPara desativar analise desse evento, carregar com 255."/>
+		<cfg id="0A0110" name="TORQUE LIMIT" type="i8" display="number" min="-125" max="125" default="0" 
+			desc="Torque Limite para considerar como acelerando/inércia"/>
+		<cfg id="0A0120" name="RPM DELAY WARNING" type="u8" display="number" min="0" max="255" default="2" 
+			desc="Tempo minimo em segundos que o RPM deve se manter na faixa vermelha para entrar em Warning de Excesso de RPM.\nPara desativar analise de Pre-evento, carregar com 255."/>
+		<cfg id="0A0201" name="SPEED DEBOUNCE TIME" type="u8" display="number" min="0" max="255" default="1" 
+			desc="Debounce em segundos de evento de Excesso de Velocidade"/>
+		<cfg id="0A0202" name="PRE EVENT SPEED DRY ROAD" type="u8" display="number" min="0" max="255" 
+			default="79" desc="vel min(km/h)  p/ entrar em pre-evento de excesso de velocidade em pista seca"/>
+		<cfg id="0A0203" name="PRE EVENT SPEED RAIN ROAD" type="u8" display="number" min="0" max="255" default="59" 
+			desc="vel min (km/h) p/ entrar em pre-evento de excesso de velocidade com chuva"/>
+		<cfg id="0A0204" name="EVENT SPEED EXCESS DRY ROAD" type="u8" display="number" min="0" max="255" default="80" 
+			desc="vel min (km/h) p/ entrar em evento de excesso de velocidade em pista seca "/>
+		<cfg id="0A0205" name="EVENT SPEED EXCESS RAIN ROAD	" type="u8" display="number" min="0" max="255" default="60" 
+			desc="vel min (km/h) p/ entrar em evento de excesso de velocidade com chuva"/>
+		<cfg id="0A0206" name="SOUND ALARM SPEED DRY" type="u8" display="number" min="0" max="255" default="75" 
+			desc="vel min (km/h) p/ soar alerta sonoro(Buzzer,Audio) de excesso de velocidade em pista seca "/>
+		<cfg id="0A0207" name="SOUND ALARM SPEED RAIN" type="u8" display="number" min="0" max="255" default="55" 
+			desc="vel min (km/h) p/ soar alerta sonoro(Buzzer,Audio) de excesso de velocidade em pista com chuva"/>
+		<cfg id="0A0209" name="TIMEOUT AUDIO REDUCE SPEED" type="u16" display="number" min="0" max="65535" default="15" 
+			desc="se em excesso de velocidade, dispara audio 'Reduza a velocidade' a cada x segundos"/>
+		<cfg id="0A0301" name="CLUTCH WARNING TIME" type="u8" display="number" min="0" max="255" default="6" 
+			desc="Tempo minimo (segundos) na embreagem para entrar em Warning de Excesso de Embreagem."/>
+		<cfg id="0A0302" name="CLUTCH EXCESS TIME" type="u8" display="number" min="0" max="255" default="10" 
+			desc="Tempo minimo (segundos) na embreagem para entrar em Evento de Excesso de Embreagem."/>
+		<cfg id="0A0303" name="ACCEL EXCESS" type="u8" display="number" min="0" max="255" default="5" 
+			desc="Aceleracao minima (km/h) para entrar em excesso de aceleracao"/>
+		<cfg id="0A0304" name="TM BRAKE EXCESS" type="u8" display="number" min="0" max="255" default="5" 
+			desc="Frenagem minima (km/h) para entrar em excesso de frenagem"/>
+		<cfg id="0A0305" name="MIN SPEED ACCEL BRAKE EXCESS" type="u8" display="number" min="0" max="255" default="60" 
+			desc="Velocidade minima (km/h) para entrar em excesso de aceleracao e/ou frenagem "/>
+		<cfg id="0A0306" name="CHECK PEDAL BRAKE EXCESS" type="u8" display="check" default="true" 
+			desc="Flag para ativar checagem do excesso de frenagem"/>
+		<cfg id="0A0401" name="DOWN TIME WARNING" type="u16" display="number" min="0" max="65535" default="160" desc="segundos"/>
+		<cfg id="0A0402" name="DOWN TIME EXCESS" type="u16" display="number" min="0" max="65535" default="180" 
+			desc="Tempo minimo (segundos) parado com ignicao ligada para entrar em Evento de Excesso de Parada"/>
+		<cfg id="0A0403" name="NEUTRAL COASTING WARNING" type="u8" display="number" min="0" max="255" default="3" 
+			desc="Tempo minimo (segundos) na banguela para entrar em Warning de Excesso de Banguela."/>
+		<cfg id="0A0404" name="NEUTRAL COASTING EXCESS" type="u8" display="number" min="0" max="255" default="5" 
+			desc="Tempo minimo (segundos) na banguela para entrar em Evento de Excesso de Banguela."/>
+		<cfg id="0A0405" name="NEUTRAL COASTING MIN SPEED" type="u8" display="number" min="0" max="255" default="1" 
+			desc="Velocidade minima (km/h) na baguela para entrar em Warning/Evento de Excesso de banguela"/>
+		<cfg id="0A0501" name="ACCEL LIMIT LATERAL EASY" type="u16" display="number" min="0" max="65535" default="245" 
+			desc="Threshold (cm/s2) da aceleração lateral fraca. 65535 = Desabilitado "/>
+		<cfg id="0A0502" name="ACCEL LIMIT LATERAL MEDIUM" type="u16" display="number" min="0" max="65535" default="343" 
+			desc="Threshold (cm/s2) da aceleração lateral média. 65535 = Desabilitado "/>
+		<cfg id="0A0503" name="ACCEL LIMIT LATERAL HARD" type="u16" display="number" min="0" max="65535" default="392" 
+			desc="Threshold (cm/s2) da aceleração lateral forte. 65535 = Desabilitado "/>		
+		<cfg id="0A0601" name="AIR BREAK PRESSURE THRESHOLD" type="u16" display="number" min="0" max="65535" default="800" 
+			desc="Threshold (kpa) da pressão do freio à ar. 0 ou 65535 = Desabilitado "/>
+		<cfg id="0A0602" name="AIR BREAK PRESSURE DEBOUNCE" type="u8" display="number" min="0" max="255" default="30" 
+			desc="Debounce (segundos) para entrar em evento de pressão baixa do freio à ar."/>
+		<cfg id="0A0701" name="SPEED UNBUCKLED SEATBELT THRESHOLD" type="u8" display="number" min="0" max="255" default="5" 
+			desc="Velocidade (km/h) mínima para considerar o cinto desafivelado. 0 ou 255 = Desabilitado "/>
+		<cfg id="0A0702" name="SPEED UNBUCKLED SEATBELT DEBOUNCE" type="u8" display="number" min="0" max="255" default="120" 
+			desc="Debounce (segundos) para entrar em evento de cinto desafivelado."/>
+		<cfg id="0A0801" name="FUEL TANK FALL THRESHOLD" type="u8" display="number" min="0" max="100" default="10" 
+			desc="Queda mínima do nível do tanque (%) para considerar o evento de queda brusca do tanque. 0 = Desabilitado"/>
+		<cfg id="0A0802" name="FUEL TANK FALL WINDOW" type="u16" display="number" min="0" max="65535" default="300" 
+			desc="Janela de tempo (segundos) em que deve ocorrer a queda brusca do nível do tanque para o evento ser valido. 0 = Desabilitado"/>
+		<cfg id="0A0804" name="FUEL TANK LEVEL SPIKES" type="u8" display="number" min="0" max="100" default="5" 
+			desc="Threshold para filtrar spikes na variação do nível do tanque (%). 0 = Desabilitado"/>
+		<cfg id="0A0A01" name="LIQUID COLLING TEMP EXCESS" type="u8" display="number" min="0" max="255" default="102" 
+			desc="Temperatura mínima para considerar o evento de excesso de temperatura do arrefecimento. 0 = Desabilitado "/>
+		<cfg id="0A0A02" name="LIQUID COLLING TEMP EXCESS DEBOUNCE" type="u16" display="number" min="0" max="65535" default="30" 
+			desc="Debounce (segundos) para entrar em evento de excesso de temperatura do arrefecimento. 0 = Desabilitado"/>
+		<cfg id="0A0B01" name="MOTOR OIL TEMP EXCESS" type="u8" display="number" min="0" max="255" default="102" 
+			desc="Temperatura mínima para considerar o evento de excesso de temperatura do oleo do motor. 0 = Desabilitado "/>
+		<cfg id="0A0B02" name="MOTOR OIL TEMP EXCESS DEBOUNCE" type="u16" display="number" min="0" max="65535" default="30" 
+			desc="Debounce (segundos) para entrar em evento de excesso de temperatura do oleo do motor. 0 = Desabilitado"/>
+		<cfg id="0A0D01" name="ALLOW EXIT DRIVING MODE WITH IGN ON" type="u8" display="check" default="false" 
+			desc="Permite ao motorista através do MDT, sair do modo dirigindo sem precisar desligar a ignição."/>
+		<cfg id="0A0D02" name="SPEED TO EXIT WAITING MODE" type="u8" display="number" min="0" max="255" default="20" 
+			desc="Velocidade mínima para forçar a saída do modo espera, para modo dirigindo no MDT. 0 ou 255 = Desabilitado"/>	
+
+	</module>
+	<module name="Risk Management" id="0D">
+		<cfg id="0D4001" name="ENABLE ANALYSIS ACTIONS" type="u8" display="check" default="true"/>
+		<cfg id="0D0100" name="PASSWORD COERCION" type="u32" display="number" default="0"/>
+		<cfg id="0D0101" name="LOGIN DRIVER DEFAULT" type="u32" display="number" default="999997"/>
+		<cfg id="0D0102" name="PWD DRIVER DEFAULT" type="u32" display="number" default="0" desc="0 = Sem motorista"/>
+		<cfg id="0D0103" name="NAME DRIVER DEFAULT" type="string" display="text" len="16" default=""/>
+		<cfg id="0D0201" name="AUTO BLOQ" type="u8" display="check" default="false"/>
+		<cfg id="0D0202" name="AUTO BLOQ TIMEOUT" type="u16" display="number" min="0" max="65535" default="30" desc="Tempo em segundos após desligar a ignição para bloquear"/>
+
+		<cfg id="0D0301" name="JAMMER RETRY NETWORK" type="u8" display="number" min="0" max="255" default="2" desc="Número de tentativas de reset do modem para considerar JAMMER"/>
+		<cfg id="0D0302" name="JAMMER SPEED FILTER" type="u8" display="number" min="0" max="255" default="3" desc="Velocidade miníma em km/h para considerar JAMMER"/>
+		<cfg id="0D0303" name="JAMMER DISTANCE FILTER" type="u16" display="number" min="0" max="65535" default="800" desc="Distância miníma em metros para considerar JAMMER"/>
+		<cfg id="0D0304" name="JAMMER WAIT DETECT TIME" type="u16" display="number" min="0" max="65535" default="30" desc="Tempo de espera em segundos para considerar JAMMER"/>
+		<cfg id="0D0305" name="JAMMER WAIT RESTART TIME" type="u16" display="number" min="0" max="65535" default="60" desc="Tempo de espera em segundos após o reset do modem para confirmar JAMMER"/> 
+		<cfg id="0D0401" name="CFG_ROUTE_CONDITION_ENABLE" type="u16" display="bitmask" default="0000" 
+			desc="Configura as acoes da violacao da rota embarcada">
+			<item index="0" name="SAIDA 1 (BLOQUEIO)"/>
+			<item index="1" name="SAIDA 2 (SIRENE)"/>
+			<item index="2" name="SAIDA 3"/>
+			<item index="3" name="SAIDA 4"/>
+			<item index="4" name="SAIDA 5"/>
+			<item index="5" name="SAIDA 6"/>
+			<item index="6" name="SAIDA 7"/>
+			<item index="7" name="SAIDA 8"/>
+			<item index="8" name="ALERTA AUDIVEL"/>
+			<item index="9" name="TABLET EM ALERTA"/>
+			<item index="10" name="SEND REPORT"/>
+		</cfg>
+		<cfg id="0D2000" name="KEEP ALIVE" type="u16" display="number" min="10" max="65535" default="30" desc="não implementado"/>
+		<cfg id="0D2001" name="REPORT IGN ON" type="u16" display="number" min="10" max="65535" default="120" desc="segundos"/>
+		<cfg id="0D2002" name="REPORT IGN OFF" type="u16" display="number" min="10" max="65535" default="240" desc="segundos"/>
+		<cfg id="0D2003" name="REPORT PANIC" type="u16" display="number" min="10" max="65535" default="120" desc="não implementado"/>
+		<cfg id="0D2004" name="BATTERY MODE" type="u16" display="number" min="10" max="65535" default="240" desc="segundos"/>    
+		<!-- cfg id="0D2005" name="REPORT_MOTION" type="u16" display="number" min="10" max="65535" default="120" desc=""/> 
+		<cfg id="0D2006" name="REPORT_UNMOTION" type="u16" display="number" min="10" max="65535" default="240" desc=""/> MSC5xx -->
+		<cfg id="0D3001" name="SPEED EXCESS DRY ROAD" type="u8" display="number" min="0" max="255" default="90" desc="km/h"/>
+		<cfg id="0D3002" name="SPEED EXCESS RAIN ROAD" type="u8" display="number" min="0" max="255" default="60" desc="km/h"/>
+		<cfg id="0D3003" name="SPEED EXCESS DRY URBAN" type="u8" display="number" min="0" max="255" default="60" desc="km/h"/>
+		<cfg id="0D3004" name="SPEED EXCESS RAIN URBAN" type="u8" display="number" min="0" max="255" default="45" desc="km/h"/>
+		<cfg id="0D3011" name="CURRENT ROAD URBAN MODE" type="u8" display="combo" default="0">
+			<item value="0" name="Road"/>
+			<item value="1" name="Urban"/>
+		</cfg>
+		<!--cfg id="0D3012" name="CURRENT_DRY_RAIN_MODE" type="u8" display="combo" default="0">
+			<item value="0" name="Dry"/>
+			<item value="1" name="Rain"/>
+		</cfg> Foi criado mas nao eh usado, usa o sensor de chuva/ contexto -->
+		<cfg id="0D3021" name="MIN TIME SPEED EXCESS IN" type="u8" display="number" min="0" max="255" default="255" desc="segundos - 255 = Desabilitado"/>
+		<cfg id="0D3022" name="MIN TIME SPEED EXCESS OUT" type="u8" display="number" min="0" max="255" default="255" desc="segundos - 255 = Desabilitado"/>
+		<cfg id="0D3101" name="MAX PARKED TIME" type="u16" display="number" min="0" max="65535" default="65535" desc="segundos - 65535 = Desabilitado"/>
+		<cfg id="0D3102" name="PARKING SPEED THRESHOLD" type="u8" display="number" min="0" max="255" default="1" desc="km/h"/>
+		<!--cfg id="0D3103" name="PARKED_TIME_DEBOUNCE" type="u8" display="number" min="0" max="255" default="5" desc="segundos"/-->
+				
+	</module>
+	<module name="CAN Accessory Network" id="11">
+		<cfg id="110500" name="ENABLE" type="u8" display="check" default="true"/>
+		<cfg id="110100" name="COM ACCEPTANCE" type="u8" display="combo" default="0">
+			<item value="0" name="Accept All"/>
+			<item value="1" name="Reject All"/>
+			<item value="2" name="Consult authentication list"/>
+		</cfg>
+    	<cfg id="110501" name="CRYPTOGRAPHY" type="u8" display="check" default="false"/>
+		<cfg id="110600" name="ALLOW OLD TRAILER" type="u8" display="check" default="true"/>
+	</module>
+	<module name="Logging" id="0B">
+			<cfg id="0B0102" name="SD CARD ENABLE" type="u8" display="check" default="true" desc="Habilita Gravação de Log no SD Card"/>
+		<cfg id="0B0201" name="CRITICALITY UART" type="u8" display="combo" default="5">
+			<item value="0" name="DISABLED"/>
+			<item value="1" name="CRITICAL"/>
+			<item value="2" name="ERROR"/>
+			<item value="3" name="WARNING"/>
+			<item value="4" name="INFO"/>
+			<item value="5" name="DEBUG"/>
+		</cfg>
+		<cfg id="0B0202" name="CRITICALITY SDCARD" type="u8" display="combo" default="5">
+			<item value="0" name="DISABLED"/>
+			<item value="1" name="CRITICAL"/>
+			<item value="2" name="ERROR"/>
+			<item value="3" name="WARNING"/>
+			<item value="4" name="INFO"/>
+			<item value="5" name="DEBUG"/>
+		</cfg>
+		<cfg id="0B0301" name="ORIGIN UART" type="u32" display="bitmask" default="FFFFFFFF">
+			<item index="0" name="NONE"/>
+			<item index="1" name="SYSLOG"/>
+			<item index="2" name="DRIVER UART"/>			
+			<item index="3" name="DRIVER GSM"/>
+			<item index="4" name="DRIVER GPS"/>
+			<item index="5" name="DRIVER CAN"/>
+			<item index="6" name="DRIVER ESP"/>
+			<item index="7" name="DRIVER USD"/>						
+			<item index="8" name="SYSMONITOR"/>	
+			<item index="9" name="SYNC"/>
+			<item index="10" name="SENSORS"/>
+			<item index="11" name="ACTUATORS"/>
+			<item index="12" name="LOCATION"/>
+			<item index="13" name="ISV"/>
+			<item index="14" name="DATA TERMINAL"/>
+			<item index="15" name="SATELITAL"/>			
+			<item index="16" name="MEMORY"/>
+			<item index="17" name="PACKAGE"/>
+			<item index="18" name="NETWORK"/>
+			<item index="19" name="RESERVED"/>
+			<item index="20" name="ACCESSORY NET"/>
+			<item index="21" name="GEOZONES"/>			
+			<item index="22" name="CONFIG"/>
+			<item index="23" name="COMMANDS"/>			
+			<item index="24" name="RISK MANAGEMENT"/>
+			<item index="25" name="TELEMETRY"/>
+			<item index="26" name="BLACKBOX"/>			
+			<item index="27" name="ROTOGRAM"/>
+			<item index="28" name="TPMS"/>
+			<item index="29" name="ENERGY"/>
+			<item index="30" name="PTELD"/>
+		</cfg>
+		<cfg id="0B0302" name="ORIGIN SDCARD" type="u32" display="bitmask" default="FFFFFFFF">
+			<item index="0" name="NONE"/>
+			<item index="1" name="SYSLOG"/>
+			<item index="2" name="DRIVER UART"/>			
+			<item index="3" name="DRIVER GSM"/>
+			<item index="4" name="DRIVER GPS"/>
+			<item index="5" name="DRIVER CAN"/>
+			<item index="6" name="DRIVER ESP"/>
+			<item index="7" name="DRIVER USD"/>						
+			<item index="8" name="SYSMONITOR"/>	
+			<item index="9" name="SYNC"/>
+			<item index="10" name="SENSORS"/>
+			<item index="11" name="ACTUATORS"/>
+			<item index="12" name="LOCATION"/>
+			<item index="13" name="ISV"/>
+			<item index="14" name="DATA TERMINAL"/>
+			<item index="15" name="SATELITAL"/>			
+			<item index="16" name="MEMORY"/>
+			<item index="17" name="PACKAGE"/>
+			<item index="18" name="NETWORK"/>
+			<item index="19" name="RESERVED"/>
+			<item index="20" name="ACCESSORY NET"/>
+			<item index="21" name="GEOZONES"/>			
+			<item index="22" name="CONFIG"/>
+			<item index="23" name="COMMANDS"/>			
+			<item index="24" name="RISK MANAGEMENT"/>
+			<item index="25" name="TELEMETRY"/>
+			<item index="26" name="BLACKBOX"/>			
+			<item index="27" name="ROTOGRAM"/>
+			<item index="28" name="TPMS"/>
+			<item index="29" name="ENERGY"/>
+			<item index="30" name="PTELD"/>
+		</cfg>
+		<cfg id="0B0101" name="UART ENABLE" type="u8" display="check" default="true" desc="Habilita Log na Uart Configurada"/>
+		<cfg id="0B3101" name="UART CHANNEL" type="u8" display="combo" default="3">
+			<item value="1" name="Serial 1"/>
+			<item value="2" name="Serial 2"/>
+			<item value="3" name="USB"/>
+		</cfg>
+		<cfg id="0B3201" name="BAUDRATE" type="u8" display="combo" default="11">
+			<item value="1" name="1200"/>
+			<item value="2" name="1800"/>
+			<item value="3" name="2400"/>
+			<item value="4" name="4800"/>
+			<item value="5" name="7200"/>
+			<item value="6" name="9600"/>
+			<item value="7" name="14400"/>
+			<item value="8" name="19200"/>
+			<item value="9" name="38400"/>
+			<item value="10" name="57600"/>
+			<item value="11" name="76800"/>
+			<item value="12" name="115200"/>
+			<item value="13" name="128000"/>
+			<item value="14" name="230400"/>
+			<item value="15" name="256000"/>
+			<item value="16" name="460800"/>
+		</cfg>
+		<cfg id="0B3301" name="BITS DATA" type="u8" display="number" min="7" max="9" default="8"/>
+    <!--cfg id="0B3401" name="PARITY" type="u8" display="combo" default="1">
+			<item value="1" name="NONE"/>
+			<item value="2" name="EVEN"/>
+			<item value="3" name="ODD"/>
+		</cfg> Nao utilizado -->
+		<cfg id="0B3501" name="STOP BITS" type="u8" display="number" min="1" max="2" default="2"/>
+    <!--cfg id="0B3601" name="FLW_CTRL" type="u8" display="combo" default="1">
+			<item value="1" name="NONE"/>
+			<item value="2" name="CTS"/>
+			<item value="3" name="RTS"/>
+			<item value="4" name="RTS_CTS"/>
+		</cfg> Nao utilizado -->
+		
+		<cfg id="0B0401" name="DEBUG LOGS" type="u8" display="bitmask" default="00" desc="Habilita LOGs específicos">
+			<item index="0" name="GPS NMEA"/>
+			<item index="1" name="ISV MESSAGE"/>
+			<item index="2" name="KML TM EVENT ON SDCARD"/>			
+			<item index="3" name="ELD DEBUG"/>
+			<item index="4" name="DT MESSAGE"/>
+			<item index="5" name="SATELITAL MESSAGE"/>
+			<item index="6" name="RFU3"/>
+			<item index="7" name="RFU4"/>						
+		</cfg>				
+		
+	</module>	
+	<module name="General Settings" id="80">
+		<cfg id="800001" name="CONFIGURATION VERSION" type="array" len="4" display="u8_list" default="0-0-0-0"
+		desc="Model: 0 = MSC830 | 1 = MSC530\nClass: 0 = Sascarga | 1 = SasMDT">
+			<item index="0" name="Model"/>
+			<item index="1" name="Class"/>
+			<item index="2" name="Version"/>
+			<!--item index="3" name="RFU"/-->
+		</cfg>
+		<cfg id="800500" name="GMT" type="i8" display="number" min="-12" max="12" default="-3"/>
+		<cfg id="800600" name="LOCALE" type="string" len="8" display="text" default="pt-BR"/>
+	</module>
+</configurations>

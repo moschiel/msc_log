@@ -38,7 +38,7 @@ function deepMerge(defaults, saved) {
   return saved ?? defaults;
 }
 
-export function loadConfigs() {
+export function loadUserConfigs() {
   let saved = null;
   try {
     saved = JSON.parse(localStorage.getItem("configs") || "null");
@@ -50,6 +50,6 @@ export function loadConfigs() {
   configs = deepMerge(DEFAULT_CONFIGS, saved);
 }
 
-export function saveConfigs() {
+export function saveUserConfigs() {
   localStorage.setItem("configs", JSON.stringify(configs));
 }

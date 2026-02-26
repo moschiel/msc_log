@@ -4,7 +4,7 @@ import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlig
 import { parseMessage, getMsgName, clearMessageCounter, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
-import { configs, saveConfigs } from "./configs.js";
+import { configs, saveUserConfigs } from "./configs.js";
 
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
@@ -623,10 +623,10 @@ export function initPkgAnalyzerConfiguratorListener() {
 
     cbIgnoreAck.onchange = () => {
         configs.pkgAnalyze.ignoreAck = cbIgnoreAck.checked;
-        saveConfigs();
+        saveUserConfigs();
     };
     cbIgnoreKeepAlive.onchange = () => {
         configs.pkgAnalyze.ignoreKeepAlive = cbIgnoreKeepAlive.checked;
-        saveConfigs();
+        saveUserConfigs();
     };
 }

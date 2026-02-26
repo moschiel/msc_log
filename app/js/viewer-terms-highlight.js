@@ -1,5 +1,5 @@
 // @ts-ignore
-import { configs, saveConfigs } from "./configs.js";
+import { configs, saveUserConfigs } from "./configs.js";
 // @ts-ignore
 import { util } from "./utils.js";
 // @ts-ignore
@@ -44,7 +44,7 @@ export function initTermsConfiguratorListener() {
             };
         });
 
-        saveConfigs();
+        saveUserConfigs();
 
         virtualTextBox.rerender(); // reaplica alterações no background
     });

@@ -2,6 +2,7 @@ import { util } from "./utils.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 import { ui } from "./viewer-ui-elements.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
+import { findCfg } from "./msc-configs.js";
 
 /**
  * ID e descrição das mensagens, e se suportam listagem
@@ -475,10 +476,12 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                 const id = br.read_bytes("config id", 3);
                 const size = br.read_u8("config size");
                 const value = br.read_bytes("config value", size);
+
                 if (dataOrientation === "v")
                     br.add_row(util.bufferToHex(id), size, util.bufferToHex(value));
                 else
                     text += `{ ID: ${util.bufferToHex(id)}, Value: 0x${util.bufferToHex(value)} }, \r\n`;
+                    
             }
             if (dataOrientation === "h")
                 br.add_row("Configurações", "N/A", text);
@@ -505,13 +508,16 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
         case 0x3200: {
             let value = "";
             while (br.getOffset() < br.getLength()) {
-                let id = "";
+                let text = "";
                 if (msgID === 0x3100) {
-                    id = util.bufferToHex(br.read_bytes("config_id", 3));
+                    const id = util.bufferToHex(br.read_bytes("config_id", 3));
+                    const cfg = findCfg(id);
+                    text = `${id} - ${cfg?.name}`;
+                    value += text + "\n";
                 } else {
-                    id = String(br.read_u16("context_id"));
+                    text = String(br.read_u16("context_id"));
+                    value += text + ", ";
                 }
-                value += id + ", "
             }
 
             br.add_row("IDs Solicitados", br.getLength(), value);

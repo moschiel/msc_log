@@ -21,8 +21,9 @@ import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, in
 import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 import { initFindBar } from "./find-bar.js";
 import { initVirtualTextBox } from "./virtual-text-box.js";
-import { loadConfigs } from "./configs.js";
+import { loadUserConfigs } from "./configs.js";
 import { highlightFindBarTerm, htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js";
+import { loadMscConfigsXml } from "./msc-configs.js";
 
 /**@type {import("./find-bar").FindBar} */
 export let findBar;
@@ -33,7 +34,9 @@ export let virtualTextBox;
 // após carregamento inicializamos outros componentes da UI
 // além de forçar uma atualização inicial do conteúdo do log.
 window.addEventListener("load", () => {
-    loadConfigs();
+    loadUserConfigs();
+
+    loadMscConfigsXml();
 
     // carrega options no seletor #selListMessage
     initSelectMessageIDOptions();
