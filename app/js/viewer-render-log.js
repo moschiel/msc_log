@@ -1,8 +1,9 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg, updatePackageCounterStatistics } from "./viewer-package-parser.js";
+import { clearPkgInfo, detectPackages, PkgCounter, tailSplitWithPendingPkg, updatePackageCounterStatistics } from "./viewer-package-parser.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
 import { updateMessageCounterStatistics } from "./viewer-message-parser.js";
+import { highlightPackage } from "./viewer-package-highlight.js";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -93,25 +94,33 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
 
     // checa se tem texto seguro pra processar pacotes
     if (safeText && safeText.length > 0) {
+        
+        const lines = util.escapeHtml(safeText).split(/\r?\n/);
+        let currTotal = PkgCounter.total;
+
         // detecta os pacotes no texto, retornando:
         // - HTML, com highlight (se solicitado)
         // - lista de mensagens de um determinado ID (se solicitado)
-        const parsed = detectPackages(safeText, {
-            highlight: opts.highlight,
+        const parsed = detectPackages(lines, {
+            highlight: false,
             searchMsgID: opts.searchMsgID
         });
-
-        appendSafeHtmlText(parsed.htmlWithPackagesHighlight);
-
-        // Itera sobre os pacotes encontrados
+        
         for(const pkg of parsed.packages) {
-            updatePackageCounterStatistics(pkg.parseOk, pkg.connState, pkg.isIncommingPkg);
+            updatePackageCounterStatistics(pkg.parseOk, pkg.connState, pkg.isIncomingPkg);
+            
+            if(pkg.parseOk) {
+                for (const msg of pkg.messages) {
+                    updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+                }
+            }
 
-            // Itera sobre as mensagens do pacote
-            for (const msg of pkg.messages) {
-                updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+            if(opts.highlight) {
+                highlightPackage(++currTotal, pkg.parseOk, pkg.isIncomingPkg, pkg.connState, lines, pkg.lineIndexes);
             }
         }
+
+        appendSafeHtmlText(opts.highlight ? lines.join("\n") : safeText);
 
         // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
         if (opts.searchMsgID && opts.searchMsgID !== "none") {

@@ -225,8 +225,8 @@ ui.logContent.addEventListener("click", e => {
     if (!pkgClassName.startsWith("pkg-")) return;
 
     let frameStr = getHexFromHighlightPackageClass(pkgClassName);
-    const isIncommingPkg = e.target.classList.contains("hl-pkg-incomming");
-    const { parseOk, rows, messages } = parsePackage(util.hexToBuffer(frameStr), isIncommingPkg, "collect", "nsv", "v");
+    const isIncomingPkg = e.target.classList.contains("hl-pkg-incomming");
+    const { parseOk, rows, messages } = parsePackage(util.hexToBuffer(frameStr), isIncomingPkg, "collect", "nsv", "v");
 
     if (!parseOk) return;
 

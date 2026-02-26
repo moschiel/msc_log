@@ -19,19 +19,18 @@ const PKG_HIGHLIGHT_VERSION = "V1";
 * 
 * @param {number} pkgIndex index do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
 * @param {boolean} parseOk se o parse do pacote foi bem sucedido ou nao (pacote com erro de formato, etc)
-* @param {boolean} isIncommingPkg indica se o pacote foi recebido pelo equipamento ao invez de enviado.
+* @param {boolean} isIncomingPkg indica se o pacote foi recebido pelo equipamento ao invez de enviado.
 * @param {"Online" | "Offline" | null} connState estado da conexao no momento do pacote (Online, Offline, etc)
 * @param {Array<string>} lines array de linhas do log,
 * @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
 */
-export function highlightPackage(pkgIndex, parseOk, isIncommingPkg, connState, lines, lineIndexes) {
+export function highlightPackage(pkgIndex, parseOk, isIncomingPkg, connState, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (parseOk) {
-        if (isIncommingPkg)
-            classPkgStatus = "hl-pkg-incomming";
-        else
-            classPkgStatus = connState === "Online" ? "hl-pkg-online" : "hl-pkg-offline";
+        if (isIncomingPkg) classPkgStatus = "hl-pkg-incomming";
+        else if (connState === "Online") classPkgStatus = "hl-pkg-online";
+        else if (connState === "Offline") classPkgStatus = "hl-pkg-offline";
     } else {
         classPkgStatus = "hl-pkg-err";
     }

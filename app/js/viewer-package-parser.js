@@ -38,23 +38,24 @@ export function clearPkgInfo() {
 
 /** 
  * @param {string} line
- * @returns {{isPkgAnnouncement: boolean, type: "Sent" | "Incomming"} }
+ * @returns {{isPkgAnnouncement: boolean, type: "Sent" | "Incoming"} }
  */
 function checkPkgAnnouncement(line) {
     const substr = line.substring(LOG_HEADER_SIZE);
     const isSentPkg = substr.startsWith("Sent Buffer:");
     const isIncomPkg = substr.startsWith("Incoming Package:");
     return {
-        isPkgAnnouncement: isSentPkg || isSentPkg,
-        type: isSentPkg ? "Sent" : isIncomPkg ? "Incomming" : null,
+        isPkgAnnouncement: isSentPkg || isIncomPkg,
+        type: isSentPkg ? "Sent" : isIncomPkg ? "Incoming" : null,
     }
 }
 
 /**
  * @typedef {{
  *  parseOk: boolean
- *  isIncommingPkg: boolean
+ *  isIncomingPkg: boolean
  *  connState: "Online" | "Offline"
+ *  lineIndexes: number[]
  *  messages: {id: number, data: Uint8Array}[]
  * }} ProcessedPackage
  */
@@ -64,7 +65,7 @@ function checkPkgAnnouncement(line) {
  * - retornar o texto convertido para HTML, aplicando CSS de highlight nesses pacotes.
  * - ou retornar todas as mensagens de um ID específico.
  * 
- * @param {string} text,
+ * @param {string[]} lines,
  * @param {{
  *   highlight?: boolean,
  *   searchMsgID?: string
@@ -78,14 +79,13 @@ function checkPkgAnnouncement(line) {
  *  packages: ProcessedPackage[]
  * }}
  */
-export function detectPackages(text, opt = { highlight: false, searchMsgID: null }) {
-    const lines = util.escapeHtml(text).split(/\r?\n/);
+export function detectPackages(lines, opt = { highlight: false, searchMsgID: null }) {
     const headerLen = LOG_HEADER_SIZE;
 
     let messageDataTable = { headers: [], rows: [] };
 
     let isCollectingFrame = false;
-    let isIncommingPkg = false;
+    let isIncomingPkg = false;
     let pkgLoggedTimestamp = 0;  // timestamp de quando o pacote foi impresso no LOG
     let lineIndexes = []; // guarda os índices das linhas que pertencem ao pacote
     /** @type {ProcessedPackage[]} */
@@ -131,7 +131,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             }
     
             // insere dados extras no inicio da row
-            const type = isIncommingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
+            const type = isIncomingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
             rows[1].unshift(
                 PkgCounter.total, 
                 pkgCreatedTimestamp, 
@@ -158,13 +158,11 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             const { parseOk, connState, messages, rows, pkgTicket } =
                 parsePackage(
                     util.hexToBuffer(frameStr),
-                    isIncommingPkg,
+                    isIncomingPkg,
                     opt.searchMsgID === "all" ? "collect" : "validate",
                     "nv",
                     "h"
                 );
-            
-            packages.push({parseOk, isIncommingPkg, connState, messages});
                 
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
@@ -196,25 +194,20 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 }
             }
 
+            packages.push({parseOk, isIncomingPkg, connState, messages, lineIndexes});
+
             if (parseOk) {
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
                     appendMessageDataTable(rows, connState, pkgTicket);
                 }
             }
-
-            if (opt.highlight)
-                highlightPackage(PkgCounter.total, parseOk, isIncommingPkg, connState, lines, lineIndexes);
-
         } catch (e) {
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
-            packages.push({parseOk: false, isIncommingPkg: null, connState: null, messages: []});
+            packages.push({parseOk: false, isIncomingPkg: null, connState: null, messages: null, lineIndexes});
             
-            if (opt.highlight)
-                highlightPackage(PkgCounter.total, false, null, null, lines, lineIndexes);
             if (opt.searchMsgID && opt.searchMsgID !== "--")
                 appendMessageDataTable(null, null, "", true);
-
         }
 
         // reset
@@ -261,7 +254,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
             // verifica se tem que iniciar coleta de frames hexadecimais
             const res = checkPkgAnnouncement(line);
-            isIncommingPkg = res.type === "Incomming";
+            isIncomingPkg = res.type === "Incoming";
             if (res.isPkgAnnouncement) {
                 // Encontrou inicio do frame, inicia a coleta das linhas seguintes
                 pkgLoggedTimestamp = util.logExtractTimestampFromHeader(line);
@@ -289,13 +282,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
         flushPackage();
     }
 
-    if (opt.highlight) {
-        //console.log(`Quantidade Total de Pacotes: ${PkgCounter.total}\r\nPacotes Offline: ${PkgCounter.offline}\r\nPacotes com erro: ${PkgCounter.error}`);
-        //console.log("Quantidade de cada mensagem", hlMessagesCountStatistics);
-    }
-
     return {
-        htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : text,
+        htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : "",
         messageDataTable: opt.searchMsgID ? messageDataTable : null,
         packages
     }
@@ -319,7 +307,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
  * }}
  */
-export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataOrientation) {
+export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOrientation) {
     const br = createBinaryReader(u8buf, {
         processMode,
         dataMode,
@@ -328,7 +316,7 @@ export function parsePackage(u8buf, isIncommingPkg, processMode, dataMode, dataO
 
     let pkgSize = 0;
 
-    if (isIncommingPkg) {
+    if (isIncomingPkg) {
         pkgSize = br.getLength();
         br.add_row("Tamanho do pacote", 2, br.getLength());
     } else {
