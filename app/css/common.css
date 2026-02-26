@@ -16,7 +16,10 @@ body {
 
 /* Util para jogar elementos a direita de uma div pai flex */
 .align-right {
-    margin-left: auto !important;
+  margin-left: auto !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px; /* ajusta aqui */
 }
 
 input,
