@@ -233,7 +233,8 @@ export const util = {
 
         row.forEach((cell) => {
           const td = document.createElement("td");
-          td.textContent = String(cell);
+          //td.textContent = String(cell);
+          td.innerHTML = String(cell);
           tr.appendChild(td);
         });
 
@@ -632,7 +633,8 @@ function _createRow(row) {
   const tr = document.createElement("tr");
   row.forEach((cell) => {
     const td = document.createElement("td");
-    td.textContent = String(cell);
+    //td.textContent = String(cell);
+    td.innerHTML = String(cell);
     tr.appendChild(td);
   });
   return tr;

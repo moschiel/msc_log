@@ -16,7 +16,7 @@ td {
 #parsedPackageTable td:nth-child(1),
 #parsedMessageTable td:nth-child(1) {
     /* largura minima da primeira coluna (nao fica menor que isso) */
-    width: 140px;
+    min-width: 140px;
 }
 
 #parsedPackageTable td:nth-child(2),
@@ -31,6 +31,11 @@ td {
     /* respeita \n e \r\n, fazendo pular linha */
     word-break: break-word;
     /* evita estourar a célula */
+}
+
+/* coluna 'name' nao quebra linha */
+#parsedPackageTable td:first-child {
+  white-space: nowrap !important; 
 }
 
 #listMessageTable {

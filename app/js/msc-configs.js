@@ -1,3 +1,5 @@
+import { util } from "./utils.js";
+
 /** @type {XMLDocument} */
 let xmlDoc;
 
@@ -25,17 +27,18 @@ export async function loadMscConfigsXml () {
  * @property {string|null} display
  * @property {string|null} default
  * @property {string|null} desc
+ * @property {string} moduleId
+ * @property {string} moduleName
  */
 
 /**
- * Normaliza um ID para o formato do XML: HEX com 6 caracteres, maiúsculo.
- *
- * - number: converte para HEX, padStart(6, "0"), upper.
- * - string: remove prefixo 0x/0X se existir, valida HEX, padStart(6, "0"), upper.
- *
- * @param {number|string} id
- * @returns {string} ex: "010600"
+ * @typedef {CfgInfo & {
+ *   valueRaw?: Uint8Array,
+ *   valueFormatted?: (number|string|{hex:string, bytes:number[]}|null),
+ *   valueNote?: (string|null)
+ * }} CfgInfoWithValue
  */
+
 function normalizeCfgHexId(id) {
   if (typeof id === "number") {
     if (!Number.isFinite(id) || id < 0) {
@@ -46,15 +49,11 @@ function normalizeCfgHexId(id) {
 
   if (typeof id === "string") {
     let s = id.trim();
-
-    if (s.startsWith("0x") || s.startsWith("0X")) {
-      s = s.slice(2);
-    }
+    if (s.startsWith("0x") || s.startsWith("0X")) s = s.slice(2);
 
     if (!/^[0-9a-fA-F]+$/.test(s)) {
       throw new Error(`ID string inválido (não é HEX): "${id}"`);
     }
-
     if (s.length > 6) {
       throw new Error(`ID string inválido (maior que 6 dígitos): "${id}"`);
     }
@@ -66,13 +65,94 @@ function normalizeCfgHexId(id) {
 }
 
 /**
+ * Tenta formatar um valor (Uint8Array) de acordo com o tipo do CFG.
+ * Observação: para números (u16/u32/i16/i32), aqui assumimos LITTLE-ENDIAN
+ *
+ * @param {string} type
+ * @param {number|null} maxLen
+ * @param {Uint8Array} raw
+ * @returns {{ formatted: any, note: (string|null) }}
+ */
+function formatCfgValue(type, maxLen, raw) {
+  const useLen = Number.isFinite(maxLen) ? Math.min(raw.length, maxLen) : raw.length;
+  const data = raw.slice(0, useLen);
+
+  // string: até \0 ou até len
+  if (type === "string") {
+    const zeroIndex = data.indexOf(0);
+    const slice = zeroIndex >= 0 ? data.slice(0, zeroIndex) : data;
+
+    // TextDecoder é o mais simples; assume UTF-8 (ok para ASCII também)
+    let str = "";
+    try {
+      str = new TextDecoder("utf-8", { fatal: false }).decode(slice);
+    } catch {
+      // fallback bem simples
+      str = Array.from(slice).map(c => String.fromCharCode(c)).join("");
+    }
+
+    return { formatted: str, note: null };
+  }
+
+  // array: devolve bytes e hex
+  if (type === "array") {
+    return {
+      formatted: { hex: util.bufferToHex(data), bytes: Array.from(data) },
+      note: null,
+    };
+  }
+
+  // numéricos via DataView
+  const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const littleEndian = true;
+
+  const need = (n) => {
+    if (data.length < n) {
+        throw new Error(`valorRaw tem ${data.length} byte(s), mas type=${type} precisa de ${n}.`);
+    }
+  };
+
+  if (type === "u8") {
+    need(1);
+    return { formatted: dv.getUint8(0), note: null };
+  }
+  if (type === "i8") {
+    need(1);
+    return { formatted: dv.getInt8(0), note: null };
+  }
+  if (type === "u16") {
+    need(2);
+    return { formatted: dv.getUint16(0, littleEndian), note: null };
+  }
+  if (type === "i16") {
+    need(2);
+    return { formatted: dv.getInt16(0, littleEndian), note: null };
+  }
+  if (type === "u32") {
+    need(4);
+    return { formatted: dv.getUint32(0, littleEndian), note: null };
+  }
+  if (type === "i32") {
+    need(4);
+    return { formatted: dv.getInt32(0, littleEndian), note: null };
+  }
+
+  // tipo desconhecido: devolve hex
+  return {
+    formatted: { hex: util.bufferToHex(data), bytes: Array.from(data) },
+    note: `type desconhecido: "${type}" (retornando como bytes/hex)`,
+  };
+}
+
+/**
  * Procura uma tag <cfg> pelo ID (number ou string HEX).
- * O ID no XML é uma string HEX de 6 caracteres maiúsculos.
+ * Se você passar `valueRaw` (Uint8Array), tenta retornar também `valueFormatted`.
  *
  * @param {number|string} id Number (ex: 0x010600) ou string (ex: "010600" / "0x010600")
- * @returns {CfgInfo|null}
+ * @param {Uint8Array} [valueRaw] valor lido/configurado para esse CFG
+ * @returns {CfgInfoWithValue|null}
  */
-export function findCfg(id) {
+export function findCfg(id, valueRaw) {
   if (!xmlDoc) {
     console.warn("XML ainda não foi carregado.");
     return null;
@@ -87,23 +167,40 @@ export function findCfg(id) {
   }
 
   const cfg = xmlDoc.querySelector(`cfg[id="${hexId}"]`);
-
   if (!cfg) {
-    //console.warn(`CFG não encontrado para id ${hexId}`);
+    console.warn(`CFG não encontrado para id ${hexId}`);
     return null;
   }
 
+  const moduleEl = cfg.closest("module");
+  const moduleName = moduleEl?.getAttribute("name") ?? undefined;
+  const moduleId = moduleEl?.getAttribute("id") ?? null;
+
+  const type = cfg.getAttribute("type") ?? "";
+  const lenStr = cfg.getAttribute("len");
+  const maxLen = lenStr != null ? Number(lenStr) : null;
+
+  /** @type {CfgInfoWithValue} */
   const result = {
     id: cfg.getAttribute("id") ?? hexId,
     name: cfg.getAttribute("name") ?? "",
-    type: cfg.getAttribute("type") ?? "",
-    len: cfg.getAttribute("len"),
+    type,
+    len: lenStr,
     display: cfg.getAttribute("display"),
     default: cfg.getAttribute("default"),
     desc: cfg.getAttribute("desc"),
+    moduleName,
+    moduleId,
   };
 
-  //console.log("CFG encontrado:", result);
+  if (valueRaw instanceof Uint8Array) {
+    const { formatted, note } =
+      formatCfgValue(type, Number.isFinite(maxLen) ? maxLen : null, valueRaw);
+
+    result.valueRaw = valueRaw;
+    result.valueFormatted = formatted;
+    result.valueNote = note;
+  }
 
   return result;
 }

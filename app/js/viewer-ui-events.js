@@ -236,7 +236,7 @@ ui.logContent.addEventListener("click", e => {
 
     // Cria tabela do pacote
     const pkgClassIndex = pkgClassName.replace("pkg-", "");
-    showParsedPackageOnTable(["Name", "Size", "Value"], rows, pkgClassIndex);
+    showParsedPackageOnTable(["Parameter", "Size", "Value"], rows, pkgClassIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {
@@ -251,7 +251,7 @@ ui.logContent.addEventListener("click", e => {
                 showParsedMessageOnTable(
                     isImplemented,
                     msg.id,
-                    ["Name", "Size", "Value"],
+                    ["Parameter", "Size", "Value"],
                     rows
                 );
                 return;
@@ -308,7 +308,7 @@ ui.parsedPackageTable.addEventListener("click", (e) => {
         showParsedMessageOnTable(
             isImplemented,
             messageID,
-            ["Name", "Size", "Value"],
+            ["Parameter", "Size", "Value"],
             rows
         );
     }
