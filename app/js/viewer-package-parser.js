@@ -149,6 +149,7 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
 
         PkgCounter.total++;
         const total = lineIndexes.length;
+        let errOcurred = false;
         try {
             let frameStr = "";
             for (let i = 0; i < total; i++) {
@@ -164,50 +165,59 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
                     "h"
                 );
                 
-            for (const msg of messages) {
-                // verifica se tem que ignorar esse pacote
-                if ((msg.id === 0xFFFF && configs.pkgAnalyze.ignoreAck) ||
-                    (msg.id === 0x0000 && configs.pkgAnalyze.ignoreKeepAlive)) {
-
-                    if (messages.length === 1) {
-                        // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
-                        // Ignora esse pacote
-                        lineIndexes = []; // reset linhas
-                        PkgCounter.total--; // remove esse pacote da contagem
-                        return;
+            if(parseOk) {
+                for (const msg of messages) {
+                    // verifica se tem que ignorar esse pacote
+                    if ((msg.id === 0xFFFF && configs.pkgAnalyze.ignoreAck) ||
+                        (msg.id === 0x0000 && configs.pkgAnalyze.ignoreKeepAlive)) {
+    
+                        if (messages.length === 1) {
+                            // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
+                            // Ignora esse pacote
+                            lineIndexes = []; // reset linhas
+                            PkgCounter.total--; // remove esse pacote da contagem
+                            return;
+                        }
+                    }
+    
+                    // verifica se deve retornar os dados parseados dessa mensagem
+                    const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
+                    if (opt.searchMsgID === matchOptionID) {
+                        const { isImplemented, rows } = parseMessage(
+                            msg.id,
+                            msg.data,
+                            "nv", // Collect parameters Name and Value
+                            "h" // Data horizontal orientation
+                        );
+    
+                        if (isImplemented) {
+                            appendMessageDataTable(rows, connState, pkgTicket);
+                        }
                     }
                 }
 
-                // verifica se deve retornar os dados parseados dessa mensagem
-                const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
-                if (opt.searchMsgID === matchOptionID) {
-                    const { isImplemented, rows } = parseMessage(
-                        msg.id,
-                        msg.data,
-                        "nv", // Collect parameters Name and Value
-                        "h" // Data horizontal orientation
-                    );
-
-                    if (isImplemented) {
-                        appendMessageDataTable(rows, connState, pkgTicket);
-                    }
-                }
-            }
-
-            packages.push({parseOk, isIncomingPkg, connState, messages, lineIndexes});
-
-            if (parseOk) {
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
                     appendMessageDataTable(rows, connState, pkgTicket);
                 }
+
+                packages.push({parseOk, isIncomingPkg, connState, messages, lineIndexes});
+            } 
+            else 
+            {
+                errOcurred = true;
             }
         } catch (e) {
+            errOcurred = true;
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
+        }
+        
+        if(errOcurred) {
             packages.push({parseOk: false, isIncomingPkg: null, connState: null, messages: null, lineIndexes});
-            
-            if (opt.searchMsgID && opt.searchMsgID !== "--")
+            // verifica se deve rotornar os dados parseados desse pacote
+            if (opt.searchMsgID && opt.searchMsgID === "all") {
                 appendMessageDataTable(null, null, "", true);
+            }
         }
 
         // reset
@@ -308,98 +318,109 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
  * }}
  */
 export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOrientation) {
-    const br = createBinaryReader(u8buf, {
-        processMode,
-        dataMode,
-        dataOrientation
-    })
-
-    let pkgSize = 0;
-
-    if (isIncomingPkg) {
-        pkgSize = br.getLength();
-        br.add_row("Tamanho do pacote", 2, br.getLength());
-    } else {
-        const start = br.read_u16("frame inicial", false);
-        if (start !== 0xCC33) throw new Error("Frame inicial invalido");
-
-        pkgSize = br.add_row_u16("Tamanho do pacote");
-    }
-
-    const frameEnd = br.getOffset() + pkgSize;
-    if (frameEnd > br.getLength()) {
-        throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${br.getLength()})`);
-    }
-
-    const option = br.add_row_u8("Option", (v) => {
-        if (v !== 0 && v !== 3) {
-            throw new Error("Option inválida, deve ser 0 ou 3");
-        }
-        return (v === 0) ? "0 - Not Provider" : (v === 3) ? "3 - Provider" : v;
-    });
-
-    // ESN (se provider)
-    if (option === 3) {
-        if (dataOrientation === "v") {
-            br.add_row_hex_u16("Sei lá", false);
-            const esnSize = br.add_row_u8("Tamanho do SN");
-            br.add_row_bytes_BCD("SerialNumber", esnSize);
+    try {
+        const br = createBinaryReader(u8buf, {
+            processMode,
+            dataMode,
+            dataOrientation
+        })
+    
+        let pkgSize = 0;
+    
+        if (isIncomingPkg) {
+            pkgSize = br.getLength();
+            br.add_row("Tamanho do pacote", 2, br.getLength());
         } else {
-            br.skip("Sei lá", 2);
-            const esnSize = br.read_u8("Tamanho do SN");
-            br.skip("Serial Number", esnSize);
+            const start = br.read_u16("frame inicial", false);
+            if (start !== 0xCC33) throw new Error("Frame inicial invalido");
+    
+            pkgSize = br.add_row_u16("Tamanho do pacote");
+        }
+    
+        const frameEnd = br.getOffset() + pkgSize;
+        if (frameEnd > br.getLength()) {
+            throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${br.getLength()})`);
+        }
+    
+        const option = br.add_row_u8("Option", (v) => {
+            if (v !== 0 && v !== 3) {
+                throw new Error("Option inválida, deve ser 0 ou 3");
+            }
+            return (v === 0) ? "0 - Not Provider" : (v === 3) ? "3 - Provider" : v;
+        });
+    
+        // ESN (se provider)
+        if (option === 3) {
+            if (dataOrientation === "v") {
+                br.add_row_hex_u16("Sei lá", false);
+                const esnSize = br.add_row_u8("Tamanho do SN");
+                br.add_row_bytes_BCD("SerialNumber", esnSize);
+            } else {
+                br.skip("Sei lá", 2);
+                const esnSize = br.read_u8("Tamanho do SN");
+                br.skip("Serial Number", esnSize);
+            }
+        }
+    
+        // index / service type
+        let connState;
+        const pkgTicket = br.add_row_u16("Ticket do Pacote");
+        br.add_row_u8("Tipo de Serviço", (v) => {
+            let ackType = "";
+            switch (v & 0x03) {
+                case 0x00: ackType = "No ACK requested"; break;
+                case 0x01: ackType = "ACK requested"; break;
+                case 0x02: ackType = "ACK message"; break;
+                case 0x03: ackType = "ACK invalid option"; break;
+            }
+            connState = (v & 0x80) > 0 ? "Online" : "Offline";
+            return `${br.hex_u8(v)} - ${ackType}, ${connState}`;
+        });
+    
+        // mensagens
+        let newMsg = true;
+        let messages = [];
+        let text = "";
+        while (newMsg && (br.getOffset() < frameEnd)) {
+            const msgId = br.read_u16("msgId", true);
+    
+            let msgSize = br.read_u16("msgSize", true);
+    
+            newMsg = (msgSize & 0x8000) !== 0;
+            msgSize = (msgSize & 0x7FFF);
+    
+            const msgData = br.read_bytes("msgData", msgSize);
+            messages.push({ id: msgId, size: msgSize, data: msgData });
+    
+            if (dataOrientation === "v")
+                br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
+            else
+                text += `[${getMsgName(msgId)}], `;
+        }
+    
+        if (dataOrientation === "h")
+            br.add_row("Mensagens", "N/A", text);
+    
+        // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
+        // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
+    
+        return {
+            parseOk: true,
+            pkgTicket,
+            connState,
+            rows: br.rows,
+            messages
+        };
+    }
+    catch (e) {
+        return {
+            parseOk: false,
+            pkgTicket: null,
+            connState: null,
+            rows: null,
+            messages: null
         }
     }
-
-    // index / service type
-    let connState;
-    const pkgTicket = br.add_row_u16("Ticket do Pacote");
-    br.add_row_u8("Tipo de Serviço", (v) => {
-        let ackType = "";
-        switch (v & 0x03) {
-            case 0x00: ackType = "No ACK requested"; break;
-            case 0x01: ackType = "ACK requested"; break;
-            case 0x02: ackType = "ACK message"; break;
-            case 0x03: ackType = "ACK invalid option"; break;
-        }
-        connState = (v & 0x80) > 0 ? "Online" : "Offline";
-        return `${br.hex_u8(v)} - ${ackType}, ${connState}`;
-    });
-
-    // mensagens
-    let newMsg = true;
-    let messages = [];
-    let text = "";
-    while (newMsg && (br.getOffset() < frameEnd)) {
-        const msgId = br.read_u16("msgId", true);
-
-        let msgSize = br.read_u16("msgSize", true);
-
-        newMsg = (msgSize & 0x8000) !== 0;
-        msgSize = (msgSize & 0x7FFF);
-
-        const msgData = br.read_bytes("msgData", msgSize);
-        messages.push({ id: msgId, size: msgSize, data: msgData });
-
-        if (dataOrientation === "v")
-            br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
-        else
-            text += `[${getMsgName(msgId)}], `;
-    }
-
-    if (dataOrientation === "h")
-        br.add_row("Mensagens", "N/A", text);
-
-    // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
-    // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
-
-    return {
-        parseOk: true,
-        pkgTicket,
-        connState,
-        rows: br.rows,
-        messages
-    };
 }
 
 /**

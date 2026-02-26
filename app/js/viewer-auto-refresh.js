@@ -1,17 +1,12 @@
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
 import {
   clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
   setSafeHtmlText,
   appendRawLog
-// @ts-ignore
 } from "./viewer-render-log.js";
-// @ts-ignore
 import { clearPkgInfo } from "./viewer-package-parser.js";
-// @ts-ignore
 import { virtualTextBox } from "./viewer-ui-events.js";
 
 
@@ -152,7 +147,9 @@ export async function tailRefreshNow() {
       // highlight inativo, 
       // renderiza o texto bruto recebido
       // virtualTextBox.appendHtmlText(tailText);
-      virtualTextBox.setHtmlText(util.escapeHtml(getRawLog()));
+      virtualTextBox.setHtmlText(util.escapeHtml(getRawLog()), {
+        scrollToBottom: util.isToogleButtonPressed(ui.btnAutoScroll)
+      });
     }
 
   } catch (e) {

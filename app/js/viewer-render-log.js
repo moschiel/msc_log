@@ -139,8 +139,8 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
                     { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
                 );
 
-            // se o auto-scroll estiver ligado, rola a tabela de mensagens para o final
-            if (util.isLocalFile() === false && util.isToogleButtonPressed(ui.btnAutoScroll)) {
+            // se o auto-scroll estiver ligado e for append, rola a tabela de mensagens para o final
+            if (util.isLocalFile() === false && mode === "append" && util.isToogleButtonPressed(ui.btnAutoScroll)) {
                 ui.listMessageContainer.scrollTop = ui.listMessageContainer.scrollHeight;
             }
         }
@@ -148,7 +148,9 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
 
     // se foi solicitado pra destacar os pacotes processados, renderiza o log
     if (opts.highlight) {
-        virtualTextBox.setHtmlText(getLogHtmlTextWrapper());
+        virtualTextBox.setHtmlText(getLogHtmlTextWrapper(), {
+            scrollToBottom: util.isLocalFile() === false && mode === "append" && util.isToogleButtonPressed(ui.btnAutoScroll)
+        });
     }
 }
 

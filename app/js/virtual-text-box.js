@@ -1,13 +1,10 @@
-
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
 
 
 /**
  *
- * @typedef {( newHtmlText: string ) => void } FuncSetHtmlText
+ * @typedef {( newHtmlText: string, opts?: { scrollToBottom?: boolean } ) => void } FuncSetHtmlText
  * @typedef {( moreHtmlText: string ) => void } FuncAppendHtmlText
  * @typedef {(
  * lineIndex: number, 
@@ -190,7 +187,7 @@ export function initVirtualTextBox({
      *
      * @type {FuncSetHtmlText}
      */
-    function setHtmlText(newHtmlText) {
+    function setHtmlText(newHtmlText, opts = {scrollToBottom: false}) {
         const oldScrollTop = viewportEl.scrollTop;
 
         state.linesHtml = util.splitLines(newHtmlText);
@@ -202,7 +199,7 @@ export function initVirtualTextBox({
 
         const maxScrollTop = Math.max(0, newMaxHeight - viewportEl.clientHeight);
 
-        if (util.isLocalFile() === false && util.isToogleButtonPressed(ui.btnAutoScroll)) {
+        if (util.isLocalFile() === false && opts?.scrollToBottom) {
             // Vai pro final
             viewportEl.scrollTop = maxScrollTop;
         } else {
