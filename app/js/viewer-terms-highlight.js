@@ -1,9 +1,9 @@
 // @ts-ignore
-import { configs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { configs, saveConfigs } from "./configs.js";
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { findBar, virtualTextBox } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { findBar, virtualTextBox } from "./viewer-ui-events.js";
 
 export function htmlTermsConfigurator() {
     return `

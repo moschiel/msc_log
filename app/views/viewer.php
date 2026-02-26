@@ -13,18 +13,18 @@ function render_viewer($selectedFile, $isLocal) {
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="stylesheet" href="./app/css/common.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/table.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/modal.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/split-pane.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/floating-window.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/find-bar.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/virtual-text-box.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer-header.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer-pkg-highlight.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer-table.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/viewer-terms-highlight.css?v=__PLACEHOLDER_BUILD_VERSION__">
+    <link rel="stylesheet" href="./app/css/common.css">
+    <link rel="stylesheet" href="./app/css/table.css">
+    <link rel="stylesheet" href="./app/css/modal.css">
+    <link rel="stylesheet" href="./app/css/split-pane.css">
+    <link rel="stylesheet" href="./app/css/floating-window.css">
+    <link rel="stylesheet" href="./app/css/find-bar.css">
+    <link rel="stylesheet" href="./app/css/virtual-text-box.css">
+    <link rel="stylesheet" href="./app/css/viewer.css">
+    <link rel="stylesheet" href="./app/css/viewer-header.css">
+    <link rel="stylesheet" href="./app/css/viewer-pkg-highlight.css">
+    <link rel="stylesheet" href="./app/css/viewer-table.css">
+    <link rel="stylesheet" href="./app/css/viewer-terms-highlight.css">
 </head>
 <body>
     <div class="main">
@@ -207,7 +207,7 @@ Botão ▦ deve estar ativo." >
     <script>
         const LOG_FILE_NAME = "<?= htmlspecialchars($title) ?>"; 
     </script>    
-    <script type="module" src="./app/js/viewer.js?v=__PLACEHOLDER_BUILD_VERSION__"></script>
+    <script type="module" src="./app/js/viewer.js"></script>
 </body>
 </html>
 <?php

@@ -1,8 +1,8 @@
 
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js";
 
 
 /**

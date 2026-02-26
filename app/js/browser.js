@@ -1,5 +1,5 @@
     // @ts-ignore
-    import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+    import { util } from "./utils.js";
 
 let timer = null;
 const btnAutoRefresh = document.getElementById("btnAutoRefresh");

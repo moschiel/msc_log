@@ -1,18 +1,18 @@
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js";
 import {
   clearVirtualLog, clearLogMemory, setRawLog, getRawLog, setPendingHtmlText,
   processLogChunkAndRender,
   setSafeHtmlText,
   appendRawLog
 // @ts-ignore
-} from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+} from "./viewer-render-log.js";
 // @ts-ignore
-import { clearPkgInfo } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { clearPkgInfo } from "./viewer-package-parser.js";
 // @ts-ignore
-import { virtualTextBox } from "./viewer-ui-events.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { virtualTextBox } from "./viewer-ui-events.js";
 
 
 let refreshTimer = null;

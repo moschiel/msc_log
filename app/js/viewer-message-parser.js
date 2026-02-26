@@ -1,11 +1,11 @@
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { setSplitterPaneVisible } from "./split-pane.js";
 // @ts-ignore
-import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js";
 // @ts-ignore
-import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { createBinaryReader } from "./viewer-binary-reader.js";
 
 /**
  * ID e descrição das mensagens, e se suportam listagem

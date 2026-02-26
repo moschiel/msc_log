@@ -154,11 +154,6 @@ def upload_items(
             raise RuntimeError(f"Tipo não suportado (nem arquivo nem pasta): {p}")
 
 
-# ---------------- BUILD (placeholder) ----------------
-
-PLACEHOLDER_BUILD_VERSION = "__PLACEHOLDER_BUILD_VERSION__"
-
-
 def _try_read_text(path: Path) -> tuple[str | None, str | None]:
     # tenta ler como texto (sem inventar muito). se falhar, não altera.
     try:
@@ -174,17 +169,35 @@ def replace_placeholder_in_file(file_path: Path, build_version: str) -> None:
     text, enc = _try_read_text(file_path)
     if text is None:
         return
+    
+    changed = False
+    
+    term = '.js";'
+    if term in text:
+        newTerm = f'.js?v={build_version}";'
+        text = text.replace(term, newTerm)
+        changed = True
 
-    if PLACEHOLDER_BUILD_VERSION not in text:
-        return
+    term = '.js">'
+    if term in text:
+        newTerm = f'.js?v={build_version}">'
+        text = text.replace(term, newTerm)
+        changed = True
 
-    file_path.write_text(text.replace(PLACEHOLDER_BUILD_VERSION, build_version), encoding=enc)
-
+    term = '.css">'
+    if term in text:
+        newTerm = f'.css?v={build_version}">'
+        text = text.replace(term, newTerm)
+        changed = True
+    
+    if changed:
+        file_path.write_text(text, encoding=enc)
+    
 
 def prepare_build(items: list[str], build_dir: Path, build_version: str) -> list[str]:
     """
     Copia todos os itens para build/<nome_do_item> e substitui
-    __PLACEHOLDER_BUILD_VERSION__ -> build_version em todos os arquivos de texto.
+    '.js;"' -> '.js?v=build_version;"' em todos os arquivos de texto.
     Retorna a nova lista de items para upload (apontando para build).
     """
     if build_dir.exists():

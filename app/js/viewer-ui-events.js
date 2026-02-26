@@ -1,44 +1,44 @@
 // @ts-ignore
-import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js";
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { initAllFloatingWindows } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initAllFloatingWindows } from "./floating-window.js";
 // @ts-ignore
-import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
 // @ts-ignore
-import { initModal, openModal } from "./modal.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initModal, openModal } from "./modal.js";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
     hlMessagesCountStatistics,
     hideAllListMessageOptions,
     hideListMessagePane
     // @ts-ignore
-} from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+} from "./viewer-message-parser.js";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileObject,
     // @ts-ignore
-} from "./viewer-auto-refresh.js?v=__PLACEHOLDER_BUILD_VERSION__";
+} from "./viewer-auto-refresh.js";
 import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
     // @ts-ignore
-} from "./viewer-render-log.js?v=__PLACEHOLDER_BUILD_VERSION__";
+} from "./viewer-render-log.js";
 // @ts-ignore
-import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener } from "./viewer-package-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener } from "./viewer-package-parser.js";
 // @ts-ignore
-import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 // @ts-ignore
-import { initFindBar } from "./find-bar.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initFindBar } from "./find-bar.js";
 // @ts-ignore
-import { initVirtualTextBox } from "./virtual-text-box.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { initVirtualTextBox } from "./virtual-text-box.js";
 // @ts-ignore
-import { highlightFindBarTerm } from "./viewer-terms-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { highlightFindBarTerm } from "./viewer-terms-highlight.js";
 // @ts-ignore
-import { configs, loadConfigs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { configs, loadConfigs, saveConfigs } from "./configs.js";
 // @ts-ignore
-import { htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js";
 
 /**@type {import("./find-bar").FindBar} */
 export let findBar;

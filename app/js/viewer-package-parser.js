@@ -1,17 +1,17 @@
 // @ts-ignore
-import { util } from "./utils.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { util } from "./utils.js";
 // @ts-ignore
-import { ui } from "./viewer-ui-elements.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { ui } from "./viewer-ui-elements.js";
 // @ts-ignore
-import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js";
 // @ts-ignore
-import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js";
 // @ts-ignore
-import { createBinaryReader } from "./viewer-binary-reader.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { createBinaryReader } from "./viewer-binary-reader.js";
 // @ts-ignore
-import { openFloatingWindow } from "./floating-window.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { openFloatingWindow } from "./floating-window.js";
 // @ts-ignore
-import { configs, saveConfigs } from "./configs.js?v=__PLACEHOLDER_BUILD_VERSION__";
+import { configs, saveConfigs } from "./configs.js";
 
 
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
@@ -54,6 +54,12 @@ function checkPkgAnnouncement(line) {
 }
 
 /**
+ * @typedef {{
+ *  messages: {id: number}[]
+ * }} ProcessedPackage
+ */
+
+/**
  * Detecta pacotes no texto para:
  * - retornar o texto convertido para HTML, aplicando CSS de highlight nesses pacotes.
  * - ou retornar todas as mensagens de um ID específico.
@@ -64,11 +70,13 @@ function checkPkgAnnouncement(line) {
  *   searchMsgID?: string
  * }} [opt]
  * @returns {{
- * htmlWithPackagesHighlight: string,
- * messageDataTable: {
- *  headers: Array<string>, 
- *  rows: Array<Array>
- * }}}
+ *  htmlWithPackagesHighlight: string,
+ *  messageDataTable: {
+ *      headers: Array<string>, 
+ *      rows: Array<Array>
+ *  },
+ *  packages: ProcessedPackage[]
+ * }}
  */
 export function detectPackages(text, opt = { highlight: false, searchMsgID: null }) {
     const lines = util.escapeHtml(text).split(/\r?\n/);
@@ -80,6 +88,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
     let isIncommingPkg = false;
     let pkgLoggedTimestamp = 0;  // timestamp de quando o pacote foi impresso no LOG
     let lineIndexes = []; // guarda os índices das linhas que pertencem ao pacote
+    /** @type {ProcessedPackage[]} */
+    let packages = [];
 
     /**
      * @param {any[]} rows
@@ -153,7 +163,9 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "nv",
                     "h"
                 );
-
+            
+            packages.push({messages});
+                
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
                 if ((msg.id === 0xFFFF && configs.pkgAnalyze.ignoreAck) ||
@@ -290,7 +302,8 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
     return {
         htmlWithPackagesHighlight: opt.highlight ? lines.join("\n") : text,
-        messageDataTable: opt.searchMsgID ? messageDataTable : null
+        messageDataTable: opt.searchMsgID ? messageDataTable : null,
+        packages
     }
 }
 

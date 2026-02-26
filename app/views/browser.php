@@ -13,9 +13,9 @@ function render_browser($items, $msg) {
 <head>
     <meta charset="UTF-8">
     <title>File Browser</title>
-    <link rel="stylesheet" href="./app/css/common.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/table.css?v=__PLACEHOLDER_BUILD_VERSION__">
-    <link rel="stylesheet" href="./app/css/browser.css?v=__PLACEHOLDER_BUILD_VERSION__">
+    <link rel="stylesheet" href="./app/css/common.css">
+    <link rel="stylesheet" href="./app/css/table.css">
+    <link rel="stylesheet" href="./app/css/browser.css">
 </head>
 <body>
     <?php if ($current !== ''):
@@ -103,7 +103,7 @@ function render_browser($items, $msg) {
             </tbody>
         </table>
     </div>
-    <script type="module" src="./app/js/browser.js?v=__PLACEHOLDER_BUILD_VERSION__"></script>
+    <script type="module" src="./app/js/browser.js"></script>
 </body>
 </html>
 <?php
