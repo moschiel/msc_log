@@ -1,10 +1,6 @@
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { setSplitterPaneVisible } from "./split-pane.js";
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
-// @ts-ignore
 import { createBinaryReader } from "./viewer-binary-reader.js";
 
 /**
@@ -186,6 +182,43 @@ export function updateMessageCounterStatistics(id, evId = null) {
     }
 
     return entry;
+}
+
+export function htmlMessageCounterStatistics() {
+    let html = "";
+    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
+        const sorted = [...hlMessagesCountStatistics]
+            .sort((a, b) => a.count - b.count); //contagem descrescente
+        //.sort((a, b) => b.count - a.count); //contagem crescente
+
+        if (sorted) {
+            html = sorted.map(m => `
+                <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                    <span>${m.description}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>${m.count}</strong>
+                </div>
+            `).join("");
+        } else {
+            html = "<div>Nenhuma mensagem registrada</div>";
+        }
+    } else {
+        html = `
+            <div> Botão   
+                <button class='toogle-btn'>
+                    <span class='toogle-btn-icon'>▦</span>
+                </button>
+                deve estar ativo.
+            </div>`;
+    }
+
+    return `
+    <section>
+        <div style="padding-bottom: 16px;">
+            Mensagens
+        </div>
+        ${html}
+    <section>`;
 }
 
 // Xunxo para diferenciar eventos de telemetria de diferentes tipos

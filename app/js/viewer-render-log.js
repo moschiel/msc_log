@@ -1,11 +1,8 @@
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
-// @ts-ignore
-import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg } from "./viewer-package-parser.js";
-// @ts-ignore
+import { clearPkgInfo, detectPackages, tailSplitWithPendingPkg, updatePackageCounterStatistics } from "./viewer-package-parser.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
+import { updateMessageCounterStatistics } from "./viewer-message-parser.js";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -105,6 +102,16 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
         });
 
         appendSafeHtmlText(parsed.htmlWithPackagesHighlight);
+
+        // Itera sobre os pacotes encontrados
+        for(const pkg of parsed.packages) {
+            updatePackageCounterStatistics(pkg.parseOk, pkg.connState, pkg.isIncommingPkg);
+
+            // Itera sobre as mensagens do pacote
+            for (const msg of pkg.messages) {
+                updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+            }
+        }
 
         // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
         if (opts.searchMsgID && opts.searchMsgID !== "none") {

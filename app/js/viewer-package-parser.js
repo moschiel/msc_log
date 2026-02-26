@@ -1,16 +1,9 @@
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
-// @ts-ignore
 import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js";
-// @ts-ignore
-import { parseMessage, getMsgName, hlMessagesCountStatistics, clearMessageCounter, updateMessageCounterStatistics, getTmEventOptionId } from "./viewer-message-parser.js";
-// @ts-ignore
+import { parseMessage, getMsgName, clearMessageCounter, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
-// @ts-ignore
 import { openFloatingWindow } from "./floating-window.js";
-// @ts-ignore
 import { configs, saveConfigs } from "./configs.js";
 
 
@@ -18,10 +11,13 @@ export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 
 // highlight package counters
-export let pkgCounter = 0;
-export let OnlinePkgCounter = 0;
-export let OfflinePkgCounter = 0;
-export let ErrorPkgCounter = 0;
+export let PkgCounter = {
+    total: 0,
+    online: 0,
+    offline: 0,
+    incomming: 0,
+    error: 0
+}
 /** @type {{ ticket: number, timestamp: number }[]} */
 let pkgsCreatedAt = [];
 
@@ -30,10 +26,11 @@ let pkgsCreatedAt = [];
 * Reseta informacoes de pacotes em RAM e da tabela de pacotes/mensagens.
 */
 export function clearPkgInfo() {
-    pkgCounter = 0;
-    OnlinePkgCounter = 0;
-    OfflinePkgCounter = 0;
-    ErrorPkgCounter = 0;
+    PkgCounter.total = 0;
+    PkgCounter.online = 0;
+    PkgCounter.offline = 0;
+    PkgCounter.incomming = 0;
+    PkgCounter.error = 0;
     pkgsCreatedAt = [];
     ui.listMessageTable.innerHTML = "";
     clearMessageCounter();
@@ -55,7 +52,10 @@ function checkPkgAnnouncement(line) {
 
 /**
  * @typedef {{
- *  messages: {id: number}[]
+ *  parseOk: boolean
+ *  isIncommingPkg: boolean
+ *  connState: "Online" | "Offline"
+ *  messages: {id: number, data: Uint8Array}[]
  * }} ProcessedPackage
  */
 
@@ -109,7 +109,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
 
         if (isError) {
             messageDataTable.rows.push([
-                pkgCounter, 
+                PkgCounter.total, 
                 pkgCreatedTimestamp,  
                 createdAtDate, 
                 loggedAtDate, 
@@ -133,7 +133,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
             // insere dados extras no inicio da row
             const type = isIncommingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
             rows[1].unshift(
-                pkgCounter, 
+                PkgCounter.total, 
                 pkgCreatedTimestamp, 
                 createdAtDate, 
                 loggedAtDate, 
@@ -147,7 +147,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
     function flushPackage() {
         if (lineIndexes.length === 0) return;
 
-        pkgCounter++;
+        PkgCounter.total++;
         const total = lineIndexes.length;
         try {
             let frameStr = "";
@@ -164,7 +164,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                     "h"
                 );
             
-            packages.push({messages});
+            packages.push({parseOk, isIncommingPkg, connState, messages});
                 
             for (const msg of messages) {
                 // verifica se tem que ignorar esse pacote
@@ -175,13 +175,10 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                         // Esse pacote só tem mensagem de ACK ou KEEP-ALIVE
                         // Ignora esse pacote
                         lineIndexes = []; // reset linhas
-                        pkgCounter--; // remove esse pacote da contagem
+                        PkgCounter.total--; // remove esse pacote da contagem
                         return;
                     }
                 }
-
-                // atualiza contador de mensagens por ID
-                updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
 
                 // verifica se deve retornar os dados parseados dessa mensagem
                 const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
@@ -204,20 +201,17 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
                 if (opt.searchMsgID === "all") {
                     appendMessageDataTable(rows, connState, pkgTicket);
                 }
-
-                // atualiza contadores de status de conexao
-                if (connState === "Online") OfflinePkgCounter++;
-                else if (connState === "Offline") OnlinePkgCounter++;
             }
 
             if (opt.highlight)
-                highlightPackage(pkgCounter, parseOk, isIncommingPkg, connState, lines, lineIndexes);
+                highlightPackage(PkgCounter.total, parseOk, isIncommingPkg, connState, lines, lineIndexes);
 
         } catch (e) {
             //console.error(e.message, ", na linha: ", lines[lineIndexes[0]].slice(0, headerLen));
-            ErrorPkgCounter++;
+            packages.push({parseOk: false, isIncommingPkg: null, connState: null, messages: []});
+            
             if (opt.highlight)
-                highlightPackage(pkgCounter, false, null, null, lines, lineIndexes);
+                highlightPackage(PkgCounter.total, false, null, null, lines, lineIndexes);
             if (opt.searchMsgID && opt.searchMsgID !== "--")
                 appendMessageDataTable(null, null, "", true);
 
@@ -296,7 +290,7 @@ export function detectPackages(text, opt = { highlight: false, searchMsgID: null
     }
 
     if (opt.highlight) {
-        //console.log(`Quantidade Total de Pacotes: ${pkgCounter}\r\nPacotes Offline: ${OfflinePkgCounter}\r\nPacotes com erro: ${ErrorPkgCounter}`);
+        //console.log(`Quantidade Total de Pacotes: ${PkgCounter.total}\r\nPacotes Offline: ${PkgCounter.offline}\r\nPacotes com erro: ${PkgCounter.error}`);
         //console.log("Quantidade de cada mensagem", hlMessagesCountStatistics);
     }
 
@@ -431,6 +425,67 @@ export function showParsedPackageOnTable(headers, rows, pkgClassIndex = null) {
     openFloatingWindow(ui.windowParsedPackage, {
         title: pkgClassIndex !== null ? `Package #${pkgClassIndex}` : "Package #?"
     });
+}
+
+/**
+ * 
+ * @param {boolean} parseOk 
+ * @param {"Online" | "Offline"} connState 
+ * @param {boolean} isIncomming
+ */
+export function updatePackageCounterStatistics(parseOk, connState, isIncomming) {
+    if (parseOk) {
+        if (isIncomming) PkgCounter.incomming++; 
+        else if (connState === "Online") PkgCounter.online++;
+        else if (connState === "Offline") PkgCounter.offline++;
+    } else {
+        PkgCounter.error++;
+    }
+}
+
+
+export function htmlPackageCounterStatistics() {
+    let html = "";
+    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
+        html=  `
+            <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                <span>🟢 Pacote Enviado (ONLINE)</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong>${PkgCounter.online}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                <span>⚪ Pacote Enviado (OFFLINE)</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong>${PkgCounter.offline}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                <span>🔵 Pacote Recebido</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong>${PkgCounter.incomming}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                <span>🔴 Pacote com Erro</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong>${PkgCounter.error}</strong>
+            </div>
+        `;
+    } else {
+        html = `
+            <div> Botão   
+                <button class='toogle-btn'>
+                    <span class='toogle-btn-icon'>▦</span>
+                </button>
+                deve estar ativo.
+            </div>`;
+    }
+
+    return `
+    <section>
+        <div style="padding-bottom: 16px;">
+            Pacotes
+        </div>
+        ${html}
+    <section>`;
 }
 
 const splitTailUtils = {

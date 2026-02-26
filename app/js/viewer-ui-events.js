@@ -1,44 +1,28 @@
-// @ts-ignore
 import { ui } from "./viewer-ui-elements.js";
-// @ts-ignore
 import { util } from "./utils.js";
-// @ts-ignore
 import { initAllFloatingWindows } from "./floating-window.js";
-// @ts-ignore
 import { initAllSplitters, setSplitterPaneVisible } from "./split-pane.js";
-// @ts-ignore
 import { initModal, openModal } from "./modal.js";
 import {
     parseMessage, showParsedMessageOnTable, initSelectMessageIDOptions,
-    hlMessagesCountStatistics,
     hideAllListMessageOptions,
-    hideListMessagePane
-    // @ts-ignore
+    hideListMessagePane,
+    htmlMessageCounterStatistics
 } from "./viewer-message-parser.js";
 import {
     tailRefreshNow, setTailAutoRefresh, clearAllLogData,
     setLocalFileObject,
-    // @ts-ignore
 } from "./viewer-auto-refresh.js";
 import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
-    // @ts-ignore
 } from "./viewer-render-log.js";
-// @ts-ignore
-import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener } from "./viewer-package-parser.js";
-// @ts-ignore
+import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener, htmlPackageCounterStatistics } from "./viewer-package-parser.js";
 import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
-// @ts-ignore
 import { initFindBar } from "./find-bar.js";
-// @ts-ignore
 import { initVirtualTextBox } from "./virtual-text-box.js";
-// @ts-ignore
-import { highlightFindBarTerm } from "./viewer-terms-highlight.js";
-// @ts-ignore
-import { configs, loadConfigs, saveConfigs } from "./configs.js";
-// @ts-ignore
-import { htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js";
+import { loadConfigs } from "./configs.js";
+import { highlightFindBarTerm, htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js";
 
 /**@type {import("./find-bar").FindBar} */
 export let findBar;
@@ -207,43 +191,14 @@ ui.selListMessage.addEventListener("change", () => {
 });
 
 ui.btnStatistics.addEventListener("click", () => {
-    let contentHtml = "";
-    if (util.isToogleButtonPressed(ui.btnHighlightPkg)) {
-        const sorted = [...hlMessagesCountStatistics]
-            .sort((a, b) => a.count - b.count); //contagem descrescente
-        //.sort((a, b) => b.count - a.count); //contagem crescente
-
-        if (sorted) {
-            contentHtml = sorted.map(m => `
-                <div style="display:flex; justify-content:space-between; padding:4px 0;">
-                    <span>${m.description}</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <strong>${m.count}</strong>
-                </div>
-            `).join("");
-        } else {
-            contentHtml = "<div>Nenhuma mensagem registrada</div>";
-        }
-    } else {
-        contentHtml = `
-        <div> Botão   
-            <button class='toogle-btn'>
-                <span class='toogle-btn-icon'>▦</span>
-            </button>
-            deve estar ativo.
-        </div>`
-    }
-
     openModal("modal1", {
         title: "Estatísticas",
         bodyHtml: `
-<div>
-    <div style="padding-bottom: 16px;">
-        Contagem de Mensagens
-    </div>
-     ${contentHtml}
-<div>`
-    });
+            ${htmlPackageCounterStatistics()}
+            <div class="modal-divider"></div>
+            ${htmlMessageCounterStatistics()}
+        `}
+    );
 });
 
 ui.btnConfigs.addEventListener("click", () => {
