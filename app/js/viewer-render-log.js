@@ -3,7 +3,7 @@ import { ui } from "./viewer-ui-elements.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
 import { updateMessageCounterStatistics } from "./viewer-message-parser.js";
 import { highlightPackage } from "./viewer-package-highlight.js";
-import { clearDetectedPkgInfo, detectPackages, DetectPkgCounter, tailSplitWithPendingPkg, updateDetectedPackageCounter } from "./package-detector.js";
+import { clearDetectedPkgInfo, detectPackages, DetectPkgCounter, detectPendingPackageSection, updateDetectedPackageCounter } from "./package-detector.js";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -87,7 +87,7 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
     // essa parte pendente fica armazenada separadamente para uso futuro aguardando o pacote completar,
     // ja a parte segura contem pacotes completos que podem ser processados.
     const { safeText, pendingText } =
-        tailSplitWithPendingPkg(getPendingHtmlText(), chunk);
+        detectPendingPackageSection(getPendingHtmlText(), chunk);
 
     // atualiza texto pendente
     setPendingHtmlText(pendingText);
@@ -107,16 +107,20 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
         });
         
         for(const pkg of parsed.packages) {
-            updateDetectedPackageCounter(pkg.parseOk, pkg.connState, pkg.isIncomingPkg);
+            updateDetectedPackageCounter(pkg.type);
             
             if(pkg.parseOk) {
                 for (const msg of pkg.messages) {
                     updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+
+                    if (opts.searchMsgID && opts.searchMsgID !== "none") {
+                        
+                    }
                 }
             }
 
             if(opts.highlight) {
-                highlightPackage(++currTotal, pkg.parseOk, pkg.isIncomingPkg, pkg.connState, lines, pkg.lineIndexes);
+                highlightPackage(++currTotal, pkg.type, lines, pkg.lineIndexes);
             }
         }
 

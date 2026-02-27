@@ -5,11 +5,22 @@ import { highlightPkgCreation } from "./viewer-package-highlight.js";
 import { parsePackage } from "./viewer-package-parser.js";
 import { ui } from "./viewer-ui-elements.js";
 
+/**
+ * @typedef {"Online" | "Offline" | "Incoming" | "Error"} PackageType
+ * 
+ * @typedef {{
+ *  parseOk: boolean
+ *  type: PackageType
+ *  lineIndexes: number[]
+ *  messages: {id: number, data: Uint8Array}[]
+ * }} DetectedPackage
+ */
+
 export const LOG_HEADER_EXAMPLE = "[20251104-100340][0314593097][DBG][MEM ]: ";
 export const LOG_HEADER_SIZE = LOG_HEADER_EXAMPLE.length;
 
-/** @type {{ ticket: number, timestamp: number }[]} */
-let pkgsCreatedAt = [];
+/** @type {{ ticket: number, timestamp: number, lineIndex: number }[]} */
+let DetectPkgsCreatedAt = [];
 
 // detect package counters
 export let DetectPkgCounter = {
@@ -29,25 +40,19 @@ export function clearDetectedPkgInfo() {
     DetectPkgCounter.offline = 0;
     DetectPkgCounter.incomming = 0;
     DetectPkgCounter.error = 0;
-    pkgsCreatedAt = [];
+    DetectPkgsCreatedAt = [];
     ui.listMessageTable.innerHTML = "";
     clearMessageCounter();
 }
 
 /**
- * 
- * @param {boolean} parseOk 
- * @param {"Online" | "Offline"} connState 
- * @param {boolean} isIncomming
+ * @param {PackageType} type 
  */
-export function updateDetectedPackageCounter(parseOk, connState, isIncomming) {
-    if (parseOk) {
-        if (isIncomming) DetectPkgCounter.incomming++; 
-        else if (connState === "Online") DetectPkgCounter.online++;
-        else if (connState === "Offline") DetectPkgCounter.offline++;
-    } else {
-        DetectPkgCounter.error++;
-    }
+export function updateDetectedPackageCounter(type) {
+    if (type === "Incoming") DetectPkgCounter.incomming++; 
+    else if (type === "Online") DetectPkgCounter.online++;
+    else if (type === "Offline") DetectPkgCounter.offline++;
+    else if (type === "Error") DetectPkgCounter.error++;
 }
 
 /** 
@@ -63,17 +68,6 @@ function checkPkgAnnouncement(line) {
         type: isSentPkg ? "Sent" : isIncomPkg ? "Incoming" : null,
     }
 }
-
-
-/**
- * @typedef {{
- *  parseOk: boolean
- *  isIncomingPkg: boolean
- *  connState: "Online" | "Offline"
- *  lineIndexes: number[]
- *  messages: {id: number, data: Uint8Array}[]
- * }} ProcessedPackage
- */
 
 /**
  * Detecta pacotes no texto para:
@@ -91,7 +85,7 @@ function checkPkgAnnouncement(line) {
  *      headers: Array<string>, 
  *      rows: Array<Array>
  *  },
- *  packages: ProcessedPackage[]
+ *  packages: DetectedPackage[]
  * }}
  */
 export function detectPackages(lines, opt = { highlight: false, searchMsgID: null }) {
@@ -103,19 +97,19 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
     let isIncomingPkg = false;
     let pkgLoggedTimestamp = 0;  // timestamp de quando o pacote foi impresso no LOG
     let lineIndexes = []; // guarda os índices das linhas que pertencem ao pacote
-    /** @type {ProcessedPackage[]} */
+    /** @type {DetectedPackage[]} */
     let packages = [];
 
     /**
      * @param {any[]} rows
-     * @param {"Online" | "Offline"} connState
+     * @param {import("./viewer-package-parser.js").PkgConnState} connState
      * @param {number|string} pkgTicket
      * @param {boolean} isError
      */
     function appendMessageDataTable(rows, connState, pkgTicket, isError = false) {
         // Coleta timestamp da data de criação, se não existir, força o timestamp da data de criação ser igual a data do log
         // Isso é necessário para conseguir ordenar a tabela com base no timestamp da criação
-        const pkgCreated = pkgsCreatedAt.find(p => p.ticket === pkgTicket);
+        const pkgCreated = DetectPkgsCreatedAt.find(p => p.ticket === pkgTicket);
         const pkgCreatedTimestamp = pkgCreated !== undefined ? pkgCreated.timestamp : pkgLoggedTimestamp;
         
         // Converte timestamp para 'human readable'
@@ -216,7 +210,8 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
                     appendMessageDataTable(rows, connState, pkgTicket);
                 }
 
-                packages.push({parseOk, isIncomingPkg, connState, messages, lineIndexes});
+                const type = isIncomingPkg ? "Incoming" : connState;
+                packages.push({parseOk, type, messages, lineIndexes});
             } 
             else 
             {
@@ -228,7 +223,7 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
         }
         
         if(errOcurred) {
-            packages.push({parseOk: false, isIncomingPkg: null, connState: null, messages: null, lineIndexes});
+            packages.push({parseOk: false, type: "Error", messages: null, lineIndexes});
             // verifica se deve rotornar os dados parseados desse pacote
             if (opt.searchMsgID && opt.searchMsgID === "all") {
                 appendMessageDataTable(null, null, "", true);
@@ -255,27 +250,8 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
         const substr = line.slice(headerLen);
 
         if (!isCollectingFrame) {
-            // armazena informacoes de ticket e timestamp do pacote
-            const isPkgCreation = substr.startsWith("New Package Ticket: ");
-            const isPkgWrite = substr.startsWith("Write Position TIME: ");
-            const isPkgRead = substr.startsWith("Read Position TICKET: ");
-            //const isBBopen = substr.startsWith("OPEN NEW PACKET - ");
-            //const isBBclose = substr.startsWith("CLOSE PACKET MINUTE - ");
-
-            if(isPkgCreation) {
-                // estiliza a linha da criação 
-                const ticket = util.logExtractPkgTicketAndTime(substr).ticket;
-                if (ticket) 
-                    lines[lineNumber] = highlightPkgCreation(line, ticket);
-            }
-            else if (isPkgWrite || isPkgRead) {
-                // coleta timestamp da criação
-                const pkgCreationInfo = util.logExtractPkgTicketAndTime(substr);
-                const exists = pkgsCreatedAt.some(p => p.ticket === pkgCreationInfo.ticket);
-                if(exists === false)
-                    pkgsCreatedAt.push(pkgCreationInfo);    
-                continue;
-            }
+            // tenta detectar informacoes de ticket e timestamp da criacao do pacote
+            detectPackageCreation(line, lineNumber);
 
             // verifica se tem que iniciar coleta de frames hexadecimais
             const res = checkPkgAnnouncement(line);
@@ -312,6 +288,49 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
         messageDataTable: opt.searchMsgID ? messageDataTable : null,
         packages
     }
+}
+
+/**
+ * 
+ * @param {string} line 
+ * @param {number} lineIndex 
+ * @returns {boolean}
+ */
+function detectPackageCreation(line, lineIndex) {
+    const substr = line.slice(LOG_HEADER_SIZE);
+
+    // armazena informacoes de ticket e timestamp do pacote
+    const isPkgCreation = substr.startsWith("New Package Ticket: ");
+    const isPkgWrite = substr.startsWith("Write Position TIME: ");
+    const isPkgRead = substr.startsWith("Read Position TICKET: ");
+    //const isBBopen = substr.startsWith("OPEN NEW PACKET - ");
+    //const isBBclose = substr.startsWith("CLOSE PACKET MINUTE - ");
+
+    if(isPkgCreation) {
+        // coleta linha da criação 
+        const ticket = util.logExtractPkgTicketAndTime(substr).ticket;
+        if (ticket) {
+            const exists = DetectPkgsCreatedAt.some(p => p.ticket === ticket);
+            if(exists === false)
+                DetectPkgsCreatedAt.push({ticket, lineIndex, timestamp: null});
+                //lines[lineNumber] = highlightPkgCreation(line, ticket);
+        }
+        return true;
+    }
+    else if (isPkgWrite || isPkgRead) {
+        // coleta timestamp da criação
+        const pkgCreationInfo = util.logExtractPkgTicketAndTime(substr);
+        const foundPkgCreation = DetectPkgsCreatedAt.find(p => 
+            p.ticket === pkgCreationInfo.ticket && 
+            p.timestamp === null
+        );
+        if(foundPkgCreation)
+            foundPkgCreation.timestamp = pkgCreationInfo.timestamp;   
+        
+        return true;
+    }
+
+    return false;
 }
 
 export function htmlDetectedPackageCounters() {
@@ -393,14 +412,14 @@ export function initPkgDetectorConfiguratorListener() {
     };
 }
 
-const splitTailUtils = {
+const detectPendingPkgUtils = {
     getPayload: (line) => (line.length > LOG_HEADER_SIZE ? line.slice(LOG_HEADER_SIZE) : ""),
     isHexPrefixNonEmpty: (s) => s.length > 0 && /^[0-9a-fA-F]+$/.test(s),
     isHexOnlyNonEmpty: (s) => s.length > 0 && util.isHexOnly(s),
     isFrameishLine: (line) => {
-        const p = splitTailUtils.getPayload(line);
+        const p = detectPendingPkgUtils.getPayload(line);
         // hex-only (linha “completa”) ou hex-prefix (corte no meio)
-        return splitTailUtils.isHexOnlyNonEmpty(p) || splitTailUtils.isHexPrefixNonEmpty(p);
+        return detectPendingPkgUtils.isHexOnlyNonEmpty(p) || detectPendingPkgUtils.isHexPrefixNonEmpty(p);
     },
     startsWithHeader: (line) => {
         if (line.length > 0 && line[0] !== '[') return false;
@@ -416,7 +435,7 @@ const splitTailUtils = {
         return true;
     },
     startsWithCC33: (line) => {
-        const p = splitTailUtils.getPayload(line);
+        const p = detectPendingPkgUtils.getPayload(line);
         return p.length >= 4 && p.slice(0, 4).toUpperCase() === "CC33";
     }
 };
@@ -445,8 +464,8 @@ function splitTailIfEndsWithIncompletePkg(textChunk) {
     // tem mais de uma linha, 
     // se a ultima linha não for header parcial ou linha frameish, 
     // o before é tudo antes da última linha, e o rest é a última linha
-    if (splitTailUtils.startsWithHeader(lastLine) === false ||
-        (lastLine.length > LOG_HEADER_SIZE && splitTailUtils.isFrameishLine(lastLine) === false)) {
+    if (detectPendingPkgUtils.startsWithHeader(lastLine) === false ||
+        (lastLine.length > LOG_HEADER_SIZE && detectPendingPkgUtils.isFrameishLine(lastLine) === false)) {
         return {
             before: lines.slice(0, lastIdx).join("\n"),
             rest: lastLine // sempre vai ter pelo menos a última linha no rest
@@ -458,7 +477,7 @@ function splitTailIfEndsWithIncompletePkg(textChunk) {
     // se encontrar uma linha não frameish/anuncio, o before é a linha encontrada e as anteriores, 
     // e o rest começa na próxima linha.
     for (let i = lastIdx - 1; i >= 0; i--) {
-        if (!splitTailUtils.isFrameishLine(lines[i]) && !checkPkgAnnouncement(lines[i]).isPkgAnnouncement) {
+        if (!detectPendingPkgUtils.isFrameishLine(lines[i]) && !checkPkgAnnouncement(lines[i]).isPkgAnnouncement) {
             // nao é anuncio de pacote nem frame, fazemos o split apartir desse indice 
             return {
                 before: lines.slice(0, i + 1).join("\n"),
@@ -481,7 +500,7 @@ function splitTailIfEndsWithIncompletePkg(textChunk) {
  * @param {string} chunk
  * @returns {{ safeText: string, pendingText: string }}
  */
-export function tailSplitWithPendingPkg(pendingText, chunk) {
+export function detectPendingPackageSection(pendingText, chunk) {
     const combined = (pendingText || "") + (chunk || "");
     let { before, rest } = splitTailIfEndsWithIncompletePkg(combined);
 

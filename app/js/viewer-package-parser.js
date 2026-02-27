@@ -8,6 +8,8 @@ import { configs, saveUserConfigs } from "./configs.js";
 
 
 /**
+ * @typedef { "Online" | "Offline" } PkgConnState
+ * 
  * Parsea o pacote, retornando:
  * - os dados do pacote em formato tabular (headers e rows),
  * - e as mensagens contidas no pacote (messages)
@@ -19,7 +21,7 @@ import { configs, saveUserConfigs } from "./configs.js";
  * @returns {{ 
  *  parseOk: boolean,
  *  pkgTicket: number,
- *  connState: "Online" | "Offline", 
+ *  connState: PkgConnState, 
  *  rows: Array<Array>, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
  * }}
