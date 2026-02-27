@@ -480,7 +480,7 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
                     const value = br.read_bytes("config value", size);
                     configs.push({id: util.bufferToHex(id), data: value});
                 }
-                br.add_row("Configurações", "N/A", htmlMscConfigsTable(configs, true));
+                br.add_row("Configurações", data.length, htmlMscConfigsTable(configs, true));
                 break;
             }
     
