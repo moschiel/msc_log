@@ -2,7 +2,7 @@ import { util } from "./utils.js";
 import { setSplitterPaneVisible } from "./split-pane.js";
 import { ui } from "./viewer-ui-elements.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
-import { findCfg } from "./msc-configs.js";
+import { findCfg, htmlMscConfigsTable } from "./msc-configs.js";
 
 /**
  * ID e descrição das mensagens, e se suportam listagem
@@ -473,25 +473,14 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
     
             case 0x1300:
             case 0x3000: {
-                let textFormatted = "";
+                let configs = [];
                 while (br.getOffset() < br.getLength()) {
                     const id = br.read_bytes("config id", 3);
                     const size = br.read_u8("config size");
                     const value = br.read_bytes("config value", size);
-    
-                    const cfg = findCfg(util.bufferToHex(id), value);
-                    
-                    if (dataOrientation === "v")
-                        br.add_row(`<b>Module:</b> ${cfg?.moduleName}, <b>Config:</b> ${cfg?.name}, <b>ID:</b> ${util.bufferToHex(id)}`, size, `<b>Value:</b> ${cfg?.valueFormatted}, <b>RawValue:</b> 0x${util.bufferToHex(value)}`);
-                    else {
-                        textFormatted += `<b>Module:</b> ${cfg?.moduleName}, <b>Config:</b> ${cfg?.name}, <b>ID:</b> ${util.bufferToHex(id)}, <b>Size:</b> ${size}, <b>Value:</b> ${cfg?.valueFormatted}, <b>RawValue:</b> 0x${util.bufferToHex(value)}\n`;
-                        //textFormatted += `<span style="cursor: pointer;" class="hint" data-hint="${cfg?.name}">${util.bufferToHex(id)}</span>\n`;
-                    }
-                        
+                    configs.push({id: util.bufferToHex(id), data: value});
                 }
-                if (dataOrientation === "h") {
-                    br.add_row("Configurações", "N/A", textFormatted);
-                }
+                br.add_row("Configurações", "N/A", htmlMscConfigsTable(configs, true));
                 break;
             }
     
@@ -514,17 +503,19 @@ export function parseMessage(msgID, data, dataMode, dataOrientation) {
             case 0x3100:
             case 0x3200: {
                 let value = "";
+                let configs = [];
                 while (br.getOffset() < br.getLength()) {
                     let text = "";
                     if (msgID === 0x3100) {
-                        const id = util.bufferToHex(br.read_bytes("config_id", 3));
-                        const cfg = findCfg(id);
-                        text = `<b>ID:</b> ${id}, <b>Name:</b> ${cfg?.name}`;
-                        value += text + "\n";
+                        configs.push({id: util.bufferToHex(br.read_bytes("config_id", 3))});
                     } else {
                         text = String(br.read_u16("context_id"));
                         value += text + ", ";
                     }
+                }
+
+                if(msgID === 0x3100) {
+                    value = htmlMscConfigsTable(configs);
                 }
     
                 br.add_row("IDs Solicitados", br.getLength(), value);

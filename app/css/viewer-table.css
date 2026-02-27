@@ -73,6 +73,23 @@ td {
     font-weight: 700;
 }
 
+
+
+/* Essa tabela fica dentro outra tabela, 
+  entao temos que forcar algums estilos pra nao herdar da tabela pai */
+.mscConfigsTable {
+    width: fit-content !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.mscConfigsTable th,
+.mscConfigsTable td {
+    display: table-cell !important;
+    color: #1f2937 !important;
+}
+
+
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
     .table-scroll {
@@ -89,5 +106,10 @@ td {
     #listMessageTable td:nth-child(4):hover {
         color: #bfdbfe;
         /* ainda mais claro no hover */
+    }
+
+    .mscConfigsTable th,
+    .mscConfigsTable td {
+        color: #e5e7eb !important;
     }
 }

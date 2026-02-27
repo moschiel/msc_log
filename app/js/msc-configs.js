@@ -97,7 +97,7 @@ function formatCfgValue(type, maxLen, raw) {
   // array: devolve bytes e hex
   if (type === "array") {
     return {
-      formatted: { hex: util.bufferToHex(data), bytes: Array.from(data) },
+      formatted: "0x" + util.bufferToHex(data),
       note: null,
     };
   }
@@ -139,7 +139,7 @@ function formatCfgValue(type, maxLen, raw) {
 
   // tipo desconhecido: devolve hex
   return {
-    formatted: { hex: util.bufferToHex(data), bytes: Array.from(data) },
+    formatted: "0x" + util.bufferToHex(data),
     note: `type desconhecido: "${type}" (retornando como bytes/hex)`,
   };
 }
@@ -166,9 +166,9 @@ export function findCfg(id, valueRaw) {
     return null;
   }
 
-  const cfg = xmlDoc.querySelector(`cfg[id="${hexId}"]`);
+   const cfg = xmlDoc.querySelector(`cfg[id="${hexId}"]`);
   if (!cfg) {
-    console.warn(`CFG não encontrado para id ${hexId}`);
+    //console.warn(`CFG não encontrado para id ${hexId}`);
     return null;
   }
 
@@ -203,4 +203,51 @@ export function findCfg(id, valueRaw) {
   }
 
   return result;
+}
+
+/**
+ * @param {Array<{id: string, data?: Uint8Array}>} configs
+ * @param {boolean} showData
+ * @returns {string}
+ */
+export function htmlMscConfigsTable(configs, showData = false)
+{
+  const header = `
+    <thead>
+      <tr>
+        <th style="width: 50px !important;">ID</th>
+        <th style="width: 100px !important;">Module</th>
+        <th>Name</th>
+        ${showData ? `
+        <th>Size</th>
+        <th>Value</th>
+        <th>Raw Value</th>`:""}
+      </tr>
+    </thead>
+  `;
+
+  const body = `
+    <tbody>
+      ${configs.map(config => {
+        const c = findCfg(config.id, config.data);
+        return `
+        <tr>
+          <td>${config.id}</td>
+          <td>${c?.moduleName}</td>
+          <td>${c?.name}</td>
+          ${showData ? `
+          <td>${config?.data?.length}</td>
+          <td>${c?.valueFormatted}</td>
+          <td>0x${util.bufferToHex(config?.data)}</td>`:""}
+        </tr>`;
+    }).join("")}
+    </tbody>
+  `;
+
+  return `
+    <table class="mscConfigsTable">
+      ${header}
+      ${body}
+    </table>
+`;
 }
