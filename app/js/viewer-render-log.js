@@ -1,9 +1,9 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { clearPkgInfo, detectPackages, PkgCounter, tailSplitWithPendingPkg, updatePackageCounterStatistics } from "./viewer-package-parser.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
 import { updateMessageCounterStatistics } from "./viewer-message-parser.js";
 import { highlightPackage } from "./viewer-package-highlight.js";
+import { clearDetectedPkgInfo, detectPackages, DetectPkgCounter, tailSplitWithPendingPkg, updateDetectedPackageCounter } from "./package-detector.js";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -75,7 +75,7 @@ export function clearVirtualLog() {
  */
 export function processLogChunkAndRender(mode, chunk, opts = { highlight: false, searchMsgID: null }) {
     if (mode === "set") {
-        clearPkgInfo();
+        clearDetectedPkgInfo();
         if (opts.highlight) {
             // clearVirtualLog();
             clearHtmlTextMemory();
@@ -96,7 +96,7 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
     if (safeText && safeText.length > 0) {
         
         const lines = util.escapeHtml(safeText).split(/\r?\n/);
-        let currTotal = PkgCounter.total;
+        let currTotal = DetectPkgCounter.total;
 
         // detecta os pacotes no texto, retornando:
         // - HTML, com highlight (se solicitado)
@@ -107,7 +107,7 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
         });
         
         for(const pkg of parsed.packages) {
-            updatePackageCounterStatistics(pkg.parseOk, pkg.connState, pkg.isIncomingPkg);
+            updateDetectedPackageCounter(pkg.parseOk, pkg.connState, pkg.isIncomingPkg);
             
             if(pkg.parseOk) {
                 for (const msg of pkg.messages) {

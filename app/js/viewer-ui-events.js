@@ -17,13 +17,14 @@ import {
     getRawLog, processLogChunkAndRender, disableControlsWhileProcessing,
     clearHtmlTextMemory
 } from "./viewer-render-log.js";
-import { parsePackage, showParsedPackageOnTable, htmlPkgAnalyzerConfigurator, initPkgAnalyzerConfiguratorListener, htmlPackageCounterStatistics } from "./viewer-package-parser.js";
+import { parsePackage, showParsedPackageOnTable } from "./viewer-package-parser.js";
 import { getHexFromHighlightPackageClass, highlightPkgBorderSelection, scrollToHighlightedElement } from "./viewer-package-highlight.js";
 import { initFindBar } from "./find-bar.js";
 import { initVirtualTextBox } from "./virtual-text-box.js";
 import { loadUserConfigs } from "./configs.js";
 import { highlightFindBarTerm, htmlTermsConfigurator, initTermsConfiguratorListener, highlightConfiguredTerms } from "./viewer-terms-highlight.js";
 import { loadMscConfigsXml } from "./msc-configs.js";
+import { htmlDetectedPackageCounters, htmlPkgDetectorConfigurator, initPkgDetectorConfiguratorListener } from "./package-detector.js";
 
 /**@type {import("./find-bar").FindBar} */
 export let findBar;
@@ -198,7 +199,7 @@ ui.btnStatistics.addEventListener("click", () => {
     openModal("modal1", {
         title: "Estatísticas",
         bodyHtml: `
-            ${htmlPackageCounterStatistics()}
+            ${htmlDetectedPackageCounters()}
             <div class="modal-divider"></div>
             ${htmlMessageCounterStatistics()}
         `}
@@ -211,12 +212,12 @@ ui.btnConfigs.addEventListener("click", () => {
         bodyHtml: `
             ${htmlTermsConfigurator()}
             <div class="modal-divider"></div>
-            ${htmlPkgAnalyzerConfigurator()}
+            ${htmlPkgDetectorConfigurator()}
         `}
     );
 
     initTermsConfiguratorListener();
-    initPkgAnalyzerConfiguratorListener();
+    initPkgDetectorConfiguratorListener();
 });
 
 let lastMessageIdClicked = 0;

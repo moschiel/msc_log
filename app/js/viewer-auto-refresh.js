@@ -6,8 +6,8 @@ import {
   setSafeHtmlText,
   appendRawLog
 } from "./viewer-render-log.js";
-import { clearPkgInfo } from "./viewer-package-parser.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
+import { clearDetectedPkgInfo } from "./package-detector.js";
 
 
 let refreshTimer = null;
@@ -15,7 +15,7 @@ let lastFileSize = 0;
 let localFileObj    = null;
 
 export function clearAllLogData() {
-  clearPkgInfo();
+  clearDetectedPkgInfo();
   clearVirtualLog();
   clearLogMemory();
   lastFileSize = 0;
