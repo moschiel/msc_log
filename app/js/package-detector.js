@@ -101,12 +101,12 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
     let packages = [];
 
     /**
-     * @param {any[]} rows
+     * @param {import("./viewer-binary-reader.js").BinaryReaderDataResult} data
      * @param {import("./viewer-package-parser.js").PkgConnState} connState
      * @param {number|string} pkgTicket
      * @param {boolean} isError
      */
-    function appendMessageDataTable(rows, connState, pkgTicket, isError = false) {
+    function appendMessageDataTable(data, connState, pkgTicket, isError = false) {
         // Coleta timestamp da data de criação, se não existir, força o timestamp da data de criação ser igual a data do log
         // Isso é necessário para conseguir ordenar a tabela com base no timestamp da criação
         const pkgCreated = DetectPkgsCreatedAt.find(p => p.ticket === pkgTicket);
@@ -127,29 +127,37 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
             ]); // parameters values
         } else {
             if (messageDataTable.headers.length === 0) {
-                // insere colunas extras no inicio do header
-                rows[0].unshift(
+                // insere HEADERS referente ao PACKAGE
+                const headers = [
                     "Package Index", 
                     "Created Timestamp", 
                     "Created At", 
                     "Sent/Recv At", 
                     "Type", 
                     "Ticket"
-                );
-                messageDataTable.headers = rows[0]; // parameters names
+                ];
+                // insere HEADERS com os parametros da MESSAGEM pesquisada
+                for(const item of data) {
+                    headers.push(item.name);
+                }
+                messageDataTable.headers = headers;
             }
     
-            // insere dados extras no inicio da row
+            // insere ROW com dados do PACKAGE
             const type = isIncomingPkg ? "🔵" : connState === "Online" ? "🟢" : "⚪";
-            rows[1].unshift(
+            const row = [
                 DetectPkgCounter.total, 
                 pkgCreatedTimestamp, 
                 createdAtDate, 
                 loggedAtDate, 
                 type, 
                 pkgTicket
-            ); 
-            messageDataTable.rows.push(rows[1]); // parameters values
+            ];
+            // insere ROW com dados da MENSAGEM parseada
+            for(const item of data) {
+                row.push(item.value); // parameters values
+            } 
+            messageDataTable.rows.push(row);
         }
     }
 
@@ -165,12 +173,11 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
                 frameStr += lines[lineIndexes[i]].slice(headerLen);
             }
 
-            const { parseOk, connState, messages, rows, pkgTicket } =
+            const { parseOk, connState, messages, data, pkgTicket } =
                 parsePackage(
                     util.hexToBuffer(frameStr),
                     isIncomingPkg,
                     opt.searchMsgID === "all" ? "collect" : "validate",
-                    "nv",
                     "h"
                 );
                 
@@ -192,22 +199,16 @@ export function detectPackages(lines, opt = { highlight: false, searchMsgID: nul
                     // verifica se deve retornar os dados parseados dessa mensagem
                     const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
                     if (opt.searchMsgID === matchOptionID) {
-                        const { isImplemented, rows } = parseMessage(
-                            msg.id,
-                            msg.data,
-                            "nv", // Collect parameters Name and Value
-                            "h" // Data horizontal orientation
-                        );
-    
+                        const { isImplemented, data } = parseMessage(msg.id, msg.data, "h");
                         if (isImplemented) {
-                            appendMessageDataTable(rows, connState, pkgTicket);
+                            appendMessageDataTable(data, connState, pkgTicket);
                         }
                     }
                 }
 
                 // verifica se deve rotornar os dados parseados desse pacote
                 if (opt.searchMsgID === "all") {
-                    appendMessageDataTable(rows, connState, pkgTicket);
+                    appendMessageDataTable(data, connState, pkgTicket);
                 }
 
                 const type = isIncomingPkg ? "Incoming" : connState;

@@ -1,16 +1,12 @@
 // viewer-binary-reader.js
-// @ts-ignore
 import { util } from "./utils.js";
 
 /**
  * @typedef {"validate" | "collect"} ProcessMode
- * @typedef {"nv" | "nsv"} DataMode
- * @typedef {"v" | "h"} DataOrientation
+ * @typedef {Array<{name: string, size: number | string, value: number | string}>} BinaryReaderDataResult
  *
  * @typedef {Object} BinaryReaderOpts
  * @property {ProcessMode=} processMode
- * @property {DataMode=} dataMode    - nv=Name/Value, nsv=Name/Size/Value
- * @property {DataOrientation=} dataOrientation - v=Vertical, h=Horizontal
  */
 
 /**
@@ -28,7 +24,7 @@ import { util } from "./utils.js";
  * @typedef {Object} BinaryReader
  * @property {DataView} dv
  * @property {Uint8Array} u8buf
- * @property {Array<Array>} rows
+ * @property {BinaryReaderDataResult} data
  *
  * @property {function(): number} getOffset
  * @property {function(number): void} setOffset
@@ -50,56 +46,27 @@ import { util } from "./utils.js";
  * @property {function(number): string} hex_u16
  * @property {function(number): string} hex_u32
  *
- * @property {function(string, number|string, any): void} add_row
- * @property {function(string, (function(number): any)=): number} add_row_u8
- * @property {function(string, boolean=, (function(number): any)=): number} add_row_i16
- * @property {function(string, boolean=, (function(number): any)=): number} add_row_u16
- * @property {function(string, boolean=, (function(number): any)=): number} add_row_i32
- * @property {function(string, boolean=, (function(number): any)=): number} add_row_u32
- * @property {function(string, boolean=, (function(bigint): any)=): bigint} add_row_u64
+ * @property {function(string, number|string, any): void} add_data
+ * @property {function(string, (function(number): any)=): number} add_data_u8
+ * @property {function(string, boolean=, (function(number): any)=): number} add_data_i16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_data_u16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_data_i32
+ * @property {function(string, boolean=, (function(number): any)=): number} add_data_u32
+ * @property {function(string, boolean=, (function(bigint): any)=): bigint} add_data_u64
  *
- * @property {function(string): number} add_row_hex_u8
- * @property {function(string, boolean=): number} add_row_hex_u16
- * @property {function(string, boolean=): number} add_row_hex_u32
+ * @property {function(string): number} add_data_hex_u8
+ * @property {function(string, boolean=): number} add_data_hex_u16
+ * @property {function(string, boolean=): number} add_data_hex_u32
  *
- * @property {function(string, number, BytesToHexFn=): Uint8Array} add_row_bytes_hex
- * @property {function(string, number): any} add_row_bytes_BCD
- * @property {function(string): string} add_row_u32_timestamp
- * @property {function(string): string} add_row_i32_coord
- * @property {(name: string, opts?: ReadCStringOptions) => string} add_row_cstring
+ * @property {function(string, number, BytesToHexFn=): Uint8Array} add_data_bytes_hex
+ * @property {function(string, number): any} add_data_bytes_BCD
+ * @property {function(string): string} add_data_u32_timestamp
+ * @property {function(string): string} add_data_i32_coord
+ * @property {(name: string, opts?: ReadCStringOptions) => string} add_data_cstring
  */
 
 /**
  * Cria um leitor sequencial (DataView) com helpers de parse.
- *
- * Conforma a leitura é realizada, é montada uma estrutura tabular (rows) contendo os parâmetros parseados,
- * onde cada célula representa:
- *
- * ```
- * [ Nome, Size, Valor ]
- * ```
- * 
- * A orientação das rows depende da opção de layout:
- *
- * Layout VERTICAL:
- *
- * ```
- * [
- *   [ Nome 1, Size 1, Valor 1 ],
- *   [ Nome 2, Size 2, Valor 2 ],
- *   [ Nome N, Size N, Valor N ]
- * ]
- * ```
- *
- * Layout HORIZONTAL:
- *
- * ```
- * [
- *   [ Nome 1,  Nome 2,  Nome N  ],
- *   [ Size 1,  Size 2,  Size N  ],
- *   [ Valor 1, Valor 2, Valor N ]
- * ]
- * ```
  *  
  * @param {Uint8Array} u8buf
  *        Buffer de entrada contendo os dados binários a serem parseados.
@@ -112,16 +79,9 @@ export function createBinaryReader(u8buf, opts = {}) {
 
     let offset = 0;
     const collectData = opts.processMode === "collect";
-    const dataMode = opts.dataMode ?? "nv";
-    const dataOrientation = opts.dataOrientation ?? "v";
 
-    /** @type {Array<Array<any>>} */
-    // if dataOrientation === "v"
-    const rows = dataOrientation === "v"
-        ? []
-        : dataMode === "nv"
-            ? [[], []]  //nv
-            : [[], [], []]; //nsv
+    /** @type {BinaryReaderDataResult} */
+    const data = [];
 
     // ======== check mínimo (com name) ========
     function need(name, n) {
@@ -220,104 +180,84 @@ export function createBinaryReader(u8buf, opts = {}) {
     const hex_u32 = (v) => `0x${(v >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
 
     // ======== adders ========
-    function add_row(name, size, value) {
+    function add_data(name, size, value) {
         // console.log(name, size, value);
-
         if (!collectData) return;
-
-        if (dataOrientation === "v") {
-            if (dataMode === "nsv") {
-                rows.push([name, size, value]);
-            } else {
-                // "nv": ignora size
-                rows.push([name, value]);
-            }
-        } else {
-            if (dataMode === "nsv") {
-                rows[0].push(name);
-                rows[1].push(size);
-                rows[2].push(value);
-            } else {
-                // "nv": ignora size
-                rows[0].push(name);
-                rows[1].push(value);
-            }
-        }
+        data.push({name, size, value});
     }
 
     // add numéricos
-    const add_row_u8 = (name, Fn = null) => {
+    const add_data_u8 = (name, Fn = null) => {
         const v = read_u8(name);
-        add_row(name, 1, Fn ? Fn(v) : v);
+        add_data(name, 1, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_row_i16 = (name, le = true, Fn = null) => {
+    const add_data_i16 = (name, le = true, Fn = null) => {
         const v = read_i16(name, le);
-        add_row(name, 2, v);
+        add_data(name, 2, v);
         return v;
     };
 
-    const add_row_u16 = (name, le = true, Fn = null) => {
+    const add_data_u16 = (name, le = true, Fn = null) => {
         const v = read_u16(name, le);
-        add_row(name, 2, Fn ? Fn(v) : v);
+        add_data(name, 2, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_row_i32 = (name, le = true, Fn = null) => {
+    const add_data_i32 = (name, le = true, Fn = null) => {
         const v = read_i32(name, le);
-        add_row(name, 4, Fn ? Fn(v) : v);
+        add_data(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_row_u32 = (name, le = true, Fn = null) => {
+    const add_data_u32 = (name, le = true, Fn = null) => {
         const v = read_u32(name, le);
-        add_row(name, 4, Fn ? Fn(v) : v);
+        add_data(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_row_u64 = (name, le = true, Fn = null) => {
+    const add_data_u64 = (name, le = true, Fn = null) => {
         const v = read_u64(name, le);
-        add_row(name, 8, Fn ? Fn(v) : v);
+        add_data(name, 8, Fn ? Fn(v) : v);
         return v;
     };
 
     // add hex (lê e já formata)
-    const add_row_hex_u8 = (name) => {
+    const add_data_hex_u8 = (name) => {
         const v = read_u8(name);
-        add_row(name, 1, hex_u8(v));
+        add_data(name, 1, hex_u8(v));
         return v;
     };
 
-    const add_row_hex_u16 = (name, le = true) => {
+    const add_data_hex_u16 = (name, le = true) => {
         const v = read_u16(name, le);
-        add_row(name, 2, hex_u16(v));
+        add_data(name, 2, hex_u16(v));
         return v;
     };
 
-    const add_row_hex_u32 = (name, le = true) => {
+    const add_data_hex_u32 = (name, le = true) => {
         const v = read_u32(name, le);
-        add_row(name, 4, hex_u32(v));
+        add_data(name, 4, hex_u32(v));
         return v;
     };
 
     // add bytes (opcional: você escolhe como representar)
-    const add_row_bytes_hex = (name, n, toHexFn = null) => {
+    const add_data_bytes_hex = (name, n, toHexFn = null) => {
         const b = read_bytes(name, n);
         const hex = toHexFn ? toHexFn(b) : bytesToHex(b);
-        add_row(name, n, hex);
+        add_data(name, n, hex);
         return b;
     };
 
-    const add_row_cstring = (name, opts) => {
+    const add_data_cstring = (name, opts) => {
         const startOffset = offset;
         const value = read_cstring(name, opts);
         const size = offset - startOffset;
 
-        add_row(name, size, value);
+        add_data(name, size, value);
         return value;
     };
-
 
 
     // fallback simples caso você não passe util.bufferToHex
@@ -329,24 +269,24 @@ export function createBinaryReader(u8buf, opts = {}) {
         return s;
     }
 
-    const add_row_bytes_BCD = (name, n) => {
+    const add_data_bytes_BCD = (name, n) => {
         const b = read_bytes(name, n);
         const v = util.uint8ArrayToBCD(b);
-        add_row(name, `${n} (BCD)`, v);
+        add_data(name, `${n} (BCD)`, v);
         return v;
     };
 
-    const add_row_u32_timestamp = (name) => {
+    const add_data_u32_timestamp = (name) => {
         const u = read_u32(name);
         const v = util.epochSecondsToString(u);
-        add_row(name, 4, v);
+        add_data(name, 4, v);
         return v;
     }
 
-    const add_row_i32_coord = (name) => {
+    const add_data_i32_coord = (name) => {
         const i = read_i32(name);
         const v = (i / 10000000.0).toFixed(7).replace(/\.?0+$/, "");
-        add_row(name, 4, v);
+        add_data(name, 4, v);
         return v;
     }
 
@@ -354,8 +294,7 @@ export function createBinaryReader(u8buf, opts = {}) {
         // estado
         dv,
         u8buf,
-        rows,
-        //headers,
+        data,
 
         // offset helpers
         getOffset: () => offset,
@@ -382,20 +321,20 @@ export function createBinaryReader(u8buf, opts = {}) {
         hex_u32,
 
         // table adders
-        add_row,
-        add_row_u8,
-        add_row_i16,
-        add_row_u16,
-        add_row_i32,
-        add_row_u32,
-        add_row_u64,
-        add_row_hex_u8,
-        add_row_hex_u16,
-        add_row_hex_u32,
-        add_row_bytes_hex,
-        add_row_cstring,
-        add_row_bytes_BCD,
-        add_row_u32_timestamp,
-        add_row_i32_coord,
+        add_data,
+        add_data_u8,
+        add_data_i16,
+        add_data_u16,
+        add_data_i32,
+        add_data_u32,
+        add_data_u64,
+        add_data_hex_u8,
+        add_data_hex_u16,
+        add_data_hex_u32,
+        add_data_bytes_hex,
+        add_data_cstring,
+        add_data_bytes_BCD,
+        add_data_u32_timestamp,
+        add_data_i32_coord,
     };
 }

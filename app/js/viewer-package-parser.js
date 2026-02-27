@@ -15,35 +15,30 @@ import { configs, saveUserConfigs } from "./configs.js";
  * - e as mensagens contidas no pacote (messages)
  * 
  * @param {Uint8Array} u8buf
- * @param {"validate" | "collect"} processMode
- * @param {"nsv" | "nv" } dataMode
+ * @param {import("./viewer-binary-reader.js").ProcessMode} processMode
  * @param {"v" | "h"} dataOrientation
  * @returns {{ 
  *  parseOk: boolean,
  *  pkgTicket: number,
  *  connState: PkgConnState, 
- *  rows: Array<Array>, 
+ *  data: import("./viewer-binary-reader.js").BinaryReaderDataResult, 
  *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
  * }}
  */
-export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOrientation) {
+export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation) {
     try {
-        const br = createBinaryReader(u8buf, {
-            processMode,
-            dataMode,
-            dataOrientation
-        })
+        const br = createBinaryReader(u8buf, { processMode })
     
         let pkgSize = 0;
     
         if (isIncomingPkg) {
             pkgSize = br.getLength();
-            br.add_row("Tamanho do pacote", 2, br.getLength());
+            br.add_data("Tamanho do pacote", 2, br.getLength());
         } else {
             const start = br.read_u16("frame inicial", false);
             if (start !== 0xCC33) throw new Error("Frame inicial invalido");
     
-            pkgSize = br.add_row_u16("Tamanho do pacote");
+            pkgSize = br.add_data_u16("Tamanho do pacote");
         }
     
         const frameEnd = br.getOffset() + pkgSize;
@@ -51,7 +46,7 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
             throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${br.getLength()})`);
         }
     
-        const option = br.add_row_u8("Option", (v) => {
+        const option = br.add_data_u8("Option", (v) => {
             if (v !== 0 && v !== 3) {
                 throw new Error("Option inválida, deve ser 0 ou 3");
             }
@@ -61,9 +56,9 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
         // ESN (se provider)
         if (option === 3) {
             if (dataOrientation === "v") {
-                br.add_row_hex_u16("Sei lá", false);
-                const esnSize = br.add_row_u8("Tamanho do SN");
-                br.add_row_bytes_BCD("SerialNumber", esnSize);
+                br.add_data_hex_u16("Sei lá", false);
+                const esnSize = br.add_data_u8("Tamanho do SN");
+                br.add_data_bytes_BCD("SerialNumber", esnSize);
             } else {
                 br.skip("Sei lá", 2);
                 const esnSize = br.read_u8("Tamanho do SN");
@@ -73,8 +68,8 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
     
         // index / service type
         let connState;
-        const pkgTicket = br.add_row_u16("Ticket do Pacote");
-        br.add_row_u8("Tipo de Serviço", (v) => {
+        const pkgTicket = br.add_data_u16("Ticket do Pacote");
+        br.add_data_u8("Tipo de Serviço", (v) => {
             let ackType = "";
             switch (v & 0x03) {
                 case 0x00: ackType = "No ACK requested"; break;
@@ -102,13 +97,13 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
             messages.push({ id: msgId, size: msgSize, data: msgData });
     
             if (dataOrientation === "v")
-                br.add_row(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
+                br.add_data(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
             else
                 text += `[${getMsgName(msgId)}], `;
         }
     
         if (dataOrientation === "h")
-            br.add_row("Mensagens", "N/A", text);
+            br.add_data("Mensagens", "N/A", text);
     
         // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
         // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
@@ -117,16 +112,17 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
             parseOk: true,
             pkgTicket,
             connState,
-            rows: br.rows,
+            data: br.data,
             messages
         };
     }
-    catch (e) {
+    catch (e) 
+    {
         return {
             parseOk: false,
             pkgTicket: null,
             connState: null,
-            rows: null,
+            data: [],
             messages: null
         }
     }
@@ -134,11 +130,15 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataMode, dataOr
 
 /**
  * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
- * @param {Array<string>} headers 
- * @param {Array<Array>} rows 
+ * @param {import("./viewer-binary-reader.js").BinaryReaderDataResult} data 
  * @param {Number|string|null} pkgClassIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
-export function showParsedPackageOnTable(headers, rows, pkgClassIndex = null) {
+export function showParsedPackageOnTable(data, pkgClassIndex = null) {
+    const headers = ["Parameter", "Size", "Value"];
+    let rows = [];
+    for (const item of data) {
+        rows.push([item.name, item.size, item.value]);
+    }
     util.Table.Create(ui.parsedPackageTable, headers, rows);
     openFloatingWindow(ui.windowParsedPackage, {
         title: pkgClassIndex !== null ? `Package #${pkgClassIndex}` : "Package #?"

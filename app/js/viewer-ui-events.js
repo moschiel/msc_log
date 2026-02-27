@@ -231,30 +231,20 @@ ui.logContent.addEventListener("click", e => {
 
     let frameStr = getHexFromHighlightPackageClass(pkgClassName);
     const isIncomingPkg = e.target.classList.contains("hl-pkg-incomming");
-    const { parseOk, rows, messages } = parsePackage(util.hexToBuffer(frameStr), isIncomingPkg, "collect", "nsv", "v");
+    const { parseOk, data, messages } = parsePackage(util.hexToBuffer(frameStr), isIncomingPkg, "collect", "v");
 
     if (!parseOk) return;
 
     // Cria tabela do pacote
     const pkgClassIndex = pkgClassName.replace("pkg-", "");
-    showParsedPackageOnTable(["Parameter", "Size", "Value"], rows, pkgClassIndex);
+    showParsedPackageOnTable(data, pkgClassIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {
         for (const msg of messages) {
             if (msg.id === lastMessageIdClicked) {
-                const { isImplemented, rows } = parseMessage(
-                    msg.id,
-                    msg.data,
-                    "nsv", /* Collect parametes name, size, and value */
-                    "v" /* Parametes Vertical Orientation */
-                );
-                showParsedMessageOnTable(
-                    isImplemented,
-                    msg.id,
-                    ["Parameter", "Size", "Value"],
-                    rows
-                );
+                const { isImplemented, data } = parseMessage( msg.id, msg.data, "v");
+                showParsedMessageOnTable(isImplemented, msg.id,data);
                 return;
             }
         }
@@ -300,18 +290,8 @@ ui.parsedPackageTable.addEventListener("click", (e) => {
         }
 
         // 3) Parsear mensagem e mostrar na tabela
-        const { isImplemented, rows } = parseMessage(
-            messageID,
-            col3Bytes,
-            "nsv", // Collect parameters name, size and value
-            "v" // Data vertical orientation
-        );
-        showParsedMessageOnTable(
-            isImplemented,
-            messageID,
-            ["Parameter", "Size", "Value"],
-            rows
-        );
+        const { isImplemented, data } = parseMessage(messageID, col3Bytes, "v");
+        showParsedMessageOnTable(isImplemented, messageID, data);
     }
     catch (e) {
         console.error(e.message);
