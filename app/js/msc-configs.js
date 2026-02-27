@@ -31,13 +31,6 @@ export async function loadMscConfigsXml () {
  * @property {string} moduleName
  */
 
-/**
- * @typedef {CfgInfo & {
- *   valueRaw?: Uint8Array,
- *   valueFormatted?: (number|string|{hex:string, bytes:number[]}|null),
- *   valueNote?: (string|null)
- * }} CfgInfoWithValue
- */
 
 function normalizeCfgHexId(id) {
   if (typeof id === "number") {
@@ -69,16 +62,50 @@ function normalizeCfgHexId(id) {
  * Observação: para números (u16/u32/i16/i32), aqui assumimos LITTLE-ENDIAN
  *
  * @param {string} type
+ * @param {string} display
+ * @param {CfgItem[] } items
  * @param {number|null} maxLen
  * @param {Uint8Array} raw
- * @returns {{ formatted: any, note: (string|null) }}
+ * @returns {string}
  */
-function formatCfgValue(type, maxLen, raw) {
+function formatCfgValue(type, display, items, maxLen, raw) {
   const useLen = Number.isFinite(maxLen) ? Math.min(raw.length, maxLen) : raw.length;
   const data = raw.slice(0, useLen);
+  
+  // numéricos via DataView
+  const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const littleEndian = true;
 
+  const need = (n) => {
+    if (data.length < n) {
+        throw new Error(`valorRaw tem ${data.length} byte(s), mas type=${type} precisa de ${n}.`);
+    }
+  };
+
+  if(display === "roVersion") {
+    return `${data[0]}.${data[1]}.${data[2]}-${data[3]}`;
+  }
+  else if(display === "u8_list") {
+    let text = "";
+    for(const item of items) {
+      const index = item.value;
+      if(index >= maxLen) 
+        continue;
+      text += `<b>${item.name}:</b> ${data[index]}\n`;
+    }
+    return text;
+  } else if(display === "u16_list") {
+    let text = "";
+    for(const item of items) {
+      const index = item.value;
+      if(index >= maxLen/2) 
+        continue;
+      text += `<b>${item.name}:</b> ${dv.getUint16(0, littleEndian)}\n`;
+    }
+    return text;
+  }
   // string: até \0 ou até len
-  if (type === "string") {
+  else if (type === "string") {
     const zeroIndex = data.indexOf(0);
     const slice = zeroIndex >= 0 ? data.slice(0, zeroIndex) : data;
 
@@ -91,62 +118,131 @@ function formatCfgValue(type, maxLen, raw) {
       str = Array.from(slice).map(c => String.fromCharCode(c)).join("");
     }
 
-    return { formatted: str, note: null };
+    return str;
   }
-
   // array: devolve bytes e hex
-  if (type === "array") {
-    return {
-      formatted: "0x" + util.bufferToHex(data),
-      note: null,
-    };
+  else if (type === "array") {
+    return "0x" + util.bufferToHex(data);
   }
 
-  // numéricos via DataView
-  const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  const littleEndian = true;
-
-  const need = (n) => {
-    if (data.length < n) {
-        throw new Error(`valorRaw tem ${data.length} byte(s), mas type=${type} precisa de ${n}.`);
-    }
-  };
-
+  // tipos numericos
+  let numberVal = null;
   if (type === "u8") {
     need(1);
-    return { formatted: dv.getUint8(0), note: null };
+    numberVal = dv.getUint8(0);
   }
-  if (type === "i8") {
+  else if (type === "i8") {
     need(1);
-    return { formatted: dv.getInt8(0), note: null };
+    numberVal = dv.getInt8(0);
   }
-  if (type === "u16") {
+  else if (type === "u16") {
     need(2);
-    return { formatted: dv.getUint16(0, littleEndian), note: null };
+    numberVal = dv.getUint16(0, littleEndian);
   }
-  if (type === "i16") {
+  else if (type === "i16") {
     need(2);
-    return { formatted: dv.getInt16(0, littleEndian), note: null };
+    numberVal = dv.getInt16(0, littleEndian);
   }
-  if (type === "u32") {
+  else if (type === "u32") {
     need(4);
-    return { formatted: dv.getUint32(0, littleEndian), note: null };
+    numberVal = dv.getUint32(0, littleEndian);
   }
-  if (type === "i32") {
+  else if (type === "i32") {
     need(4);
-    return { formatted: dv.getInt32(0, littleEndian), note: null };
+    numberVal = dv.getInt32(0, littleEndian);
+  }
+  else {
+    // tipo desconhecido: devolve hex
+    return "0x" + util.bufferToHex(data);
   }
 
-  // tipo desconhecido: devolve hex
-  return {
-    formatted: "0x" + util.bufferToHex(data),
-    note: `type desconhecido: "${type}" (retornando como bytes/hex)`,
-  };
+  // altera valores numericos dependendo do "display"
+  if(display === "check") {
+    return numberVal > 0 ? `<span style="color: green;">ATIVO</span>` : `<span style="color: red;">INATIVO</span>`;
+  } 
+  else if(display === "combo") {
+    const founditem = items.find(item => item.value == numberVal);
+    if(founditem) 
+      return founditem.name;
+  }
+  else if(display === "bitmask") {
+    let text = "";
+    for (const item of items) {
+      const bitActive = numberVal & (Number(item.value) << 1);
+      text += `${item.name}: ${bitActive ? `<span style="color: green;">ATIVO</span>` : `<span style="color: red;">INATIVO</span>`}\n`;
+    }
+    return text;
+  }
+
+  // nao precisa alterar, só retorna o valor numerico
+  return String(numberVal);
+}
+
+/**
+ * @typedef {Object} CfgItem
+ * @property {string} name
+ * @property {number} value
+ * @property {"value"|"index"} key
+ */
+
+/**
+ * @typedef {CfgInfo & {
+ *   moduleName?: string,
+ *   moduleId?: (string|null),
+ *   valueRaw?: Uint8Array,
+ *   valueFormatted?: (number|string|{hex:string, bytes:number[]}|null),
+ *   items?: CfgItem[]
+ * }} CfgInfoWithValue
+ */
+
+/**
+ * Extrai <item> e <bit> (ou qualquer filho chamado "item") dentro de um <cfg>.
+ * Cada item pode ter "value" ou "index" + "name".
+ *
+ * @param {Element} cfgEl
+ * @returns {CfgItem[]}
+ */
+function extractCfgItems(cfgEl) {
+  // aceita tanto <item> quanto <bit> (no seu XML é comum aparecer como <bit index="..">)
+  const els = cfgEl.querySelectorAll(":scope > item, :scope > bit");
+
+  /** @type {CfgItem[]} */
+  const items = [];
+
+  for (const el of els) {
+    const name = el.getAttribute("name") ?? "";
+
+    /** @type {"value"|"index"} */
+    let key = null;
+    let rawNum = null;
+
+    const v = el.getAttribute("value");
+    const i = el.getAttribute("index");
+
+    if (v != null) {
+      key = "value";
+      rawNum = v;
+    } else if (i != null) {
+      key = "index";
+      rawNum = i;
+    } else {
+      continue; // não tem nem value nem index
+    }
+
+    const num = Number(rawNum);
+    if (!Number.isFinite(num)) continue;
+
+    items.push({ name, value: num, key });
+  }
+
+  return items;
 }
 
 /**
  * Procura uma tag <cfg> pelo ID (number ou string HEX).
  * Se você passar `valueRaw` (Uint8Array), tenta retornar também `valueFormatted`.
+ *
+ * Também retorna `moduleName/moduleId` e `items` (filhos <item> ou <bit>).
  *
  * @param {number|string} id Number (ex: 0x010600) ou string (ex: "010600" / "0x010600")
  * @param {Uint8Array} [valueRaw] valor lido/configurado para esse CFG
@@ -166,17 +262,13 @@ export function findCfg(id, valueRaw) {
     return null;
   }
 
-   const cfg = xmlDoc.querySelector(`cfg[id="${hexId}"]`);
-  if (!cfg) {
-    //console.warn(`CFG não encontrado para id ${hexId}`);
-    return null;
-  }
+  const cfg = xmlDoc.querySelector(`cfg[id="${hexId}"]`);
+  if (!cfg) return null;
 
   const moduleEl = cfg.closest("module");
   const moduleName = moduleEl?.getAttribute("name") ?? undefined;
   const moduleId = moduleEl?.getAttribute("id") ?? null;
 
-  const type = cfg.getAttribute("type") ?? "";
   const lenStr = cfg.getAttribute("len");
   const maxLen = lenStr != null ? Number(lenStr) : null;
 
@@ -184,22 +276,22 @@ export function findCfg(id, valueRaw) {
   const result = {
     id: cfg.getAttribute("id") ?? hexId,
     name: cfg.getAttribute("name") ?? "",
-    type,
+    type: cfg.getAttribute("type") ?? "",
     len: lenStr,
-    display: cfg.getAttribute("display"),
+    display: cfg.getAttribute("display") ?? "",
     default: cfg.getAttribute("default"),
     desc: cfg.getAttribute("desc"),
     moduleName,
     moduleId,
+    items: extractCfgItems(cfg),
   };
 
   if (valueRaw instanceof Uint8Array) {
-    const { formatted, note } =
-      formatCfgValue(type, Number.isFinite(maxLen) ? maxLen : null, valueRaw);
+    const formatted =
+      formatCfgValue(result.type, result.display, result.items, Number.isFinite(maxLen) ? maxLen : null, valueRaw);
 
     result.valueRaw = valueRaw;
     result.valueFormatted = formatted;
-    result.valueNote = note;
   }
 
   return result;
