@@ -1,9 +1,10 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
 import { virtualTextBox } from "./viewer-ui-events.js";
-import { updateMessageCounterStatistics } from "./viewer-message-parser.js";
-import { highlightPackage } from "./viewer-package-highlight.js";
-import { clearDetectedPkgInfo, detectPackages, DetectPkgCounter, detectPendingPackageSection, updateDetectedPackageCounter } from "./package-detector.js";
+import { getTmEventOptionId, parseMessage, updateMessageCounterStatistics } from "./viewer-message-parser.js";
+import { highlightPackageFrames, highlightPkgCreation } from "./viewer-package-highlight.js";
+import { clearDetectedPkgInfo, detectPackages, DetectPkgCounter, detectPendingPackageSection, updatePackageCounterStatistics, detectPackagesCreation } from "./package-detector.js";
+import { parsePackage } from "./viewer-package-parser.js";
 
 let rawTextLog = "";
 let safeHtmlLog = "";
@@ -92,61 +93,51 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
     // atualiza texto pendente
     setPendingHtmlText(pendingText);
 
-    // checa se tem texto seguro pra processar pacotes
+    // se tem texto seguro pra processar pacotes
     if (safeText && safeText.length > 0) {
-        
+
         const lines = util.escapeHtml(safeText).split(/\r?\n/);
-        let currTotal = DetectPkgCounter.total;
+        let messageDataTable = { headers: [], rows: [] };
+        detectPackagesCreation(lines, { highlight: opts?.highlight});
+        const packages = detectPackages(lines);
 
-        // detecta os pacotes no texto, retornando:
-        // - HTML, com highlight (se solicitado)
-        // - lista de mensagens de um determinado ID (se solicitado)
-        const parsed = detectPackages(lines, {
-            highlight: false,
-            searchMsgID: opts.searchMsgID
-        });
-        
-        for(const pkg of parsed.packages) {
-            updateDetectedPackageCounter(pkg.type);
+        for (const pkg of packages) {
+            const parsedPkg = parsePackage(pkg.bytes, pkg.state === "Incoming", opts?.searchMsgID === "all" ? "collect" : "validate", "h");
             
-            if(pkg.parseOk) {
-                for (const msg of pkg.messages) {
-                    updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+            // Atualiza view de estatisticas de pacotes
+            const currPkgCount = updatePackageCounterStatistics(pkg.state);
+            pkg.pkgIndex = currPkgCount;
 
-                    if (opts.searchMsgID && opts.searchMsgID !== "none") {
-                        
+            if (parsedPkg.parseOk) {
+                for (const msg of parsedPkg.messages) {
+                    // Atualiza view de estatisticas de mensagems
+                    updateMessageCounterStatistics(msg.id, msg.id === 0x1402 ? msg.data[0] : null);
+                    
+                    // se usuário solicitou essa MENSGAGEM, coletamos os dados
+                    const matchOptionID = msg.id === 0x1402 ? getTmEventOptionId(msg.data[0]) : String(msg.id);
+                    if (opts?.searchMsgID === matchOptionID) {
+                        const parsedMsg = parseMessage(msg.id, msg.data, "h");
+                        if (parsedMsg.isImplemented) {
+                            collectMessagesDataTable(messageDataTable, pkg, parsedMsg.items);
+                        }
                     }
                 }
             }
-
-            if(opts.highlight) {
-                highlightPackage(++currTotal, pkg.type, lines, pkg.lineIndexes);
+            
+            // se usuario solicitou para listar TODOS os pacotes, coletamos os dados
+            if (opts?.searchMsgID === "all") {
+                collectMessagesDataTable(messageDataTable, pkg, parsedPkg.items);
+            }
+            
+            if (opts.highlight) {
+                highlightPackageFrames(currPkgCount, pkg.state, lines, pkg.lineIndexes);
             }
         }
 
         appendSafeHtmlText(opts.highlight ? lines.join("\n") : safeText);
 
-        // renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
-        if (opts.searchMsgID && opts.searchMsgID !== "none") {
-            // mesmo se vier mode "append", forçamos criacao se tabela não tem tHead
-            if (mode === "set" || ui.listMessageTable.tHead === null)
-                util.Table.Create(
-                    ui.listMessageTable,
-                    parsed.messageDataTable.headers,
-                    parsed.messageDataTable.rows,
-                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
-                );
-            else if (mode === "append")
-                util.Table.AddRows(
-                    ui.listMessageTable,
-                    parsed.messageDataTable.rows,
-                    { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
-                );
-
-            // se o auto-scroll estiver ligado e for append, rola a tabela de mensagens para o final
-            if (util.isLocalFile() === false && mode === "append" && util.isToogleButtonPressed(ui.btnAutoScroll)) {
-                ui.listMessageContainer.scrollTop = ui.listMessageContainer.scrollHeight;
-            }
+        if (opts?.searchMsgID && opts.searchMsgID !== "none" && messageDataTable.rows.length > 0) {
+            renderMessageDataTable(messageDataTable, mode);
         }
     }
 
@@ -157,6 +148,100 @@ export function processLogChunkAndRender(mode, chunk, opts = { highlight: false,
         });
     }
 }
+
+/**
+ * 
+ * @param {{ headers: Array<string>, rows: Array<Array> }} messageDataTable 
+ * @param {import("./package-detector.js").DetectedPackage} pkg
+ * @param {import("./viewer-binary-reader.js").BinaryReaderItemsResult} items
+ */
+function collectMessagesDataTable(messageDataTable, pkg, items) {
+    // Converte timestamp para 'human readable'
+    const createdAtDate = pkg?.creation?.timestamp !== undefined ? util.epochSecondsToString(pkg.creation.timestamp) : "";
+    const loggedAtDate = util.epochSecondsToString(pkg.pkgLoggedTimestamp);
+
+    if (pkg.state === "Error") {
+        const row = [
+            pkg?.pkgIndex,
+            pkg?.creation?.timestamp,
+            createdAtDate,
+            loggedAtDate,
+            util.spanHintWrapper("🔴", "Pacote com Erro"),
+            pkg?.creation?.ticket,
+        ]
+        messageDataTable.rows.push(row); // parameters values
+    } else {
+        if (messageDataTable.headers.length === 0) {
+            // insere HEADERS referente ao PACKAGE
+            const headers = [
+                "#",
+                "Created Timestamp",
+                "Created At",
+                "Sent/Recv At",
+                "Type",
+                "Ticket"
+            ];
+            // insere HEADERS com os parametros da MESSAGEM pesquisada
+            for (const item of items) {
+                headers.push(item.name);
+            }
+            messageDataTable.headers = headers;
+        }
+
+        // insere ROW com dados do PACKAGE
+        const state = pkg.state === "Incoming" ? 
+            util.spanHintWrapper("🔵", "Pacote Recebido") : 
+                pkg.state === "Online" ? 
+                    util.spanHintWrapper("🟢", "Pacote Enviado (ONLINE)") :
+                        util.spanHintWrapper("⚪", "Pacote Enviado (OFFLINE)");
+
+        const row = [
+            pkg?.pkgIndex,
+            pkg?.creation?.timestamp,
+            createdAtDate,
+            loggedAtDate,
+            state,
+            pkg?.creation?.ticket
+        ];
+        // insere ROW com dados da MENSAGEM parseada
+        for (const item of items) {
+            row.push(item.value); // parameters values
+        }
+        messageDataTable.rows.push(row);
+    }
+}
+
+
+/**
+ * Renderiza todas as mensagens encontradas do ID solicitado, na tabela de mensagens
+ * 
+ * @param {{ headers: Array<string>, rows: Array<Array> }} messageDataTable 
+ * @param {"set" | "append"} mode
+ */
+function renderMessageDataTable(messageDataTable, mode) {
+    // mesmo se vier mode "append", forçamos criacao se tabela não tem tHead
+    if (mode === "set" || ui.listMessageTable.tHead === null)
+        util.Table.Create(
+            ui.listMessageTable,
+            messageDataTable.headers,
+            messageDataTable.rows,
+
+            { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
+        );
+    else if (mode === "append")
+        util.Table.AddRows(
+            ui.listMessageTable,
+            messageDataTable.rows,
+            { sortColumnIndex: 1, sortDirection: "asc", numeric: true } // ordena pelo timestamp de criação do pacote
+        );
+
+    // se o auto-scroll estiver ligado e for append, rola a tabela de mensagens para o final
+    if (util.isLocalFile() === false && mode === "append" && util.isToogleButtonPressed(ui.btnAutoScroll)) {
+        ui.listMessageContainer.scrollTop = ui.listMessageContainer.scrollHeight;
+    }
+}
+
+
 
 /** Desabilita ou habilita alguns controles em operações que podem demorar
  *  para evitar que o usuário tente interagir enquanto a operação está em andamento. */

@@ -17,6 +17,7 @@
 
 /**
  * @typedef {Object} Util
+ * @property {(s: string, hint: string)=>string} spanHintWrapper
  * @property {(s: string)=>string} escapeHtml
  * @property {(s: string)=>string} escapeRegex
  *
@@ -54,6 +55,11 @@
 
 /** @type {Util} */
 export const util = {
+  // html wrappers
+  spanHintWrapper(s, hint) {
+    return `<span class="hint" data-hint="${hint}">${s}</span>`
+  },
+
   // ======== Strings / Segurança ========
 
   /**
@@ -197,7 +203,8 @@ export const util = {
 
       headers.forEach((h) => {
         const th = document.createElement("th");
-        th.textContent = h;
+        // th.textContent = h;
+        th.innerHTML = h;
         trHead.appendChild(th);
       });
 

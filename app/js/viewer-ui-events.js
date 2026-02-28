@@ -230,21 +230,21 @@ ui.logContent.addEventListener("click", e => {
     if (!pkgClassName.startsWith("pkg-")) return;
 
     let frameStr = getHexFromHighlightPackageClass(pkgClassName);
-    const isIncomingPkg = e.target.classList.contains("hl-pkg-incomming");
-    const { parseOk, data, messages } = parsePackage(util.hexToBuffer(frameStr), isIncomingPkg, "collect", "v");
+    const isIncoming = e.target.classList.contains("hl-pkg-incomming");
+    const { parseOk, items, messages } = parsePackage(util.hexToBuffer(frameStr), isIncoming, "collect", "v");
 
     if (!parseOk) return;
 
     // Cria tabela do pacote
     const pkgClassIndex = pkgClassName.replace("pkg-", "");
-    showParsedPackageOnTable(data, pkgClassIndex);
+    showParsedPackageOnTable(items, pkgClassIndex);
 
     // Parsea e cria tabela da ultima mensagem clicada
     if (messages.length > 0) {
         for (const msg of messages) {
             if (msg.id === lastMessageIdClicked) {
-                const { isImplemented, data } = parseMessage( msg.id, msg.data, "v");
-                showParsedMessageOnTable(isImplemented, msg.id,data);
+                const { isImplemented, items } = parseMessage( msg.id, msg.data, "v");
+                showParsedMessageOnTable(isImplemented, msg.id, items);
                 return;
             }
         }
@@ -290,8 +290,8 @@ ui.parsedPackageTable.addEventListener("click", (e) => {
         }
 
         // 3) Parsear mensagem e mostrar na tabela
-        const { isImplemented, data } = parseMessage(messageID, col3Bytes, "v");
-        showParsedMessageOnTable(isImplemented, messageID, data);
+        const { isImplemented, items } = parseMessage(messageID, col3Bytes, "v");
+        showParsedMessageOnTable(isImplemented, messageID, items);
     }
     catch (e) {
         console.error(e.message);
@@ -313,7 +313,7 @@ ui.listMessageTable.addEventListener("click", (e) => {
     const headers = Array.from(table.querySelectorAll("thead th"));
 
     const columnPkgIndex = headers.findIndex(th =>
-        th.textContent.trim() === "Package Index"
+        th.textContent.trim() === "#"
     );
     const columnCreatedAt = headers.findIndex(th =>
         th.textContent.trim() === "Created At"

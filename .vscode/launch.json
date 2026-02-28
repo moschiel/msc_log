@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-chrome",
+      "type": "chrome",
       "request": "launch",
-      "name": "Debug Local PHP",
-      "url": "http://localhost:8000/home.php?view=1&file=789101112%2F260114_0.log",
+      "name": "Debug Log PHP",
+      "url": "http://localhost:8000/home.php?view=1&file=789101112%2Ftail_sim.log",
       "webRoot": "${workspaceFolder}"
     }
   ]

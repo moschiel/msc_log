@@ -125,7 +125,7 @@ async function readLocalTailChunk() {
  * Atualiza o logBox e o rawLog com o novo conteudo.
  */
 export async function tailRefreshNow() {
-  try {
+  //try {
     const { tailText } = util.isLocalFile()
       ? await readLocalTailChunk()
       : await readRemoteTailChunk();
@@ -152,13 +152,15 @@ export async function tailRefreshNow() {
       });
     }
 
-  } catch (e) {
+  //} 
+  /*catch (e) 
+  {
     const errMsg = "Erro ao carregar arquivo: " + e; 
     setRawLog(errMsg);
     setSafeHtmlText(errMsg);
     setPendingHtmlText("");
     virtualTextBox.setHtmlText(errMsg);
-  }
+  }*/
 }
 
 

@@ -3,7 +3,7 @@ import { util } from "./utils.js";
 
 /**
  * @typedef {"validate" | "collect"} ProcessMode
- * @typedef {Array<{name: string, size: number | string, value: number | string}>} BinaryReaderDataResult
+ * @typedef {Array<{name: string, size: number | string, value: number | string}>} BinaryReaderItemsResult
  *
  * @typedef {Object} BinaryReaderOpts
  * @property {ProcessMode=} processMode
@@ -24,7 +24,7 @@ import { util } from "./utils.js";
  * @typedef {Object} BinaryReader
  * @property {DataView} dv
  * @property {Uint8Array} u8buf
- * @property {BinaryReaderDataResult} data
+ * @property {BinaryReaderItemsResult} items
  *
  * @property {function(): number} getOffset
  * @property {function(number): void} setOffset
@@ -46,23 +46,23 @@ import { util } from "./utils.js";
  * @property {function(number): string} hex_u16
  * @property {function(number): string} hex_u32
  *
- * @property {function(string, number|string, any): void} add_data
- * @property {function(string, (function(number): any)=): number} add_data_u8
- * @property {function(string, boolean=, (function(number): any)=): number} add_data_i16
- * @property {function(string, boolean=, (function(number): any)=): number} add_data_u16
- * @property {function(string, boolean=, (function(number): any)=): number} add_data_i32
- * @property {function(string, boolean=, (function(number): any)=): number} add_data_u32
- * @property {function(string, boolean=, (function(bigint): any)=): bigint} add_data_u64
+ * @property {function(string, number|string, any): void} add_item
+ * @property {function(string, (function(number): any)=): number} add_item_u8
+ * @property {function(string, boolean=, (function(number): any)=): number} add_item_i16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_item_u16
+ * @property {function(string, boolean=, (function(number): any)=): number} add_item_i32
+ * @property {function(string, boolean=, (function(number): any)=): number} add_item_u32
+ * @property {function(string, boolean=, (function(bigint): any)=): bigint} add_item_u64
  *
- * @property {function(string): number} add_data_hex_u8
- * @property {function(string, boolean=): number} add_data_hex_u16
- * @property {function(string, boolean=): number} add_data_hex_u32
+ * @property {function(string): number} add_item_hex_u8
+ * @property {function(string, boolean=): number} add_item_hex_u16
+ * @property {function(string, boolean=): number} add_item_hex_u32
  *
- * @property {function(string, number, BytesToHexFn=): Uint8Array} add_data_bytes_hex
- * @property {function(string, number): any} add_data_bytes_BCD
- * @property {function(string): string} add_data_u32_timestamp
- * @property {function(string): string} add_data_i32_coord
- * @property {(name: string, opts?: ReadCStringOptions) => string} add_data_cstring
+ * @property {function(string, number, BytesToHexFn=): Uint8Array} add_item_bytes_hex
+ * @property {function(string, number): any} add_item_bytes_BCD
+ * @property {function(string): string} add_item_u32_timestamp
+ * @property {function(string): string} add_item_i32_coord
+ * @property {(name: string, opts?: ReadCStringOptions) => string} add_item_cstring
  */
 
 /**
@@ -80,8 +80,8 @@ export function createBinaryReader(u8buf, opts = {}) {
     let offset = 0;
     const collectData = opts.processMode === "collect";
 
-    /** @type {BinaryReaderDataResult} */
-    const data = [];
+    /** @type {BinaryReaderItemsResult} */
+    const items = [];
 
     // ======== check mínimo (com name) ========
     function need(name, n) {
@@ -180,82 +180,82 @@ export function createBinaryReader(u8buf, opts = {}) {
     const hex_u32 = (v) => `0x${(v >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
 
     // ======== adders ========
-    function add_data(name, size, value) {
+    function add_item(name, size, value) {
         // console.log(name, size, value);
         if (!collectData) return;
-        data.push({name, size, value});
+        items.push({name, size, value});
     }
 
     // add numéricos
-    const add_data_u8 = (name, Fn = null) => {
+    const add_item_u8 = (name, Fn = null) => {
         const v = read_u8(name);
-        add_data(name, 1, Fn ? Fn(v) : v);
+        add_item(name, 1, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_data_i16 = (name, le = true, Fn = null) => {
+    const add_item_i16 = (name, le = true, Fn = null) => {
         const v = read_i16(name, le);
-        add_data(name, 2, v);
+        add_item(name, 2, v);
         return v;
     };
 
-    const add_data_u16 = (name, le = true, Fn = null) => {
+    const add_item_u16 = (name, le = true, Fn = null) => {
         const v = read_u16(name, le);
-        add_data(name, 2, Fn ? Fn(v) : v);
+        add_item(name, 2, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_data_i32 = (name, le = true, Fn = null) => {
+    const add_item_i32 = (name, le = true, Fn = null) => {
         const v = read_i32(name, le);
-        add_data(name, 4, Fn ? Fn(v) : v);
+        add_item(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_data_u32 = (name, le = true, Fn = null) => {
+    const add_item_u32 = (name, le = true, Fn = null) => {
         const v = read_u32(name, le);
-        add_data(name, 4, Fn ? Fn(v) : v);
+        add_item(name, 4, Fn ? Fn(v) : v);
         return v;
     };
 
-    const add_data_u64 = (name, le = true, Fn = null) => {
+    const add_item_u64 = (name, le = true, Fn = null) => {
         const v = read_u64(name, le);
-        add_data(name, 8, Fn ? Fn(v) : v);
+        add_item(name, 8, Fn ? Fn(v) : v);
         return v;
     };
 
     // add hex (lê e já formata)
-    const add_data_hex_u8 = (name) => {
+    const add_item_hex_u8 = (name) => {
         const v = read_u8(name);
-        add_data(name, 1, hex_u8(v));
+        add_item(name, 1, hex_u8(v));
         return v;
     };
 
-    const add_data_hex_u16 = (name, le = true) => {
+    const add_item_hex_u16 = (name, le = true) => {
         const v = read_u16(name, le);
-        add_data(name, 2, hex_u16(v));
+        add_item(name, 2, hex_u16(v));
         return v;
     };
 
-    const add_data_hex_u32 = (name, le = true) => {
+    const add_item_hex_u32 = (name, le = true) => {
         const v = read_u32(name, le);
-        add_data(name, 4, hex_u32(v));
+        add_item(name, 4, hex_u32(v));
         return v;
     };
 
     // add bytes (opcional: você escolhe como representar)
-    const add_data_bytes_hex = (name, n, toHexFn = null) => {
+    const add_item_bytes_hex = (name, n, toHexFn = null) => {
         const b = read_bytes(name, n);
         const hex = toHexFn ? toHexFn(b) : bytesToHex(b);
-        add_data(name, n, hex);
+        add_item(name, n, hex);
         return b;
     };
 
-    const add_data_cstring = (name, opts) => {
+    const add_item_cstring = (name, opts) => {
         const startOffset = offset;
         const value = read_cstring(name, opts);
         const size = offset - startOffset;
 
-        add_data(name, size, value);
+        add_item(name, size, value);
         return value;
     };
 
@@ -269,24 +269,24 @@ export function createBinaryReader(u8buf, opts = {}) {
         return s;
     }
 
-    const add_data_bytes_BCD = (name, n) => {
+    const add_item_bytes_BCD = (name, n) => {
         const b = read_bytes(name, n);
         const v = util.uint8ArrayToBCD(b);
-        add_data(name, `${n} (BCD)`, v);
+        add_item(name, `${n} (BCD)`, v);
         return v;
     };
 
-    const add_data_u32_timestamp = (name) => {
+    const add_item_u32_timestamp = (name) => {
         const u = read_u32(name);
         const v = util.epochSecondsToString(u);
-        add_data(name, 4, v);
+        add_item(name, 4, v);
         return v;
     }
 
-    const add_data_i32_coord = (name) => {
+    const add_item_i32_coord = (name) => {
         const i = read_i32(name);
         const v = (i / 10000000.0).toFixed(7).replace(/\.?0+$/, "");
-        add_data(name, 4, v);
+        add_item(name, 4, v);
         return v;
     }
 
@@ -294,7 +294,7 @@ export function createBinaryReader(u8buf, opts = {}) {
         // estado
         dv,
         u8buf,
-        data,
+        items,
 
         // offset helpers
         getOffset: () => offset,
@@ -321,20 +321,20 @@ export function createBinaryReader(u8buf, opts = {}) {
         hex_u32,
 
         // table adders
-        add_data,
-        add_data_u8,
-        add_data_i16,
-        add_data_u16,
-        add_data_i32,
-        add_data_u32,
-        add_data_u64,
-        add_data_hex_u8,
-        add_data_hex_u16,
-        add_data_hex_u32,
-        add_data_bytes_hex,
-        add_data_cstring,
-        add_data_bytes_BCD,
-        add_data_u32_timestamp,
-        add_data_i32_coord,
+        add_item,
+        add_item_u8,
+        add_item_i16,
+        add_item_u16,
+        add_item_i32,
+        add_item_u32,
+        add_item_u64,
+        add_item_hex_u8,
+        add_item_hex_u16,
+        add_item_hex_u32,
+        add_item_bytes_hex,
+        add_item_cstring,
+        add_item_bytes_BCD,
+        add_item_u32_timestamp,
+        add_item_i32_coord,
     };
 }

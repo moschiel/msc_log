@@ -13,11 +13,11 @@ const PKG_HIGHLIGHT_VERSION = "V1";
 * seta direto no vetor lines de acordo com os indexes passados
 * 
 * @param {number} pkgIndex index do pacote para criar a classe CSS de grupo do pacote (ex: pkg-1, pkg-2, etc)
-* @param {import("./package-detector.js").PackageType} type
+* @param {import("./package-detector.js").PackageState} type
 * @param {Array<string>} lines array de linhas do log,
 * @param {Array<number>} lineIndexes indexes das linhas onde está presente os frames hexadecimais do pacote (ex: se o pacote tem 3 linhas, e os frames hexadecimais estão nas linhas 10, 11 e 12 do log, entao lineIndexes = [10, 11, 12])
 */
-export function highlightPackage(pkgIndex, type, lines, lineIndexes) {
+export function highlightPackageFrames(pkgIndex, type, lines, lineIndexes) {
     let classPkgStatus = "";
 
     if (type === "Incoming") classPkgStatus = "hl-pkg-incomming";
@@ -101,10 +101,12 @@ export function highlightPackage(pkgIndex, type, lines, lineIndexes) {
     }
 }
 
-export function highlightPkgCreation(line, ticket) {
-    const headerPart = line.slice(0, LOG_HEADER_SIZE);
-    const contentPart = line.slice(LOG_HEADER_SIZE);
-    return `${headerPart}<span class="ticket-${ticket}">${contentPart}</span>`;
+export function highlightPkgCreation(lines, lineIndex, ticket) {
+    if (lines && lineIndex != undefined && lineIndex >= 0 && ticket) {
+        const headerPart = lines[lineIndex].slice(0, LOG_HEADER_SIZE);
+        const contentPart = lines[lineIndex].slice(LOG_HEADER_SIZE);
+        lines[lineIndex] = `${headerPart}<span class="ticket-${ticket}">${contentPart}</span>`;
+    }
 }
 
 

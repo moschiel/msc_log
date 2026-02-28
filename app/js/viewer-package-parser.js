@@ -1,6 +1,6 @@
 import { util } from "./utils.js";
 import { ui } from "./viewer-ui-elements.js";
-import { highlightPackage, highlightPkgCreation } from "./viewer-package-highlight.js";
+import { highlightPackageFrames, highlightPkgCreation } from "./viewer-package-highlight.js";
 import { parseMessage, getMsgName, clearMessageCounter, getTmEventOptionId } from "./viewer-message-parser.js";
 import { createBinaryReader } from "./viewer-binary-reader.js";
 import { openFloatingWindow } from "./floating-window.js";
@@ -9,6 +9,13 @@ import { configs, saveUserConfigs } from "./configs.js";
 
 /**
  * @typedef { "Online" | "Offline" } PkgConnState
+ * @typedef {{ 
+ *  parseOk: boolean,
+ *  pkgTicket: number,
+ *  connState: PkgConnState, 
+ *  items: import("./viewer-binary-reader.js").BinaryReaderItemsResult, 
+ *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
+ * }} ParsedPackage
  * 
  * Parsea o pacote, retornando:
  * - os dados do pacote em formato tabular (headers e rows),
@@ -17,28 +24,22 @@ import { configs, saveUserConfigs } from "./configs.js";
  * @param {Uint8Array} u8buf
  * @param {import("./viewer-binary-reader.js").ProcessMode} processMode
  * @param {"v" | "h"} dataOrientation
- * @returns {{ 
- *  parseOk: boolean,
- *  pkgTicket: number,
- *  connState: PkgConnState, 
- *  data: import("./viewer-binary-reader.js").BinaryReaderDataResult, 
- *  messages: Array<{id: Number, size: Number, data: Uint8Array}> 
- * }}
+ * @returns {ParsedPackage}
  */
-export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation) {
+export function parsePackage(u8buf, isIncoming, processMode, dataOrientation) {
     try {
         const br = createBinaryReader(u8buf, { processMode })
     
         let pkgSize = 0;
     
-        if (isIncomingPkg) {
+        if (isIncoming) {
             pkgSize = br.getLength();
-            br.add_data("Tamanho do pacote", 2, br.getLength());
+            br.add_item("Tamanho do pacote", 2, br.getLength());
         } else {
             const start = br.read_u16("frame inicial", false);
             if (start !== 0xCC33) throw new Error("Frame inicial invalido");
     
-            pkgSize = br.add_data_u16("Tamanho do pacote");
+            pkgSize = br.add_item_u16("Tamanho do pacote");
         }
     
         const frameEnd = br.getOffset() + pkgSize;
@@ -46,7 +47,7 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
             throw new Error(`Frame Size (${pkgSize}) é maior que o buffer (${br.getLength()})`);
         }
     
-        const option = br.add_data_u8("Option", (v) => {
+        const option = br.add_item_u8("Option", (v) => {
             if (v !== 0 && v !== 3) {
                 throw new Error("Option inválida, deve ser 0 ou 3");
             }
@@ -56,9 +57,9 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
         // ESN (se provider)
         if (option === 3) {
             if (dataOrientation === "v") {
-                br.add_data_hex_u16("Sei lá", false);
-                const esnSize = br.add_data_u8("Tamanho do SN");
-                br.add_data_bytes_BCD("SerialNumber", esnSize);
+                br.add_item_hex_u16("Sei lá", false);
+                const esnSize = br.add_item_u8("Tamanho do SN");
+                br.add_item_bytes_BCD("SerialNumber", esnSize);
             } else {
                 br.skip("Sei lá", 2);
                 const esnSize = br.read_u8("Tamanho do SN");
@@ -68,8 +69,8 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
     
         // index / service type
         let connState;
-        const pkgTicket = br.add_data_u16("Ticket do Pacote");
-        br.add_data_u8("Tipo de Serviço", (v) => {
+        const pkgTicket = br.add_item_u16("Ticket do Pacote");
+        br.add_item_u8("Tipo de Serviço", (v) => {
             let ackType = "";
             switch (v & 0x03) {
                 case 0x00: ackType = "No ACK requested"; break;
@@ -97,13 +98,13 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
             messages.push({ id: msgId, size: msgSize, data: msgData });
     
             if (dataOrientation === "v")
-                br.add_data(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
+                br.add_item(getMsgName(msgId), msgSize, util.bufferToHex(msgData));
             else
                 text += `[${getMsgName(msgId)}], `;
         }
     
         if (dataOrientation === "h")
-            br.add_data("Mensagens", "N/A", text);
+            br.add_item("Mensagens", "N/A", text);
     
         // (opcional) se sobrar algo até frameEnd, você pode logar/mostrar:
         // if (offset < frameEnd) add("Trailing bytes", frameEnd - offset, util.bufferToHex(br.read_bytes(frameEnd - offset)));
@@ -112,7 +113,7 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
             parseOk: true,
             pkgTicket,
             connState,
-            data: br.data,
+            items: br.items,
             messages
         };
     }
@@ -122,7 +123,7 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
             parseOk: false,
             pkgTicket: null,
             connState: null,
-            data: [],
+            items: [],
             messages: null
         }
     }
@@ -130,13 +131,13 @@ export function parsePackage(u8buf, isIncomingPkg, processMode, dataOrientation)
 
 /**
  * Monta tabela HTML com os dados do pacote parseado, e os mostra em uma janela.
- * @param {import("./viewer-binary-reader.js").BinaryReaderDataResult} data 
+ * @param {import("./viewer-binary-reader.js").BinaryReaderItemsResult} items 
  * @param {Number|string|null} pkgClassIndex Índice do pacote (opcional, para mostrar no título da janela)
  */
-export function showParsedPackageOnTable(data, pkgClassIndex = null) {
+export function showParsedPackageOnTable(items, pkgClassIndex = null) {
     const headers = ["Parameter", "Size", "Value"];
     let rows = [];
-    for (const item of data) {
+    for (const item of items) {
         rows.push([item.name, item.size, item.value]);
     }
     util.Table.Create(ui.parsedPackageTable, headers, rows);

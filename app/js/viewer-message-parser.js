@@ -139,14 +139,14 @@ export function getMsgName(id, evId = null) {
  *
  * @param {boolean} implemented diz se foi implementado o parseamento dessa mensagem
  * @param {Number} msgID id da mensagem a ser mostrada na tabela
- * @param {import("./viewer-binary-reader.js").BinaryReaderDataResult} data
+ * @param {import("./viewer-binary-reader.js").BinaryReaderItemsResult} items
  */
-export function showParsedMessageOnTable(implemented, msgID, data) {
+export function showParsedMessageOnTable(implemented, msgID, items) {
     ui.labelMessageDescription.textContent = getMsgName(msgID);
     if (implemented) {
         const headers = ["Parameter", "Size", "Value"];
         let rows = [];
-        for (const item of data) {
+        for (const item of items) {
             rows.push([item.name, item.size, item.value]);
         }
         util.Table.Create(ui.parsedMessageTable, headers, rows);
@@ -312,7 +312,7 @@ export function hideListMessagePane() {
  * @param {"v" | "h"} dataOrientation v=Vertical / h=Horizontal
  * @returns {{ 
  *  isImplemented: boolean,
- *  data: import("./viewer-binary-reader.js").BinaryReaderDataResult,
+ *  items: import("./viewer-binary-reader.js").BinaryReaderItemsResult,
  *  parseOk: boolean }}
  */
 export function parseMessage(msgID, data, dataOrientation) {
@@ -326,48 +326,48 @@ export function parseMessage(msgID, data, dataOrientation) {
         // -------- switch principal --------
         switch (msgID) {
             case 0x1101: {
-                br.add_data_u8("Protocol Version");
-                br.add_data_u32_timestamp("Timestamp");
-                br.add_data_i32_coord("Latitude");
-                br.add_data_i32_coord("Longitude");
-                br.add_data_u8("GPS Fix");
-                br.add_data_u8("HDOP");
-                br.add_data_u16("Altitude (m)");
-                br.add_data_u8("GPS Speed (km/h)");
-                br.add_data_hex_u16("Status Input");
-                br.add_data_hex_u16("Status Output");
-                br.add_data_u32("Odometer (m)");
-                br.add_data_u32("Hourmeter (s)");
-                br.add_data_u16("Power Voltage (V)", true, (v) => {
+                br.add_item_u8("Protocol Version");
+                br.add_item_u32_timestamp("Timestamp");
+                br.add_item_i32_coord("Latitude");
+                br.add_item_i32_coord("Longitude");
+                br.add_item_u8("GPS Fix");
+                br.add_item_u8("HDOP");
+                br.add_item_u16("Altitude (m)");
+                br.add_item_u8("GPS Speed (km/h)");
+                br.add_item_hex_u16("Status Input");
+                br.add_item_hex_u16("Status Output");
+                br.add_item_u32("Odometer (m)");
+                br.add_item_u32("Hourmeter (s)");
+                br.add_item_u16("Power Voltage (V)", true, (v) => {
                     return (v / 100.0).toFixed(2).replace(/\.?0+$/, "");
                 });
-                br.add_data_u16("Internal Battery Voltage (V)", true, (v) => {
+                br.add_item_u16("Internal Battery Voltage (V)", true, (v) => {
                     return (v / 100.0).toFixed(2).replace(/\.?0+$/, "");
                 });
-                br.add_data_hex_u32("Position Flags");
-                br.add_data_u32("GPS Fix Timestamp");
-                br.add_data_u16("GPS Course");
-                br.add_data_u8("VDOP");
-                br.add_data_u8("PDOP");
-                br.add_data_u8("Satelites Count");
-                br.add_data_u8("RSSI");
-                br.add_data_u16("Carrier");
-                br.add_data_u8("Temperature");
-                br.add_data_hex_u32("Report Reason");
+                br.add_item_hex_u32("Position Flags");
+                br.add_item_u32("GPS Fix Timestamp");
+                br.add_item_u16("GPS Course");
+                br.add_item_u8("VDOP");
+                br.add_item_u8("PDOP");
+                br.add_item_u8("Satelites Count");
+                br.add_item_u8("RSSI");
+                br.add_item_u16("Carrier");
+                br.add_item_u8("Temperature");
+                br.add_item_hex_u32("Report Reason");
                 break;
             }
     
             case 0x1121: {
                 for (let i = 0; i < 6; i++) {
-                    br.add_data_i16(`A/D[${i}] (mV)`);
+                    br.add_item_i16(`A/D[${i}] (mV)`);
                 }
-                br.add_data_hex_u16("Security Mode Input");
-                br.add_data_hex_u16("Security Mode Output");
-                br.add_data_u16("Macro ID");
-                br.add_data_u32("Login ID 1");
-                br.add_data_u32("Login ID 2");
-                br.add_data_u32("RFU");
-                const gzCount = br.add_data_u8("Geozones Count");
+                br.add_item_hex_u16("Security Mode Input");
+                br.add_item_hex_u16("Security Mode Output");
+                br.add_item_u16("Macro ID");
+                br.add_item_u32("Login ID 1");
+                br.add_item_u32("Login ID 2");
+                br.add_item_u32("RFU");
+                const gzCount = br.add_item_u8("Geozones Count");
     
                 let text = "";
                 for (let i = 0; i < gzCount; i++) {
@@ -376,99 +376,99 @@ export function parseMessage(msgID, data, dataOrientation) {
                     const gzId = (id & 0x00FFFFFF) >>> 0;
                     const flags = (id >>> 24) & 0xFF;
                     if (dataOrientation === "v")
-                        br.add_data(`GZ[${i}]`, 5, `<b>Group:</b>${group}, <b>ID:</b>${gzId}, <b>Flags:</b>${flags}`);
+                        br.add_item(`GZ[${i}]`, 5, `<b>Group:</b>${group}, <b>ID:</b>${gzId}, <b>Flags:</b>${flags}`);
                     else // "h"
                         text += `<b>Group:</b>${group}, <b>ID:</b>${gzId}, <b>Flags:</b>${flags}\n`;
                 }
     
                 if (dataOrientation === "h")
-                    br.add_data("Geozones", gzCount * 5, text);
+                    br.add_item("Geozones", gzCount * 5, text);
     
                 break;
             }
     
             case 0x1400: {
-                br.add_data_u8("Speed (km/h)");
-                br.add_data_u8("Fuel Level");
-                br.add_data_u16("RPM");
-                br.add_data_u32("Time Engine ON");
-                br.add_data_u32("Time RPM Blue");
-                br.add_data_u32("Time RPM Yellow");
-                br.add_data_u32("Time RPM Green");
-                br.add_data_u32("Time RPM Red");
-                br.add_data_u32("Time Moving");
-                br.add_data_u32("Time Ideling");
-                br.add_data_u32("Total Fuel");
-                br.add_data_u32("Odometer (m)");
+                br.add_item_u8("Speed (km/h)");
+                br.add_item_u8("Fuel Level");
+                br.add_item_u16("RPM");
+                br.add_item_u32("Time Engine ON");
+                br.add_item_u32("Time RPM Blue");
+                br.add_item_u32("Time RPM Yellow");
+                br.add_item_u32("Time RPM Green");
+                br.add_item_u32("Time RPM Red");
+                br.add_item_u32("Time Moving");
+                br.add_item_u32("Time Ideling");
+                br.add_item_u32("Total Fuel");
+                br.add_item_u32("Odometer (m)");
     
                 const flags = br.read_u32("Flags");
-                br.add_data("Odom Accum", "1 bit", (flags & 0x00000001) ? "1" : "0");
-                br.add_data("Flag Cal", "2 bits", `<b>Avail:</b> ${(flags & 0x00000002) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000004) ? "1" : "0"}`);
-                br.add_data("Clutch", "2 bits", `<b>Avail:</b> ${(flags & 0x00000008) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000010) ? "1" : "0"}`);
-                br.add_data("Brake", "2 bits", `<b>Avail:</b> ${(flags & 0x00000020) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000040) ? "1" : "0"}`);
-                br.add_data("Parking Brake", "2 bits", `<b>Avail:</b> ${(flags & 0x00000080) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000100) ? "1" : "0"}`);
-                br.add_data("Retarder", "2 bits", `<b>Avail:</b> ${(flags & 0x00000200) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000400) ? "1" : "0"}`);
-                br.add_data("Wiper", "1 bit", (flags & 0x00000800) ? "1" : "0");
-                br.add_data("Rain", "1 bit", (flags & 0x00001000) ? "1" : "0");
-                br.add_data("RFU", "19 bits", `0x${((flags & 0xFFFFE000) >>> 13).toString(16).toUpperCase()}`);
+                br.add_item("Odom Accum", "1 bit", (flags & 0x00000001) ? "1" : "0");
+                br.add_item("Flag Cal", "2 bits", `<b>Avail:</b> ${(flags & 0x00000002) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000004) ? "1" : "0"}`);
+                br.add_item("Clutch", "2 bits", `<b>Avail:</b> ${(flags & 0x00000008) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000010) ? "1" : "0"}`);
+                br.add_item("Brake", "2 bits", `<b>Avail:</b> ${(flags & 0x00000020) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000040) ? "1" : "0"}`);
+                br.add_item("Parking Brake", "2 bits", `<b>Avail:</b> ${(flags & 0x00000080) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000100) ? "1" : "0"}`);
+                br.add_item("Retarder", "2 bits", `<b>Avail:</b> ${(flags & 0x00000200) ? "1" : "0"}, <b>Val:</b> ${(flags & 0x00000400) ? "1" : "0"}`);
+                br.add_item("Wiper", "1 bit", (flags & 0x00000800) ? "1" : "0");
+                br.add_item("Rain", "1 bit", (flags & 0x00001000) ? "1" : "0");
+                br.add_item("RFU", "19 bits", `0x${((flags & 0xFFFFE000) >>> 13).toString(16).toUpperCase()}`);
     
                 if (br.getLength() > br.getOffset()) {
-                    br.add_data_i16("Arref Temp (°C)");
-                    br.add_data_i16("Fuel Temp (°C)");
-                    br.add_data_i16("Oil Temp (°C)");
-                    br.add_data_u16("Bat (mV)");
-                    br.add_data_u16("Oil Press (kpa)");
-                    br.add_data_u16("Air Brake Press (kpa)");
+                    br.add_item_i16("Arref Temp (°C)");
+                    br.add_item_i16("Fuel Temp (°C)");
+                    br.add_item_i16("Oil Temp (°C)");
+                    br.add_item_u16("Bat (mV)");
+                    br.add_item_u16("Oil Press (kpa)");
+                    br.add_item_u16("Air Brake Press (kpa)");
                 }
                 break;
             }
     
             case 0x1405: {
-                br.add_data_u8("Type");
+                br.add_item_u8("Type");
                 const unidades = ["Tempo", "Distância"];
                 const parameters = ["Total ON", "Inercia", "Torque", "Ascendente", "Descendente"];
                 const faixas = ["Lenta", "Transição", "Verde", "Amarela", "Perigo", "Extra Verde"];
                 unidades.forEach(unidade => {
                     parameters.forEach(param => {
                         faixas.forEach(faixa => {
-                            br.add_data_u16(`${unidade} ${param} - ${faixa}`);
+                            br.add_item_u16(`${unidade} ${param} - ${faixa}`);
                         });
                     });
                 })
-                br.add_data_u16("Tempo Total Parado ON");
-                br.add_data_u32("Tempo Total do Delta");
-                br.add_data_u32("Total Combustivel Consumido");
-                br.add_data_u32("Driver ID");
+                br.add_item_u16("Tempo Total Parado ON");
+                br.add_item_u32("Tempo Total do Delta");
+                br.add_item_u32("Total Combustivel Consumido");
+                br.add_item_u32("Driver ID");
                 break;
             }
     
             case 0x4010: {
-                const protoCode = br.add_data_cstring("Protocol");
-                const host = br.add_data_cstring("Host");
-                const port = br.add_data_cstring("Port");
-                br.add_data_cstring("Login");
-                br.add_data_cstring("Pwd");
-                const pathFile = br.add_data_cstring("PathFile");
+                const protoCode = br.add_item_cstring("Protocol");
+                const host = br.add_item_cstring("Host");
+                const port = br.add_item_cstring("Port");
+                br.add_item_cstring("Login");
+                br.add_item_cstring("Pwd");
+                const pathFile = br.add_item_cstring("PathFile");
     
                 const strProto =
                     protoCode === "1" ? "http" :
                         protoCode === "2" ? "https" :
                             protoCode === "3" ? "ftp" : "";
     
-                br.add_data("***URL***", "N/A", `${strProto}://${host}:${port}${pathFile}`);
+                br.add_item("***URL***", "N/A", `${strProto}://${host}:${port}${pathFile}`);
                 break;
             }
     
             case 0x1200:
             case 0x200B: {
                 if (msgID === 0x1200) {
-                    br.add_data_hex_u16("Message Type");
-                    br.add_data_u32("RFU");
+                    br.add_item_hex_u16("Message Type");
+                    br.add_item_u32("RFU");
                 }
-                br.add_data_u32_timestamp("Timestamp");
-                br.add_data_u32("Message ID");
-                br.add_data_u32("RFU");
-                br.add_data_cstring("Message", { allowToEnd: true });
+                br.add_item_u32_timestamp("Timestamp");
+                br.add_item_u32("Message ID");
+                br.add_item_u32("RFU");
+                br.add_item_cstring("Message", { allowToEnd: true });
                 break;
             }
     
@@ -481,7 +481,7 @@ export function parseMessage(msgID, data, dataOrientation) {
                     const value = br.read_bytes("config value", size);
                     configs.push({id: util.bufferToHex(id), data: value});
                 }
-                br.add_data("Configurações", data.length, htmlMscConfigsTable(configs, true));
+                br.add_item("Configurações", data.length, htmlMscConfigsTable(configs, true));
                 break;
             }
     
@@ -491,13 +491,13 @@ export function parseMessage(msgID, data, dataOrientation) {
                     const id = br.read_u16("context id");
                     const value = br.read_u32("context value");
                     if (dataOrientation === "v")
-                        br.add_data(String(id), 4, value.toString(16).toUpperCase().padStart(8, "0"));
+                        br.add_item(String(id), 4, value.toString(16).toUpperCase().padStart(8, "0"));
                     else
                         text += `<b>ID:</b> ${id}, <b>Value:</b> ${br.hex_u32(value)}\n`;
                 }
     
                 if (dataOrientation === "h")
-                    br.add_data("Contexto", "N/A", text);
+                    br.add_item("Contexto", "N/A", text);
                 break;
             }
     
@@ -519,12 +519,12 @@ export function parseMessage(msgID, data, dataOrientation) {
                     value = htmlMscConfigsTable(configs);
                 }
     
-                br.add_data("IDs Solicitados", br.getLength(), value);
+                br.add_item("IDs Solicitados", br.getLength(), value);
                 break;
             }
     
             case 0x1402: {
-                const eventID = br.add_data_u8('Event ID', (v) => {
+                const eventID = br.add_item_u8('Event ID', (v) => {
                     let evDesc;
                     if (telemetryEventsList.has(v))
                         evDesc = telemetryEventsList.get(v);
@@ -533,48 +533,48 @@ export function parseMessage(msgID, data, dataOrientation) {
                     return `${v} - ${evDesc}`;
                 });
     
-                br.add_data_u16("Max RPM");
-                br.add_data_u16("Min RPM");
-                br.add_data_u16("Max Speed");
-                br.add_data_u16("Min Speed");
-                br.add_data_u16("Event Duration");
-                br.add_data_u16("Break Duration");
-                br.add_data_u16("RPM Limit");
-                br.add_data_u16("Speed Limit");
-                br.add_data_i32_coord("Latitude");
-                br.add_data_i32_coord("Longitude");
+                br.add_item_u16("Max RPM");
+                br.add_item_u16("Min RPM");
+                br.add_item_u16("Max Speed");
+                br.add_item_u16("Min Speed");
+                br.add_item_u16("Event Duration");
+                br.add_item_u16("Break Duration");
+                br.add_item_u16("RPM Limit");
+                br.add_item_u16("Speed Limit");
+                br.add_item_i32_coord("Latitude");
+                br.add_item_i32_coord("Longitude");
     
                 if (eventID === 19) {
-                    br.add_data_u8("Event Type", (v) => {
+                    br.add_item_u8("Event Type", (v) => {
                         return `${v} - ${v === 1 ? "Left" : v === 2 ? "Right" : ""}`;
                     });
-                    br.add_data_u8("Event Level", (v) => {
+                    br.add_item_u8("Event Level", (v) => {
                         return `${v} - ${v === 1 ? "Fraca" : v === 2 ? "Média" : v === 3 ? "Forte" : ""}`;
                     });
-                    br.add_data_u16("Threshold");
-                    br.add_data_u16("Max LevelUp");
-                    br.add_data_i16("Forward");
-                    br.add_data_i16("Lateral");
-                    br.add_data_i16("Vertical");
+                    br.add_item_u16("Threshold");
+                    br.add_item_u16("Max LevelUp");
+                    br.add_item_i16("Forward");
+                    br.add_item_i16("Lateral");
+                    br.add_item_i16("Vertical");
                 } else if (eventID === 20) {
-                    br.add_data_u16("Press Threshold");
-                    br.add_data_u16("Lowest Pressure");
+                    br.add_item_u16("Press Threshold");
+                    br.add_item_u16("Lowest Pressure");
                 } else if (eventID === 22) {
-                    br.add_data_u8("Fall Threshold");
-                    br.add_data_u16("Window");
-                    br.add_data_u8("previous tank level");
-                    br.add_data_u8("current tank level");
-                    br.add_data_u32_timestamp("previous tank timestamp");
-                    br.add_data_u32_timestamp("current tank timestamp");
+                    br.add_item_u8("Fall Threshold");
+                    br.add_item_u16("Window");
+                    br.add_item_u8("previous tank level");
+                    br.add_item_u8("current tank level");
+                    br.add_item_u32_timestamp("previous tank timestamp");
+                    br.add_item_u32_timestamp("current tank timestamp");
                 } else if (br.getLength() > br.getOffset()) {
-                    br.add_data_bytes_hex("Additional Data", br.getLength() - br.getOffset());
+                    br.add_item_bytes_hex("Additional Data", br.getLength() - br.getOffset());
                 }
                 break;
             }
     
             case 0x1404: {
                 // Info of packet (bb_pck_info_t)
-                br.add_data_u8("status", (v) => {
+                br.add_item_u8("status", (v) => {
                     let text = "";
                     switch (v) {
                         case 0x00: text = "ACK"; break;
@@ -584,43 +584,43 @@ export function parseMessage(msgID, data, dataOrientation) {
                     }
                     return `${br.hex_u8(v)} = ${text}`;
                 });
-                br.add_data_u8("currentDelta");
-                br.add_data_u32_timestamp("Timestamp");
-                br.add_data_u16("sizePck");
-                br.add_data_u16("posPck");
+                br.add_item_u8("currentDelta");
+                br.add_item_u32_timestamp("Timestamp");
+                br.add_item_u16("sizePck");
+                br.add_item_u16("posPck");
     
                 // Type of equipment (bb_pck_type_t)
-                br.add_data_u8("protocol");
-                br.add_data_u8("hardware");
-                br.add_data_bytes_hex("firmware", 4, (buf) => {
+                br.add_item_u8("protocol");
+                br.add_item_u8("hardware");
+                br.add_item_bytes_hex("firmware", 4, (buf) => {
                     return `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}`;
                 });
-                br.add_data_u8("power_source", (v) => {
+                br.add_item_u8("power_source", (v) => {
                     return `(${v} / 4) = ${(v / 4.0).toFixed(2).replace(/\.?0+$/, "")} V`;
                 });
-                br.add_data_u8("power_battery", (v) => {
+                br.add_item_u8("power_battery", (v) => {
                     return `(${v} / 50) = ${(v / 50.0).toFixed(2).replace(/\.?0+$/, "")} V`;
                 });
-                br.add_data_u8("temp_battery (°C)");
-                br.add_data_bytes_BCD("SerialNumber", 5);
+                br.add_item_u8("temp_battery (°C)");
+                br.add_item_bytes_BCD("SerialNumber", 5);
     
                 // Info of vehicle (bb_pck_vehicle_t)
-                br.add_data_u32("odometer (meters)");
-                br.add_data_u32("horimeter (minutes)");
-                br.add_data_u32("total_fuel (ml)");
-                br.add_data_u8("level_fuel (%)");
-                br.add_data_u8("can_protocol");
+                br.add_item_u32("odometer (meters)");
+                br.add_item_u32("horimeter (minutes)");
+                br.add_item_u32("total_fuel (ml)");
+                br.add_item_u8("level_fuel (%)");
+                br.add_item_u8("can_protocol");
     
                 // Info of drivers (bb_pck_driver_t) 
-                br.add_data_u32("primaryDriver");
-                br.add_data_u32("secondaryDriver");
+                br.add_item_u32("primaryDriver");
+                br.add_item_u32("secondaryDriver");
     
                 // Info location GPS
-                br.add_data_i32_coord("Latitude");
-                br.add_data_i32_coord("Longitude");
-                br.add_data_u8("GPS speed (km/h)");
-                br.add_data_u8("altitude (m x10)");
-                br.add_data_u8("course (degress x2)");
+                br.add_item_i32_coord("Latitude");
+                br.add_item_i32_coord("Longitude");
+                br.add_item_u8("GPS speed (km/h)");
+                br.add_item_u8("altitude (m x10)");
+                br.add_item_u8("course (degress x2)");
     
                 const gpsFlags = br.read_u8("GPS flags");
                 const antennaVal = (gpsFlags >> 5) & 0x03;
@@ -631,52 +631,52 @@ export function parseMessage(msgID, data, dataOrientation) {
                     case 2: antennaStatus = "Short"; break;
                     case 3: antennaStatus = "Unknown"; break;
                 }
-                br.add_data("Satellites", "5 bits", gpsFlags & 0x1F);
-                br.add_data("Antenna", "2 bits", `${antennaVal}, ${antennaStatus}`);
-                br.add_data("Fix", "1 bit", (gpsFlags >> 7) & 0x01);
+                br.add_item("Satellites", "5 bits", gpsFlags & 0x1F);
+                br.add_item("Antenna", "2 bits", `${antennaVal}, ${antennaStatus}`);
+                br.add_item("Fix", "1 bit", (gpsFlags >> 7) & 0x01);
     
     
                 // Info IOs Events (bb_pck_io_events_t)
-                br.add_data_hex_u8("dataAvailableMask");
-                br.add_data_hex_u8("reserved");
-                br.add_data_hex_u8("outputs");
+                br.add_item_hex_u8("dataAvailableMask");
+                br.add_item_hex_u8("reserved");
+                br.add_item_hex_u8("outputs");
     
                 // Info available (bb_pck_available_t.telemetry)
                 const tmAvail = br.read_u16("TM available");
-                br.add_data("Avail Speed", "1 bit", (tmAvail & 0x0001) ? 1 : 0);
-                br.add_data("Avail RPM", "1 bit", (tmAvail & 0x0002) ? 1 : 0);
-                br.add_data("Avail Odom", "1 bit", (tmAvail & 0x0004) ? 1 : 0);
-                br.add_data("Avail FuelRate", "1 bit", (tmAvail & 0x0008) ? 1 : 0);
-                br.add_data("Avail TotalFuel", "1 bit", (tmAvail & 0x0010) ? 1 : 0);
-                br.add_data("Avail LevelTank", "1 bit", (tmAvail & 0x0020) ? 1 : 0);
-                br.add_data("Avail Brake", "1 bit", (tmAvail & 0x0040) ? 1 : 0);
-                br.add_data("Avail ParkBrake", "1 bit", (tmAvail & 0x0080) ? 1 : 0);
+                br.add_item("Avail Speed", "1 bit", (tmAvail & 0x0001) ? 1 : 0);
+                br.add_item("Avail RPM", "1 bit", (tmAvail & 0x0002) ? 1 : 0);
+                br.add_item("Avail Odom", "1 bit", (tmAvail & 0x0004) ? 1 : 0);
+                br.add_item("Avail FuelRate", "1 bit", (tmAvail & 0x0008) ? 1 : 0);
+                br.add_item("Avail TotalFuel", "1 bit", (tmAvail & 0x0010) ? 1 : 0);
+                br.add_item("Avail LevelTank", "1 bit", (tmAvail & 0x0020) ? 1 : 0);
+                br.add_item("Avail Brake", "1 bit", (tmAvail & 0x0040) ? 1 : 0);
+                br.add_item("Avail ParkBrake", "1 bit", (tmAvail & 0x0080) ? 1 : 0);
     
-                br.add_data("Avail Clutch", "1 bit", (tmAvail & 0x0100) ? 1 : 0);
-                br.add_data("Avail Retarder", "1 bit", (tmAvail & 0x0200) ? 1 : 0);
-                br.add_data("Avail Gears", "1 bit", (tmAvail & 0x0400) ? 1 : 0);
-                br.add_data("Avail RFU", "5 bits", (tmAvail & 0xF800) >> 11);
+                br.add_item("Avail Clutch", "1 bit", (tmAvail & 0x0100) ? 1 : 0);
+                br.add_item("Avail Retarder", "1 bit", (tmAvail & 0x0200) ? 1 : 0);
+                br.add_item("Avail Gears", "1 bit", (tmAvail & 0x0400) ? 1 : 0);
+                br.add_item("Avail RFU", "5 bits", (tmAvail & 0xF800) >> 11);
     
                 // Info available (bb_pck_available_t.module)
                 const moduleEnabled = br.read_u8("Module Enabled");
-                br.add_data("Enable ISV", "1 bit", (moduleEnabled & 0x01) ? 1 : 0);
-                br.add_data("Enable TM", "1 bit", (moduleEnabled & 0x02) ? 1 : 0);
-                br.add_data("Enable DT", "1 bit", (moduleEnabled & 0x04) ? 1 : 0);
-                br.add_data("Enable Sat", "1 bit", (moduleEnabled & 0x08) ? 1 : 0);
-                br.add_data("Enable DriveTime", "1 bit", (moduleEnabled & 0x10) ? 1 : 0);
-                br.add_data("Enable Acessorios", "1 bit", (moduleEnabled & 0x20) ? 1 : 0);
-                br.add_data("Enable RFU", "2 bits", (moduleEnabled & 0x40) ? 1 : 0);
+                br.add_item("Enable ISV", "1 bit", (moduleEnabled & 0x01) ? 1 : 0);
+                br.add_item("Enable TM", "1 bit", (moduleEnabled & 0x02) ? 1 : 0);
+                br.add_item("Enable DT", "1 bit", (moduleEnabled & 0x04) ? 1 : 0);
+                br.add_item("Enable Sat", "1 bit", (moduleEnabled & 0x08) ? 1 : 0);
+                br.add_item("Enable DriveTime", "1 bit", (moduleEnabled & 0x10) ? 1 : 0);
+                br.add_item("Enable Acessorios", "1 bit", (moduleEnabled & 0x20) ? 1 : 0);
+                br.add_item("Enable RFU", "2 bits", (moduleEnabled & 0x40) ? 1 : 0);
     
                 if (br.getLength() > br.getOffset()) {
-                    br.add_data_bytes_hex("SecondsPayload", br.getLength() - br.getOffset());
+                    br.add_item_bytes_hex("SecondsPayload", br.getLength() - br.getOffset());
                 }
     
                 break;
             }
     
             case 0x2005: {
-                const mask = br.add_data_hex_u16("Mask");
-                const state = br.add_data_hex_u16("State");
+                const mask = br.add_item_hex_u16("Mask");
+                const state = br.add_item_hex_u16("State");
                 let text = "";
                 for (let bit = 0; bit < 16; bit++) {
                     if (mask & (1 << bit)) {
@@ -684,12 +684,12 @@ export function parseMessage(msgID, data, dataOrientation) {
                         text += `<b>Saída ${bit + 1}:</b> ${value}, `;
                     }
                 }
-                br.add_data("Comando", "N/A", text);
+                br.add_item("Comando", "N/A", text);
                 break;
             }
     
             case 0x1130: {
-                const total = br.add_data_u8("Quantidade de Ações Disparadas");
+                const total = br.add_item_u8("Quantidade de Ações Disparadas");
                 let text = "";
                 for (let i = 0; i < total; i++) {
                     const ruleId = br.read_u16(`Rule ID (index ${i})`);
@@ -697,19 +697,19 @@ export function parseMessage(msgID, data, dataOrientation) {
                     br.skip("RFU", 6);
     
                     if (dataOrientation === "v")
-                        br.add_data(`Ação[${i}]`, 10, `<b>RuleID:</b> ${ruleId}, <b>ViolationID:</b> ${violationId}`);
+                        br.add_item(`Ação[${i}]`, 10, `<b>RuleID:</b> ${ruleId}, <b>ViolationID:</b> ${violationId}`);
                     else
                         text += `<b>RuleID:</b> ${ruleId}, <b>ViolationID:</b> ${violationId}\n`;
                 }
     
                 if (dataOrientation === "h")
-                    br.add_data("Ações Disparadas", total * 10, text);
+                    br.add_item("Ações Disparadas", total * 10, text);
     
                 break;
             }
     
             case 0x200A: {
-                br.add_data_u8("Data", (v) => {
+                br.add_item_u8("Data", (v) => {
                     if (v === 0) return "0x00 - Padrão (envia pelo canal padrão: GSM)";
                     if (v === 1) return "0x01 - Força satelital";
                     return `${br.hex_u8(v)} - Desconhecido`;
@@ -719,42 +719,42 @@ export function parseMessage(msgID, data, dataOrientation) {
     
             case 0x1000: {
                 const resetReason = br.read_u8("Reset Reason");
-                br.add_data("Low-power management reset", "1 bit", (resetReason & 0x01) ? 1 : 0);
-                br.add_data("Window watchdog reset", "1 bit", (resetReason & 0x02) ? 1 : 0);
-                br.add_data("Independent watchdog reset (VDD)", "1 bit", (resetReason & 0x04) ? 1 : 0);
-                br.add_data("Software reset", "1 bit", (resetReason & 0x08) ? 1 : 0);
-                br.add_data("POR/PDR reset", "1 bit", (resetReason & 0x10) ? 1 : 0);
-                br.add_data("Pin reset flag", "1 bit", (resetReason & 0x20) ? 1 : 0);
-                br.add_data("POR/PDR or BOR reset", "1 bit", (resetReason & 0x40) ? 1 : 0);
-                br.add_data("RFU", "1 bit", (resetReason & 0x80) ? 1 : 0);
-                br.add_data_u32("Reset Counter");
-                br.add_data_bytes_hex("Firmware Version", 4, (buf) => {
+                br.add_item("Low-power management reset", "1 bit", (resetReason & 0x01) ? 1 : 0);
+                br.add_item("Window watchdog reset", "1 bit", (resetReason & 0x02) ? 1 : 0);
+                br.add_item("Independent watchdog reset (VDD)", "1 bit", (resetReason & 0x04) ? 1 : 0);
+                br.add_item("Software reset", "1 bit", (resetReason & 0x08) ? 1 : 0);
+                br.add_item("POR/PDR reset", "1 bit", (resetReason & 0x10) ? 1 : 0);
+                br.add_item("Pin reset flag", "1 bit", (resetReason & 0x20) ? 1 : 0);
+                br.add_item("POR/PDR or BOR reset", "1 bit", (resetReason & 0x40) ? 1 : 0);
+                br.add_item("RFU", "1 bit", (resetReason & 0x80) ? 1 : 0);
+                br.add_item_u32("Reset Counter");
+                br.add_item_bytes_hex("Firmware Version", 4, (buf) => {
                     return `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}`;
                 });
                 break;
             }
     
             case 0x2022: {
-                br.add_data_u32("Timeout (s)");
-                br.add_data_cstring("Host:Port");
+                br.add_item_u32("Timeout (s)");
+                br.add_item_cstring("Host:Port");
                 break;
             }
     
 /*
         case 0x1600: {
-            br.add_data_u64("Device Serial");
+            br.add_item_u64("Device Serial");
 
             rows.push(["Timestamp", util.epochSecondsToString(read_u32())]);
 
-            br.add_data_u8("Device Position");
-            br.add_data_u8("Pairing Status");
+            br.add_item_u8("Device Position");
+            br.add_item_u8("Pairing Status");
 
             rows.push(["Nominal Pressure", read_u8() * 5490]);
             rows.push(["Low-Pressure Warning", `${read_u8()}%`]);
             rows.push(["Low-Pressure Alert", `${read_u8()}%`]);
-            br.add_data_u8("High-Temperature Alert");
+            br.add_item_u8("High-Temperature Alert");
 
-            br.add_data_u32("RFU");
+            br.add_item_u32("RFU");
 
             need(1);
             const sensorsCount = dv.getUint8(count);
@@ -804,7 +804,7 @@ export function parseMessage(msgID, data, dataOrientation) {
     
         return {
             isImplemented,
-            data: br.data,
+            items: br.items,
             parseOk: true
         }
     } 
@@ -812,7 +812,7 @@ export function parseMessage(msgID, data, dataOrientation) {
     {
         return {
             isImplemented: null,
-            data: null,
+            items: null,
             parseOk: false
         }
     }
