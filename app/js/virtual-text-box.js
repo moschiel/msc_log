@@ -15,15 +15,12 @@ import { ui } from "./viewer-ui-elements.js";
  *  }) => void 
  * } FuncScrollToLine
  * @typedef {(htmlBeforeRender: string) => string} FuncBeforeRenderHandler
- * @typedef {(handler: FuncBeforeRenderHandler) => void} FuncOnBeforeRender
  * @typedef {() => void} FuncAfterRenderHandler
- * @typedef {(handler: FuncAfterRenderHandler) => () => void} FuncOnAfterRender
  * 
  * @typedef {Object} VirtualTextBox
  * @property {FuncSetHtmlText} setHtmlText
  * @property {FuncAppendHtmlText} appendHtmlText
  * @property {FuncScrollToLine} scrollToLine
- * @property {FuncOnAfterRender} onAfterRender
  * @property {() => void} rerender
  * @property {() => void} destroy
  */
@@ -42,8 +39,8 @@ import { ui } from "./viewer-ui-elements.js";
  * @param {string[]} params.linesHtml Array de linhas já prontas em HTML (cada item = 1 linha)
  * @param {number} [params.lineHeight=18] Altura fixa de cada linha em pixels
  * @param {number} [params.overscan=200] Número de linhas extras renderizadas acima/abaixo do viewport
- * @param {FuncBeforeRenderHandler[]} [params.beforeRenderHandlers=[]] callbacks persistentes antes de renderizar HTML
- * @param {FuncAfterRenderHandler[]} [params.afterRenderHandlers=[]] callbacks persistentes depois de renderizar HTML
+ * @param {FuncBeforeRenderHandler[]} [params.beforeRenderHandlers=[]] callbacks antes de renderizar HTML
+ * @param {FuncAfterRenderHandler[]} [params.afterRenderHandlers=[]] callbacks depois de renderizar HTML
  
 * @returns {VirtualTextBox}
  */
@@ -71,10 +68,8 @@ export function initVirtualTextBox({
         lastEnd: -1,
         rafPending: false,
         beforeRenderHandlers,
-        afterRenderHandlers, 
-        afterRenderQueue: [] // one-shot callbacks depois de renderizar HTML
+        afterRenderHandlers
     };
-
 
 
     /**
@@ -108,8 +103,9 @@ export function initVirtualTextBox({
 
     /**
      * Renderiza imediatamente o range visível.
+     * @param {boolean} forceRender
      */
-    function renderNow() {
+    function renderNow(forceRender = false) {
         state.rafPending = false;
 
         const { start, end } = computeRange();
@@ -120,7 +116,7 @@ export function initVirtualTextBox({
             end !== state.lastEnd;
 
         // descomentar "if" abaixo se quiser atualizar apenas se mudar range do scroll
-        //if (rangeChanged) {
+        if (rangeChanged || forceRender) {
             state.lastStart = start;
             state.lastEnd = end;
 
@@ -128,7 +124,7 @@ export function initVirtualTextBox({
 
             let htmlToRender = state.linesHtml.slice(start, end).join("\n");
 
-            // Handlers persistentes before HTML render
+            // Handlers before HTML render
             for (let i = 0; i < state.beforeRenderHandlers.length; i++) {
                 const fn = state.beforeRenderHandlers[i];
                 try { htmlToRender = fn(htmlToRender); }
@@ -137,20 +133,13 @@ export function initVirtualTextBox({
 
             // Finalmente, renderiza innerHTML
             contentEl.innerHTML = htmlToRender;
-        //} //
 
-        // Handlers persistentes after HTML render
-        for (let i = 0; i < state.afterRenderHandlers.length; i++) {
-            const fn = state.afterRenderHandlers[i];
-            try { fn(); }
-            catch (e) { console.error(e); }
-        }
-
-        // Callbacks one-shot after HTML render
-        while (state.afterRenderQueue.length) {
-            const fn = state.afterRenderQueue.shift();
-            try { fn(); }
-            catch (e) { console.error(e); }
+            // Handlers after HTML render
+            for (let i = 0; i < state.afterRenderHandlers.length; i++) {
+                const fn = state.afterRenderHandlers[i];
+                try { fn(); }
+                catch (e) { console.error(e); }
+            }
         }
     }
 
@@ -233,20 +222,6 @@ export function initVirtualTextBox({
     }
 
     /**
-     * Registra um callback que será chamado após toda renderização do log virtualizado.
-     * Retorna uma função para remover o handler.
-     *
-     * @type {FuncOnAfterRender}
-     */
-    function onAfterRender(handler) {
-        state.afterRenderHandlers.push(handler);
-        return () => {
-            const idx = state.afterRenderHandlers.indexOf(handler);
-            if (idx >= 0) state.afterRenderHandlers.splice(idx, 1);
-        };
-    }
-
-    /**
      * Faz scroll programático até uma linha específica do log virtualizado.
      *
      * Por padrão, a linha é posicionada no topo do viewport.
@@ -317,7 +292,6 @@ export function initVirtualTextBox({
     return {
         setHtmlText,
         appendHtmlText,
-        onAfterRender,
         scrollToLine,
 
         /**
@@ -325,7 +299,7 @@ export function initVirtualTextBox({
          */
         rerender() {
             state.lastStart = state.lastEnd = -1;
-            renderNow();
+            renderNow(true);
         },
 
         /**
